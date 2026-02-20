@@ -6,1530 +6,1503 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ПВЗ Pro</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600;700&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
 :root {
-  --glass: rgba(255,255,255,0.12);
-  --glass-border: rgba(255,255,255,0.25);
-  --glass-hover: rgba(255,255,255,0.18);
-  --glass-dark: rgba(0,0,0,0.25);
-  --blur: blur(24px) saturate(180%);
-  --blur-light: blur(12px) saturate(150%);
-  --accent: #007AFF;
-  --accent2: #5856D6;
-  --accent3: #FF9500;
-  --accent4: #34C759;
-  --accent5: #FF3B30;
-  --text: rgba(255,255,255,0.95);
-  --text2: rgba(255,255,255,0.55);
-  --text3: rgba(255,255,255,0.35);
-  --r: 18px;
-  --r2: 24px;
-  --shadow: 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
-  --shadow2: 0 20px 60px rgba(0,0,0,0.4);
+–bg: #06060f;
+–accent: #007AFF;
+–purple: #5E5CE6;
+–green: #30D158;
+–orange: #FF9F0A;
+–red: #FF453A;
+–text: rgba(255,255,255,0.93);
+–text2: rgba(255,255,255,0.5);
+–text3: rgba(255,255,255,0.28);
+–g1: rgba(255,255,255,0.11);
+–g2: rgba(255,255,255,0.06);
+–gb: rgba(255,255,255,0.18);
+–blur: blur(28px) saturate(200%) brightness(1.1);
+–blur2: blur(16px) saturate(160%);
+–r: 20px;
+–r2: 28px;
+–sh: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+–sh2: 0 20px 70px rgba(0,0,0,0.6);
 }
 
-- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
+html { height: 100%; }
 body {
-font-family: ‘Nunito’, sans-serif;
-min-height: 100dvh;
-background: #0a0a1a;
+font-family: ‘Nunito’, -apple-system, sans-serif;
+background: var(–bg);
 color: var(–text);
+min-height: 100dvh;
 overflow-x: hidden;
+position: relative;
 }
 
-/* ANIMATED BG */
-.bg-scene {
-position: fixed; inset: 0; z-index: 0; pointer-events: none;
-background:
-radial-gradient(ellipse 80% 60% at 20% 10%, rgba(88,86,214,0.35) 0%, transparent 60%),
-radial-gradient(ellipse 60% 50% at 80% 20%, rgba(0,122,255,0.3) 0%, transparent 55%),
-radial-gradient(ellipse 70% 60% at 50% 80%, rgba(255,149,0,0.15) 0%, transparent 60%),
-linear-gradient(160deg, #0d0d2b 0%, #0a0a1a 50%, #0d1520 100%);
+/* ── BACKGROUND ── */
+#bg {
+position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
 }
-.bg-orb {
-position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.6;
-animation: floatOrb 8s ease-in-out infinite;
+.orb {
+position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.55;
+animation: drift linear infinite;
 }
-.orb1 { width: 300px; height: 300px; top: -100px; left: -100px; background: rgba(88,86,214,0.5); animation-delay: 0s; }
-.orb2 { width: 250px; height: 250px; top: 30%; right: -80px; background: rgba(0,122,255,0.4); animation-delay: -3s; }
-.orb3 { width: 200px; height: 200px; bottom: 20%; left: 10%; background: rgba(52,199,89,0.3); animation-delay: -6s; }
+.o1 { width:500px; height:500px; top:-150px; left:-150px; background:radial-gradient(circle,#5E5CE6,transparent 70%); animation-duration:18s; }
+.o2 { width:400px; height:400px; top:20%; right:-120px; background:radial-gradient(circle,#007AFF,transparent 70%); animation-duration:14s; animation-direction:reverse; }
+.o3 { width:350px; height:350px; bottom:-100px; left:30%; background:radial-gradient(circle,#30D158,transparent 70%); animation-duration:20s; opacity:0.3; }
+.o4 { width:280px; height:280px; top:50%; left:-80px; background:radial-gradient(circle,#FF9F0A,transparent 70%); animation-duration:16s; opacity:0.25; }
 
-@keyframes floatOrb {
-0%,100% { transform: translate(0,0) scale(1); }
-33% { transform: translate(20px,-30px) scale(1.05); }
-66% { transform: translate(-15px,20px) scale(0.95); }
+@keyframes drift {
+0%   { transform: translate(0,0) scale(1); }
+25%  { transform: translate(30px,-40px) scale(1.05); }
+50%  { transform: translate(-20px,30px) scale(0.95); }
+75%  { transform: translate(40px,10px) scale(1.03); }
+100% { transform: translate(0,0) scale(1); }
 }
 
-/* GLASS COMPONENTS */
+/* ── GLASS ── */
 .glass {
-background: var(–glass);
+background: var(–g1);
 backdrop-filter: var(–blur);
 -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border);
-box-shadow: var(–shadow);
+border: 1px solid var(–gb);
+box-shadow: var(–sh);
 }
-.glass-light {
-background: rgba(255,255,255,0.08);
-backdrop-filter: var(–blur-light);
--webkit-backdrop-filter: var(–blur-light);
-border: 1px solid rgba(255,255,255,0.15);
+.glass-sm {
+background: var(–g2);
+backdrop-filter: var(–blur2);
+-webkit-backdrop-filter: var(–blur2);
+border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* ===== ROLE SCREEN ===== */
-#roleScreen {
+/* ── SCREENS ── */
+#roleScreen, #app {
 position: relative; z-index: 1;
-display: flex; flex-direction: column; align-items: center; justify-content: center;
-min-height: 100dvh; padding: 32px 24px; gap: 0;
 }
+#app { display: none; min-height: 100dvh; flex-direction: column; }
+#app.on { display: flex; }
 
-.role-logo {
-font-size: 72px; margin-bottom: 16px;
-filter: drop-shadow(0 0 30px rgba(0,122,255,0.5));
-animation: logoPulse 3s ease-in-out infinite;
+/* ── ROLE SCREEN ── */
+#roleScreen {
+display: flex; flex-direction: column; align-items: center;
+justify-content: center; min-height: 100dvh; padding: 32px 20px; gap: 0;
 }
-@keyframes logoPulse { 0%,100% { filter: drop-shadow(0 0 30px rgba(0,122,255,0.5)); } 50% { filter: drop-shadow(0 0 50px rgba(88,86,214,0.7)); } }
-
+.logo-wrap { margin-bottom: 20px; animation: popIn 0.6s cubic-bezier(.34,1.56,.64,1); }
+.logo-icon {
+width: 96px; height: 96px; border-radius: 28px; font-size: 52px;
+display: flex; align-items: center; justify-content: center;
+background: linear-gradient(135deg, rgba(94,92,230,0.7), rgba(0,122,255,0.6));
+backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
+border: 1px solid rgba(255,255,255,0.25);
+box-shadow: 0 0 60px rgba(94,92,230,0.4), var(–sh);
+animation: glowPulse 3s ease-in-out infinite;
+}
+@keyframes glowPulse {
+0%,100% { box-shadow: 0 0 40px rgba(94,92,230,0.35), var(–sh); }
+50%      { box-shadow: 0 0 80px rgba(0,122,255,0.5), var(–sh); }
+}
+@keyframes popIn {
+from { opacity:0; transform: scale(0.6) translateY(20px); }
+to   { opacity:1; transform: scale(1) translateY(0); }
+}
 .role-title {
-font-size: 36px; font-weight: 800; letter-spacing: -1px;
-background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+font-size: 38px; font-weight: 900; letter-spacing: -1.5px; text-align: center;
+background: linear-gradient(135deg, #fff 20%, rgba(255,255,255,0.65));
 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-margin-bottom: 8px;
+background-clip: text; margin-bottom: 8px;
+animation: popIn 0.6s .1s cubic-bezier(.34,1.56,.64,1) both;
 }
-.role-subtitle { color: var(–text2); font-size: 15px; text-align: center; margin-bottom: 40px; line-height: 1.5; }
+.role-sub {
+color: var(–text2); font-size: 15px; text-align: center; line-height: 1.5;
+margin-bottom: 36px;
+animation: popIn 0.6s .2s cubic-bezier(.34,1.56,.64,1) both;
+}
 
-.role-cards { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 360px; }
-
-.roleBtn {
-width: 100%; padding: 22px 24px;
-border-radius: var(–r2);
-border: none; cursor: pointer;
-display: flex; align-items: center; gap: 18px;
-transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-position: relative; overflow: hidden; text-align: left;
+/* Profile preview card */
+.profile-preview {
+width: 100%; max-width: 360px; margin-bottom: 24px;
+animation: popIn 0.6s .25s cubic-bezier(.34,1.56,.64,1) both;
 }
-.roleBtn::before {
-content: ‘’; position: absolute; inset: 0; opacity: 0; transition: opacity 0.3s;
-background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15), transparent 70%);
+.profile-tabs {
+display: flex; background: rgba(255,255,255,0.06); border-radius: 14px;
+border: 1px solid var(–gb); padding: 3px; margin-bottom: 12px;
 }
-.roleBtn:hover::before { opacity: 1; }
-.roleBtn:active { transform: scale(0.96); }
-.roleBtn.buyer {
-background: linear-gradient(135deg, rgba(0,122,255,0.3), rgba(88,86,214,0.25));
-backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid rgba(0,122,255,0.4);
-box-shadow: 0 8px 32px rgba(0,122,255,0.2), var(–shadow);
-}
-.roleBtn.employee {
-background: linear-gradient(135deg, rgba(52,199,89,0.25), rgba(0,199,190,0.2));
-backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid rgba(52,199,89,0.35);
-box-shadow: 0 8px 32px rgba(52,199,89,0.15), var(–shadow);
-}
-.roleIcon { font-size: 40px; }
-.roleText-title { font-size: 19px; font-weight: 700; color: var(–text); margin-bottom: 3px; }
-.roleText-sub { font-size: 12px; color: var(–text2); }
-
-/* PROFILE SECTION IN ROLE SCREEN */
-.profileSection {
-width: 100%; max-width: 360px; margin-bottom: 28px;
-}
-.profileToggle {
-display: flex; gap: 0; background: rgba(255,255,255,0.06); border-radius: 12px;
-border: 1px solid var(–glass-border); padding: 4px; margin-bottom: 16px;
-}
-.profileTab {
-flex: 1; padding: 8px; border-radius: 9px; font-size: 13px; font-weight: 700;
+.ptab {
+flex: 1; padding: 9px; border-radius: 11px; font-size: 13px; font-weight: 800;
 color: var(–text2); cursor: pointer; text-align: center; transition: all 0.25s;
 }
-.profileTab.active {
-background: rgba(0,122,255,0.4); color: var(–text);
-box-shadow: 0 2px 8px rgba(0,122,255,0.3);
+.ptab.on {
+background: rgba(0,122,255,0.4); color: #fff;
+box-shadow: 0 2px 12px rgba(0,122,255,0.3);
 }
-.profileCard {
-background: var(–glass); backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: var(–r2);
-padding: 20px; display: flex; gap: 16px; align-items: center;
+.pcard {
+border-radius: var(–r2); padding: 18px 20px;
+display: flex; align-items: center; gap: 14px;
 }
-.profileAvatar {
-width: 56px; height: 56px; border-radius: 50%;
-background: linear-gradient(135deg, rgba(0,122,255,0.6), rgba(88,86,214,0.6));
-display: flex; align-items: center; justify-content: center; font-size: 28px;
-border: 2px solid rgba(255,255,255,0.3);
-flex-shrink: 0;
+.pavatar {
+width: 54px; height: 54px; border-radius: 50%; font-size: 28px;
+display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+border: 2px solid rgba(255,255,255,0.2);
 }
-.profileInfo .name { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
-.profileInfo .detail { font-size: 12px; color: var(–text2); }
-.profileBadge {
-margin-left: auto; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
-background: rgba(0,122,255,0.3); border: 1px solid rgba(0,122,255,0.5); color: rgba(0,122,255,1);
+.pavatar.buyer { background: linear-gradient(135deg,rgba(0,122,255,.5),rgba(94,92,230,.5)); }
+.pavatar.emp   { background: linear-gradient(135deg,rgba(48,209,88,.45),rgba(0,199,190,.4)); }
+.pname { font-size: 17px; font-weight: 800; margin-bottom: 2px; }
+.pdetail { font-size: 12px; color: var(–text2); }
+.pbadge {
+margin-left: auto; padding: 5px 13px; border-radius: 20px;
+font-size: 11px; font-weight: 800; flex-shrink: 0;
 }
-.profileBadge.emp { background: rgba(52,199,89,0.25); border-color: rgba(52,199,89,0.4); color: rgba(52,199,89,1); }
+.pbadge.buyer { background: rgba(0,122,255,0.25); border:1px solid rgba(0,122,255,0.4); color:#007AFF; }
+.pbadge.emp   { background: rgba(48,209,88,0.2);  border:1px solid rgba(48,209,88,0.35); color:#30D158; }
 
-/* ===== MAIN APP ===== */
-#app { display: none; min-height: 100dvh; flex-direction: column; position: relative; z-index: 1; }
-#app.visible { display: flex; }
+/* Role buttons */
+.role-btns { display: flex; flex-direction: column; gap: 14px; width:100%; max-width:360px;
+animation: popIn 0.6s .35s cubic-bezier(.34,1.56,.64,1) both; }
+.rbtn {
+width: 100%; padding: 22px 22px; border-radius: var(–r2); border: none;
+cursor: pointer; display: flex; align-items: center; gap: 18px; text-align: left;
+transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
+position: relative; overflow: hidden;
+}
+.rbtn::after {
+content:’’; position:absolute; inset:0; opacity:0; transition:opacity 0.2s;
+background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15), transparent 70%);
+}
+.rbtn:hover::after { opacity:1; }
+.rbtn:active { transform: scale(0.95) !important; }
+.rbtn.buyer {
+background: linear-gradient(135deg, rgba(0,122,255,.28), rgba(94,92,230,.22));
+backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
+border: 1px solid rgba(0,122,255,.38);
+box-shadow: 0 8px 32px rgba(0,122,255,.18), var(–sh);
+}
+.rbtn.emp {
+background: linear-gradient(135deg, rgba(48,209,88,.22), rgba(0,199,190,.18));
+backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
+border: 1px solid rgba(48,209,88,.3);
+box-shadow: 0 8px 32px rgba(48,209,88,.12), var(–sh);
+}
+.rbtn-icon { font-size: 42px; }
+.rbtn-title { font-size: 18px; font-weight: 800; color: var(–text); margin-bottom: 3px; }
+.rbtn-sub   { font-size: 12px; color: var(–text2); }
 
-/* HEADER */
-.header {
-position: sticky; top: 0; z-index: 100;
-padding: 14px 20px 14px;
-background: rgba(10,10,26,0.6);
-backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border-bottom: 1px solid var(–glass-border);
+/* ── HEADER ── */
+.hdr {
+position: sticky; top: 0; z-index: 100; padding: 14px 18px;
 display: flex; align-items: center; justify-content: space-between;
+background: rgba(6,6,15,0.55);
+backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
+border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.header-left { display: flex; align-items: center; gap: 12px; }
-.header-logo { font-size: 26px; }
-.header-title { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
-.header-badge {
-padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
-letter-spacing: 0.3px;
+.hdr-l { display: flex; align-items: center; gap: 11px; }
+.hdr-logo { font-size: 28px; }
+.hdr-title { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
+.hdr-badge {
+padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
 }
-.header-badge.buyer { background: rgba(0,122,255,0.25); border: 1px solid rgba(0,122,255,0.4); color: #007AFF; }
-.header-badge.emp { background: rgba(52,199,89,0.2); border: 1px solid rgba(52,199,89,0.35); color: #34C759; }
-.switchBtn {
-background: var(–glass); backdrop-filter: var(–blur-light); -webkit-backdrop-filter: var(–blur-light);
-border: 1px solid var(–glass-border); color: var(–text2); padding: 6px 14px;
-border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+.hdr-badge.buyer { background: rgba(0,122,255,.2); border:1px solid rgba(0,122,255,.35); color:#007AFF; }
+.hdr-badge.emp   { background: rgba(48,209,88,.18); border:1px solid rgba(48,209,88,.3); color:#30D158; }
+.exit-btn {
+background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,.15);
+color: var(–text2); padding: 7px 14px; border-radius: 12px;
+font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+transition: all 0.2s;
 }
-.switchBtn:active { transform: scale(0.95); }
+.exit-btn:active { transform: scale(0.93); }
 
-/* TABS */
+/* ── TABS ── */
 .tabs {
-display: flex; overflow-x: auto; padding: 0 12px;
-background: rgba(10,10,26,0.4);
-backdrop-filter: var(–blur-light);
--webkit-backdrop-filter: var(–blur-light);
-border-bottom: 1px solid var(–glass-border);
-gap: 4px;
+display: flex; overflow-x: auto; padding: 0 14px;
+background: rgba(6,6,15,0.4);
+backdrop-filter: var(–blur2); -webkit-backdrop-filter: var(–blur2);
+border-bottom: 1px solid rgba(255,255,255,0.08);
+gap: 2px;
 }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
-flex: 1; min-width: 70px; padding: 10px 8px 12px;
-text-align: center; font-size: 10px; font-weight: 700;
-color: var(–text2); cursor: pointer; white-space: nowrap;
-position: relative; transition: all 0.25s;
-letter-spacing: 0.3px; text-transform: uppercase;
+flex: 1; min-width: 72px; padding: 10px 6px 13px;
+text-align: center; font-size: 10px; font-weight: 800; letter-spacing: 0.4px;
+color: var(–text3); cursor: pointer; white-space: nowrap; text-transform: uppercase;
+position: relative; transition: color 0.2s;
+user-select: none;
 }
+.tab .ti { font-size: 21px; display: block; margin-bottom: 3px; }
 .tab::after {
-content: ‘’; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2px;
-border-radius: 2px 2px 0 0; background: transparent; transition: all 0.3s;
+content:’’; position:absolute; bottom:0; left:15%; right:15%; height:2.5px;
+border-radius: 2px 2px 0 0; background: transparent; transition: background 0.25s;
 }
-.tab.active { color: var(–text); }
-.tab.active::after { background: var(–accent); }
-.tab .tabIcon { font-size: 20px; display: block; margin-bottom: 3px; }
-.badge {
+.tab.on { color: var(–text); }
+.tab.on::after { background: var(–accent); }
+.bdg {
 display: inline-flex; align-items: center; justify-content: center;
-background: var(–accent5); color: white; font-size: 9px; font-weight: 800;
-min-width: 16px; height: 16px; border-radius: 8px; padding: 0 4px;
-margin-left: 3px; vertical-align: middle;
+background: var(–red); color:#fff; font-size:9px; font-weight:900;
+min-width:15px; height:15px; border-radius:8px; padding:0 3px;
+margin-left:3px; vertical-align: middle;
 }
 
-/* CONTENT */
-.content { flex: 1; overflow-y: auto; padding: 20px 16px 100px; }
+/* ── CONTENT ── */
+.content { flex:1; overflow-y:auto; padding: 18px 16px 110px; }
 .page { display: none; }
-.page.active { display: block; animation: pageIn 0.25s ease; }
-@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.page.on { display: block; animation: pgIn 0.22s ease; }
+@keyframes pgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
-.sectionTitle {
-font-size: 12px; font-weight: 800; color: var(–text3); letter-spacing: 0.8px;
-text-transform: uppercase; margin-bottom: 12px; padding-left: 4px;
-}
+.sec { font-size: 11px; font-weight: 900; color: var(–text3); letter-spacing: 0.9px;
+text-transform: uppercase; margin-bottom: 12px; padding-left: 2px; }
 
-/* PRODUCTS GRID */
-.productsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (min-width: 600px) { .productsGrid { grid-template-columns: 1fr 1fr 1fr; } }
-@media (min-width: 900px) { .productsGrid { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+/* ── PRODUCT GRID ── */
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(min-width:560px) { .pgrid { grid-template-columns: repeat(3,1fr); } }
+@media(min-width:800px) { .pgrid { grid-template-columns: repeat(4,1fr); } }
 
-.productCard {
-border-radius: var(–r2); overflow: hidden;
-background: var(–glass); backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border);
-box-shadow: var(–shadow); transition: all 0.3s;
-display: flex; flex-direction: column;
+.pcard {
+border-radius: var(–r2); overflow: hidden; display: flex; flex-direction: column;
+transition: transform 0.25s, box-shadow 0.25s;
 }
-.productCard:hover { transform: translateY(-2px); box-shadow: var(–shadow2); }
-.cardImg {
-background: rgba(255,255,255,0.05); height: 90px;
-display: flex; align-items: center; justify-content: center;
-font-size: 44px; border-bottom: 1px solid var(–glass-border);
+.pcard:hover { transform: translateY(-3px); box-shadow: var(–sh2); }
+.pcard-img {
+background: rgba(255,255,255,0.05); height: 88px;
+display: flex; align-items: center; justify-content: center; font-size: 46px;
+border-bottom: 1px solid rgba(255,255,255,0.07);
 }
-.cardBody { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.cardName { font-size: 13px; font-weight: 700; line-height: 1.3; }
-.cardDesc { font-size: 11px; color: var(–text2); line-height: 1.4; flex: 1; }
-.cardPrice { font-size: 15px; font-weight: 800; color: var(–accent3); margin-top: 4px; }
-.cardActions { display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(–glass-border); }
+.pcard-body { padding: 11px 12px; flex:1; display:flex; flex-direction:column; gap:3px; }
+.pcard-name  { font-size: 13px; font-weight: 800; line-height: 1.3; }
+.pcard-desc  { font-size: 11px; color: var(–text2); line-height: 1.4; flex:1; }
+.pcard-price { font-size: 15px; font-weight: 900; color: var(–orange); margin-top: 5px; }
+.pcard-acts  { display:flex; gap:6px; padding:8px 10px; border-top:1px solid rgba(255,255,255,0.07); }
 
-/* BUTTONS */
-.btn-sm {
-padding: 7px 10px; border-radius: 10px; font-size: 11px; font-weight: 700;
-border: none; cursor: pointer; flex: 1; transition: all 0.2s; font-family: inherit;
+/* ── BUTTONS ── */
+.btn {
+padding: 8px 10px; border-radius: 11px; font-size: 12px; font-weight: 800;
+border: none; cursor: pointer; transition: transform 0.15s, opacity 0.15s; font-family: inherit;
 }
-.btn-sm:active { transform: scale(0.94); }
-.btn-primary { background: var(–accent); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
-.btn-secondary { background: rgba(255,255,255,0.1); color: var(–text); border: 1px solid var(–glass-border); }
-.btn-danger { background: var(–accent5); color: white; box-shadow: 0 4px 12px rgba(255,59,48,0.3); }
-.btn-green { background: var(–accent4); color: white; box-shadow: 0 4px 12px rgba(52,199,89,0.3); }
-.btn-blue { background: var(–accent); color: white; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
-.btn-full {
-width: 100%; padding: 15px; border-radius: var(–r); font-size: 15px; font-weight: 700;
-border: none; cursor: pointer; transition: all 0.2s; font-family: inherit;
+.btn:active { transform: scale(0.91); }
+.btn.p  { background: var(–accent); color: #fff; box-shadow: 0 4px 14px rgba(0,122,255,.35); }
+.btn.s  { background: rgba(255,255,255,.1); color: var(–text); border:1px solid rgba(255,255,255,.15); }
+.btn.d  { background: var(–red); color: #fff; box-shadow: 0 4px 14px rgba(255,69,58,.3); }
+.btn.g  { background: var(–green); color: #fff; box-shadow: 0 4px 14px rgba(48,209,88,.3); }
+.btn.grow { flex:1; }
+
+.fullbtn {
+width: 100%; padding: 16px; border-radius: var(–r); font-size: 15px; font-weight: 800;
+border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit;
+margin-top: 10px;
 }
-.btn-full:active { transform: scale(0.97); }
-.btn-full.btn-primary { background: linear-gradient(135deg, #007AFF, #5856D6); color: white; box-shadow: 0 8px 24px rgba(0,122,255,0.35); }
-.btn-full.btn-danger { background: linear-gradient(135deg, #FF3B30, #FF6B6B); color: white; }
-.btn-full.btn-secondary { background: rgba(255,255,255,0.08); color: var(–text2); border: 1px solid var(–glass-border); }
-.btn-full.btn-green { background: linear-gradient(135deg, #34C759, #00C897); color: white; }
-.btn-full.btn-blue { background: linear-gradient(135deg, #007AFF, #0099FF); color: white; }
+.fullbtn:active { transform: scale(0.97); }
+.fullbtn.p { background: linear-gradient(135deg,#007AFF,#5E5CE6); color:#fff; box-shadow:0 8px 24px rgba(0,122,255,.35); }
+.fullbtn.s { background: rgba(255,255,255,.08); color:var(–text2); border:1px solid rgba(255,255,255,.13); }
+.fullbtn.d { background: linear-gradient(135deg,#FF453A,#FF6B6B); color:#fff; }
+.fullbtn.g { background: linear-gradient(135deg,#30D158,#00C897); color:#fff; box-shadow:0 8px 24px rgba(48,209,88,.3); }
 
 /* FAB */
 .fab {
-position: fixed; bottom: calc(90px + env(safe-area-inset-bottom, 0px)); right: 20px;
-width: 58px; height: 58px; border-radius: 50%;
-background: linear-gradient(135deg, #007AFF, #5856D6);
-border: none; color: white; font-size: 28px; cursor: pointer;
-box-shadow: 0 8px 24px rgba(0,122,255,0.5), 0 2px 8px rgba(0,0,0,0.3);
-display: flex; align-items: center; justify-content: center; z-index: 200;
-transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+position: fixed; bottom: calc(84px + env(safe-area-inset-bottom,0px)); right: 20px;
+width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
+background: linear-gradient(135deg,#007AFF,#5E5CE6);
+color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center;
+box-shadow: 0 8px 28px rgba(0,122,255,.5); z-index: 200;
+transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
 }
-.fab:active { transform: scale(0.88); }
+.fab:active { transform: scale(0.86); }
 
-/* MODAL */
-.overlay {
-display: none; position: fixed; inset: 0; z-index: 400;
-background: rgba(0,0,0,0.65);
-backdrop-filter: blur(8px);
--webkit-backdrop-filter: blur(8px);
-align-items: flex-end; justify-content: center;
-}
-.overlay.open { display: flex; animation: overlayIn 0.25s ease; }
-@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
-.modal {
-background: rgba(20,20,40,0.85);
-backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-bottom: none;
-border-radius: 28px 28px 0 0; width: 100%; max-width: 520px;
-padding: 8px 24px 32px; max-height: 92dvh; overflow-y: auto;
-box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
-animation: modalIn 0.35s cubic-bezier(0.34,1.2,0.64,1);
-}
-@keyframes modalIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal-handle {
-width: 40px; height: 4px; border-radius: 2px;
-background: rgba(255,255,255,0.2); margin: 12px auto 20px;
-}
-.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
-
-/* FORM */
-.formGroup { margin-bottom: 16px; }
-.formGroup label { font-size: 12px; color: var(–text2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px; }
-.formGroup input, .formGroup textarea {
-width: 100%; background: rgba(255,255,255,0.08);
-backdrop-filter: var(–blur-light); -webkit-backdrop-filter: var(–blur-light);
-border: 1px solid var(–glass-border); border-radius: 14px;
-color: var(–text); padding: 13px 16px; font-size: 15px; font-family: inherit;
-outline: none; resize: vertical; transition: all 0.2s;
-}
-.formGroup input:focus, .formGroup textarea:focus { border-color: rgba(0,122,255,0.6); background: rgba(0,122,255,0.1); }
-.formGroup textarea { min-height: 80px; }
-input::placeholder, textarea::placeholder { color: var(–text3); }
-
-/* EMOJI GRID */
-.emojiGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 12px; }
-.emojiOption {
-font-size: 26px; text-align: center; padding: 6px; border-radius: 10px;
-cursor: pointer; border: 2px solid transparent; transition: all 0.15s;
-}
-.emojiOption.selected { border-color: var(–accent); background: rgba(0,122,255,0.2); }
-
-/* CART */
-.cartItem {
-background: var(–glass); backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border);
+/* ── CART ── */
+.cart-item {
 border-radius: var(–r2); padding: 14px 16px;
 display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
-transition: all 0.2s;
 }
-.cartItemEmoji { font-size: 34px; }
-.cartItemInfo { flex: 1; }
-.cartItemName { font-size: 14px; font-weight: 700; }
-.cartItemPrice { font-size: 12px; color: var(–text2); margin-top: 2px; }
-.qtyControl { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-.qtyBtn {
-width: 30px; height: 30px; border-radius: 50%;
-background: rgba(255,255,255,0.1); border: 1px solid var(–glass-border);
-color: var(–text); font-size: 18px; cursor: pointer;
-display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+.ci-emoji { font-size: 36px; }
+.ci-info { flex:1; }
+.ci-name  { font-size: 14px; font-weight: 800; }
+.ci-price { font-size: 12px; color: var(–text2); margin-top: 2px; }
+.qty-row  { display:flex; align-items:center; gap:10px; margin-top:8px; }
+.qbtn {
+width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.1);
+border:1px solid rgba(255,255,255,.15); color:var(–text); font-size:19px;
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+transition: all 0.15s; font-family: inherit;
 }
-.qtyBtn:active { transform: scale(0.88); background: rgba(0,122,255,0.3); }
-.qtyNum { font-size: 16px; font-weight: 800; min-width: 24px; text-align: center; }
-.cartItemTotal { font-weight: 800; color: var(–accent3); }
+.qbtn:active { background:rgba(0,122,255,.35); transform:scale(0.86); }
+.qnum { font-size: 16px; font-weight: 900; min-width: 26px; text-align:center; }
+.ci-total { font-size: 15px; font-weight: 900; color: var(–orange); }
 
-.cartSummary {
-background: var(–glass); backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: var(–r2); padding: 18px; margin-top: 16px;
+.cart-sum {
+border-radius: var(–r2); padding: 20px; margin-top: 16px;
 }
-.cartRow { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 14px; }
-.cartRow .label { color: var(–text2); }
-.cartTotal { font-size: 22px; font-weight: 800; color: var(–accent3); }
+.csr { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:14px; }
+.csr .lbl { color:var(–text2); }
+.big-total { font-size: 24px; font-weight: 900; color: var(–orange); }
+.pay-opts  { display:flex; gap:10px; margin-top:16px; }
+.pay-opt {
+flex:1; padding:14px 10px; border-radius:16px; border:2px solid rgba(255,255,255,.12);
+background: rgba(255,255,255,.04); text-align:center; font-size:12px; font-weight:800;
+cursor:pointer; transition:all 0.22s; color:var(–text2);
+}
+.pay-opt.on { border-color:var(–accent); background:rgba(0,122,255,.18); color:var(–text); }
+.pay-opt .pi { font-size:26px; display:block; margin-bottom:6px; }
 
-.paymentOptions { display: flex; gap: 10px; margin-top: 14px; }
-.payOpt {
-flex: 1; padding: 14px 10px; border-radius: 16px;
-border: 2px solid var(–glass-border); background: rgba(255,255,255,0.05);
-text-align: center; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.25s;
-color: var(–text2);
-}
-.payOpt.selected { border-color: var(–accent); background: rgba(0,122,255,0.2); color: var(–text); }
-.payOpt .payIcon { font-size: 24px; display: block; margin-bottom: 6px; }
+/* ── ORDERS ── */
+.order-card { border-radius:var(–r2); padding:18px; margin-bottom:12px; }
+.oh { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.onum { font-size:16px; font-weight:900; }
+.ostatus { font-size:11px; padding:4px 11px; border-radius:20px; font-weight:800; }
+.st-wait { background:rgba(255,159,10,.2); color:var(–orange); border:1px solid rgba(255,159,10,.3); }
+.st-done { background:rgba(48,209,88,.2);  color:var(–green);  border:1px solid rgba(48,209,88,.3); }
+.ometa { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
+.ombadge { font-size:12px; color:var(–text2); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:4px 10px; }
+.oprice { font-size:22px; font-weight:900; color:var(–orange); margin-bottom:14px; }
 
-/* ORDERS */
-.orderCard {
-background: var(–glass); backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: var(–r2); padding: 18px; margin-bottom: 12px;
-transition: all 0.2s;
+/* ── QR MODAL ── */
+.qr-wrap {
+display:flex; flex-direction:column; align-items:center; text-align:center; padding:8px 0;
 }
-.orderHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.orderNum { font-size: 15px; font-weight: 800; }
-.orderStatus { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
-.status-pending { background: rgba(255,149,0,0.2); color: var(–accent3); border: 1px solid rgba(255,149,0,0.3); }
-.status-ready { background: rgba(52,199,89,0.2); color: var(–accent4); border: 1px solid rgba(52,199,89,0.3); }
-.orderMeta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.orderMetaBadge {
-font-size: 12px; color: var(–text2); background: rgba(255,255,255,0.06);
-border: 1px solid var(–glass-border); border-radius: 8px; padding: 4px 10px;
+#qrBox {
+padding: 18px; background: #fff; border-radius: 18px; display:inline-block;
+margin: 18px auto; box-shadow: 0 8px 40px rgba(0,0,0,.5);
 }
-.orderPrice { font-size: 20px; font-weight: 800; color: var(–accent3); margin-bottom: 14px; }
+#qrBox img, #qrBox canvas { display:block; border-radius: 4px; }
+.qr-hint { color:var(–text2); font-size:13px; margin-bottom:18px; line-height:1.5; }
 
-/* QR MODAL */
-.qrModal { text-align: center; }
-#qrContainer {
-display: inline-block; padding: 16px; background: white; border-radius: 16px;
-margin: 16px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-}
-.qrOrderInfo { color: var(–text2); font-size: 13px; margin-bottom: 20px; }
+/* ── SCANNER ── */
+.scan-card { border-radius:var(–r2); padding:28px; text-align:center; margin-bottom:16px; }
+.scan-big-icon { font-size:70px; margin-bottom:16px; }
+.scan-title { font-size:22px; font-weight:900; margin-bottom:8px; }
+.scan-sub { font-size:14px; color:var(–text2); margin-bottom:26px; line-height:1.5; }
 
-/* SCANNER */
-.scannerWrap {
-position: relative; border-radius: var(–r2); overflow: hidden;
-background: #000; border: 1px solid var(–glass-border);
-box-shadow: var(–shadow);
+/* Scanner modal internals */
+.vid-wrap { position:relative; border-radius:var(–r2); overflow:hidden; background:#000; border:1px solid rgba(255,255,255,.12); }
+#scanVid { width:100%; display:block; max-height:58dvh; object-fit:cover; }
+.vid-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.scan-frame {
+width: 190px; height: 190px; position: relative;
 }
-#scanVideo { width: 100%; display: block; max-height: 60dvh; object-fit: cover; }
-.scanOverlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.scanFrame {
-width: 200px; height: 200px; position: relative;
-border-radius: 20px;
+/* Corner brackets */
+.scan-frame::before, .scan-frame::after,
+.sf-inner::before, .sf-inner::after {
+content:’’; position:absolute; width:28px; height:28px;
+border-color: #007AFF; border-style: solid; border-radius: 4px;
 }
-.scanFrame::before, .scanFrame::after,
-.scanFrame-inner::before, .scanFrame-inner::after {
-content: ‘’; position: absolute; width: 32px; height: 32px; border-color: var(–accent); border-style: solid;
+.scan-frame::before { top:0; left:0; border-width:3px 0 0 3px; border-radius:7px 0 0 0; }
+.scan-frame::after  { top:0; right:0; border-width:3px 3px 0 0; border-radius:0 7px 0 0; }
+.sf-inner::before   { bottom:0; left:0; border-width:0 0 3px 3px; border-radius:0 0 0 7px; }
+.sf-inner::after    { bottom:0; right:0; border-width:0 3px 3px 0; border-radius:0 0 7px 0; }
+.scan-beam {
+position:absolute; left:4px; right:4px; height:2px;
+background: linear-gradient(90deg,transparent,#007AFF 40%,#5E5CE6 60%,transparent);
+box-shadow: 0 0 10px #007AFF; border-radius:1px;
+animation: beam 2s ease-in-out infinite;
 }
-.scanFrame::before { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 8px 0 0 0; }
-.scanFrame::after { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 8px 0 0; }
-.scanFrame-inner::before { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 8px; }
-.scanFrame-inner::after { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 8px 0; }
-.scanLine {
-position: absolute; left: 8px; right: 8px; height: 2px;
-background: linear-gradient(90deg, transparent, var(–accent), transparent);
-border-radius: 1px; box-shadow: 0 0 8px var(–accent);
-animation: scanMove 2s ease-in-out infinite;
+@keyframes beam { 0%,100%{top:6px;} 50%{top:calc(100% - 6px);} }
+.scan-dim {
+position:absolute; inset:0;
+background: rgba(0,0,0,0.55);
+/* punch a hole in the middle */
+-webkit-mask: radial-gradient(ellipse 200px 200px at 50% 50%, transparent 95px, black 96px);
+mask: radial-gradient(ellipse 200px 200px at 50% 50%, transparent 95px, black 96px);
 }
-@keyframes scanMove { 0% { top: 12px; } 50% { top: calc(100% - 12px); } 100% { top: 12px; } }
-.scanBg { position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 20px; mix-blend-mode: multiply; }
-.scanHint { text-align: center; color: var(–text2); font-size: 13px; margin-top: 14px; }
+.scan-hint-txt { text-align:center; color:var(–text2); font-size:13px; font-weight:600; margin-top:14px; }
 
-/* EMPLOYEE ORDER CARD */
-.empOrderCard {
-background: var(–glass); backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: var(–r2); padding: 18px; margin-bottom: 14px;
+/* ── EMP ORDER ── */
+.emp-card { border-radius:var(–r2); padding:18px; margin-bottom:14px; }
+.emp-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.emp-title { font-size:18px; font-weight:900; }
+.info-row  { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+.infobdg {
+background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700;
 }
-.infoBadge {
-background: rgba(255,255,255,0.07); border: 1px solid var(–glass-border);
-border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 600;
+.items-list { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+.item-row {
+display:flex; align-items:center; gap:12px;
+background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09);
+border-radius:14px; padding:12px; transition:all 0.3s;
 }
-.itemsToScan { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-.scanItemRow {
-display: flex; align-items: center; gap: 12px;
-background: rgba(255,255,255,0.06); border-radius: 14px; padding: 12px;
-border: 1px solid var(–glass-border); transition: all 0.3s;
-}
-.scanItemRow.scanned { opacity: 0.45; background: rgba(52,199,89,0.08); border-color: rgba(52,199,89,0.2); }
-.scanItemRow.returned { opacity: 0.45; background: rgba(255,59,48,0.08); border-color: rgba(255,59,48,0.2); }
-.scanItemEmoji { font-size: 26px; }
-.scanItemInfo { flex: 1; }
-.scanItemName { font-size: 13px; font-weight: 700; }
-.scanItemPrice { color: var(–text2); font-size: 11px; margin-top: 2px; }
-.checkMark { font-size: 22px; }
+.item-row.scanned  { opacity:.45; background:rgba(48,209,88,.08);  border-color:rgba(48,209,88,.2); }
+.item-row.returned { opacity:.45; background:rgba(255,69,58,.08);   border-color:rgba(255,69,58,.2); }
+.item-emoji { font-size:26px; }
+.item-info  { flex:1; }
+.item-name  { font-size:13px; font-weight:800; }
+.item-price { font-size:11px; color:var(–text2); margin-top:2px; }
+.item-mark  { font-size:22px; }
 
-/* RETURN SELECTOR */
-.returnItem {
-display: flex; align-items: center; gap: 12px; padding: 12px;
-background: rgba(255,255,255,0.06); border-radius: 14px; margin-bottom: 8px;
-border: 2px solid transparent; cursor: pointer; transition: all 0.2s;
+/* progress */
+.prog-wrap { background:rgba(255,255,255,.1); border-radius:10px; height:5px; overflow:hidden; margin-top:10px; }
+.prog-bar  { height:100%; border-radius:10px; background:linear-gradient(90deg,#007AFF,#5E5CE6); transition:width .5s ease; }
+
+/* ── PROFILE PAGE ── */
+.prof-hero {
+border-radius:var(–r2); padding:28px; text-align:center; margin-bottom:14px;
 }
-.returnItem.selected { border-color: var(–accent5); background: rgba(255,59,48,0.1); }
-.returnCheckbox {
-width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(–glass-border);
-background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;
-font-size: 14px; transition: all 0.2s;
+.prof-av {
+width:88px; height:88px; border-radius:50%; font-size:46px;
+display:flex; align-items:center; justify-content:center; margin:0 auto 14px;
+border:2.5px solid rgba(255,255,255,.25);
 }
-.returnItem.selected .returnCheckbox { background: var(–accent5); border-color: var(–accent5); }
+.prof-av.buyer { background:linear-gradient(135deg,rgba(0,122,255,.5),rgba(94,92,230,.5)); box-shadow:0 8px 32px rgba(0,122,255,.3); }
+.prof-av.emp   { background:linear-gradient(135deg,rgba(48,209,88,.4),rgba(0,199,190,.4)); box-shadow:0 8px 32px rgba(48,209,88,.25); }
+.prof-name { font-size:26px; font-weight:900; margin-bottom:4px; }
+.prof-role { font-size:13px; color:var(–text2); }
+.stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:20px 0; }
+.stat-box { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:14px 10px; text-align:center; }
+.stat-n { font-size:24px; font-weight:900; color:var(–orange); }
+.stat-l { font-size:10px; color:var(–text2); margin-top:3px; text-transform:uppercase; font-weight:800; letter-spacing:0.3px; }
+.info-card { border-radius:var(–r2); padding:20px; margin-bottom:14px; }
+.info-row-item { display:flex; justify-content:space-between; align-items:center; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.07); }
+.info-row-item:last-child { border-bottom:none; }
+.info-row-item .lbl { color:var(–text2); }
+.info-row-item .val { font-weight:800; }
 
-/* TOAST */
-.toast {
-position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px);
-background: rgba(20,20,40,0.9); backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: 14px;
-padding: 12px 22px; font-size: 14px; font-weight: 700; z-index: 999;
-opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
-pointer-events: none; white-space: nowrap;
-box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+/* ── RETURN ── */
+.ret-item {
+display:flex; align-items:center; gap:12px; padding:13px;
+background:rgba(255,255,255,.06); border:2px solid transparent;
+border-radius:14px; margin-bottom:8px; cursor:pointer; transition:all 0.2s;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* EMPTY */
-.empty { text-align: center; padding: 70px 20px; color: var(–text2); }
-.empty .emptyIcon { font-size: 60px; margin-bottom: 16px; opacity: 0.6; }
-.empty p { font-size: 15px; line-height: 1.6; }
-
-/* PROFILE PAGE */
-.profilePageCard {
-background: var(–glass); backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: var(–r2); padding: 24px; margin-bottom: 16px;
+.ret-item.on { border-color:var(–red); background:rgba(255,69,58,.1); }
+.ret-cb {
+width:24px; height:24px; border-radius:7px; border:2px solid rgba(255,255,255,.2);
+background:rgba(255,255,255,.07); display:flex; align-items:center; justify-content:center;
+font-size:14px; font-weight:900; transition:all 0.2s; flex-shrink:0;
 }
-.profileHero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 20px 0; }
-.profileHeroAvatar {
-width: 90px; height: 90px; border-radius: 50%; font-size: 48px;
-display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
-background: linear-gradient(135deg, rgba(0,122,255,0.5), rgba(88,86,214,0.5));
-border: 3px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,122,255,0.3);
+.ret-item.on .ret-cb { background:var(–red); border-color:var(–red); color:#fff; }
+
+/* ── OVERLAY / MODAL ── */
+.overlay {
+display:none; position:fixed; inset:0; z-index:400;
+background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+align-items:flex-end; justify-content:center;
 }
-.profileHeroAvatar.emp { background: linear-gradient(135deg, rgba(52,199,89,0.4), rgba(0,199,190,0.4)); }
-.profileHeroName { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-.profileHeroRole { font-size: 13px; color: var(–text2); }
-.profileStats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
-.statBox {
-background: rgba(255,255,255,0.06); border: 1px solid var(–glass-border); border-radius: 14px;
-padding: 14px 10px; text-align: center;
+.overlay.on { display:flex; animation: ovIn 0.22s ease; }
+@keyframes ovIn { from{opacity:0;} to{opacity:1;} }
+.modal {
+background: rgba(14,14,28,0.88);
+backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
+border:1px solid rgba(255,255,255,.15); border-bottom:none;
+border-radius:30px 30px 0 0; width:100%; max-width:520px;
+padding:6px 22px 36px; max-height:94dvh; overflow-y:auto;
+box-shadow:0 -20px 70px rgba(0,0,0,.6);
+animation: modalUp 0.35s cubic-bezier(.34,1.15,.64,1);
 }
-.statNum { font-size: 22px; font-weight: 800; color: var(–accent3); }
-.statLabel { font-size: 10px; color: var(–text2); margin-top: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; }
-
-/* SCANNER PAGE DESIGN */
-.scannerCard {
-background: var(–glass); backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–glass-border); border-radius: var(–r2); padding: 24px; text-align: center;
-margin-bottom: 16px;
+@keyframes modalUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+.mhandle {
+width:42px; height:4px; border-radius:2px; background:rgba(255,255,255,.18);
+margin:14px auto 22px;
 }
-.scannerIcon { font-size: 64px; margin-bottom: 16px; }
-.scannerTitle { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
-.scannerSub { font-size: 14px; color: var(–text2); margin-bottom: 24px; line-height: 1.5; }
+.mtitle { font-size:21px; font-weight:900; margin-bottom:20px; }
 
-/* PROGRESS BAR */
-.progressWrap { background: rgba(255,255,255,0.1); border-radius: 10px; height: 6px; overflow: hidden; margin-top: 12px; }
-.progressBar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #007AFF, #5856D6); transition: width 0.5s ease; }
+/* FORM */
+.fg { margin-bottom:16px; }
+.fg label { font-size:11px; font-weight:900; color:var(–text3); text-transform:uppercase; letter-spacing:.6px; display:block; margin-bottom:8px; }
+.fg input, .fg textarea {
+width:100%; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.15);
+border-radius:14px; color:var(–text); padding:13px 16px; font-size:15px;
+font-family:inherit; outline:none; resize:vertical; transition:all 0.2s;
+}
+.fg input:focus, .fg textarea:focus { border-color:rgba(0,122,255,.6); background:rgba(0,122,255,.1); }
+.fg textarea { min-height:80px; }
+input::placeholder, textarea::placeholder { color:var(–text3); }
 
-/* DIVIDER */
-.divider { height: 1px; background: var(–glass-border); margin: 20px 0; }
+/* emoji grid */
+.egrid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:12px; }
+.eo {
+font-size:27px; text-align:center; padding:6px; border-radius:10px;
+cursor:pointer; border:2.5px solid transparent; transition:all 0.15s;
+}
+.eo.on { border-color:var(–accent); background:rgba(0,122,255,.2); }
 
-/* COMPLETE ORDER ANIMATION */
-@keyframes successPop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
-.successAnim { animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+/* ── EMPTY ── */
+.empty { text-align:center; padding:70px 20px; color:var(–text2); }
+.empty .ei { font-size:62px; margin-bottom:16px; opacity:.55; }
+.empty p { font-size:15px; line-height:1.6; }
 
-/* PC LAYOUT */
-@media (min-width: 768px) {
-.modal { border-radius: 28px; margin-bottom: 40px; }
-.content { max-width: 900px; margin: 0 auto; }
-.overlay { align-items: center; }
-.productsGrid { grid-template-columns: 1fr 1fr 1fr; }
+/* ── TOAST ── */
+#toast {
+position:fixed; top:80px; left:50%; transform:translateX(-50%) translateY(-12px);
+background:rgba(14,14,28,0.92); backdrop-filter:var(–blur); -webkit-backdrop-filter:var(–blur);
+border:1px solid rgba(255,255,255,.15); border-radius:14px;
+padding:12px 22px; font-size:14px; font-weight:800; z-index:999;
+opacity:0; transition:all 0.3s cubic-bezier(.34,1.15,.64,1);
+pointer-events:none; white-space:nowrap;
+box-shadow:0 8px 36px rgba(0,0,0,.5);
+}
+#toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── SCAN HISTORY ── */
+.scan-hist-item {
+display:flex; align-items:center; gap:12px;
+background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09);
+border-radius:16px; padding:14px; margin-bottom:10px;
 }
 </style>
 
 </head>
 <body>
 
-<div class="bg-scene">
-  <div class="bg-orb orb1"></div>
-  <div class="bg-orb orb2"></div>
-  <div class="bg-orb orb3"></div>
+<div id="bg">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="orb o4"></div>
 </div>
 
-<!-- ROLE SCREEN -->
+<!-- ══ ROLE SCREEN ══ -->
 
 <div id="roleScreen">
-  <div class="role-logo">📦</div>
+  <div class="logo-wrap">
+    <div class="logo-icon">📦</div>
+  </div>
   <div class="role-title">ПВЗ Pro</div>
-  <div class="role-subtitle">Симулятор пункта выдачи заказов<br>Выберите профиль</div>
+  <div class="role-sub">Симулятор пункта выдачи заказов<br>Выберите ваш профиль</div>
 
-  <div class="profileSection">
-    <div class="profileToggle" id="profileToggle">
-      <div class="profileTab active" onclick="switchProfileView('buyer')">🛍️ Покупатель</div>
-      <div class="profileTab" onclick="switchProfileView('employee')">👷 Сотрудник</div>
+  <div class="profile-preview">
+    <div class="profile-tabs">
+      <div class="ptab on" onclick="switchPrev('buyer')">🛍️ Покупатель</div>
+      <div class="ptab"    onclick="switchPrev('emp')">👷 Сотрудник</div>
     </div>
-    <div class="profileCard" id="profileCardPreview">
-      <div class="profileAvatar" id="previewAvatar">🛍️</div>
-      <div class="profileInfo">
-        <div class="name" id="previewName">Гость</div>
-        <div class="detail" id="previewDetail">Режим покупателя</div>
+    <div class="pcard glass" id="prevCard">
+      <div class="pavatar buyer" id="prevAv">🛍️</div>
+      <div>
+        <div class="pname" id="prevName">Анна К.</div>
+        <div class="pdetail" id="prevDetail">VIP клиент · Активный покупатель</div>
       </div>
-      <div class="profileBadge" id="previewBadge">Покупатель</div>
+      <div class="pbadge buyer" id="prevBadge">Покупатель</div>
     </div>
   </div>
 
-  <div class="role-cards">
-    <button class="roleBtn buyer" onclick="setRole('buyer')">
-      <span class="roleIcon">🛍️</span>
+  <div class="role-btns">
+    <button class="rbtn buyer" onclick="setRole('buyer')">
+      <span class="rbtn-icon">🛍️</span>
       <div>
-        <div class="roleText-title">Войти как покупатель</div>
-        <div class="roleText-sub">Создавайте товары, заказывайте, получайте QR</div>
+        <div class="rbtn-title">Войти как покупатель</div>
+        <div class="rbtn-sub">Создавайте товары, заказывайте, получайте QR‑коды</div>
       </div>
     </button>
-    <button class="roleBtn employee" onclick="setRole('employee')">
-      <span class="roleIcon">👷</span>
+    <button class="rbtn emp" onclick="setRole('emp')">
+      <span class="rbtn-icon">👷</span>
       <div>
-        <div class="roleText-title">Войти как сотрудник</div>
-        <div class="roleText-sub">Сканируйте QR-коды, выдавайте заказы</div>
+        <div class="rbtn-title">Войти как сотрудник</div>
+        <div class="rbtn-sub">Сканируйте QR‑коды камерой, выдавайте заказы</div>
       </div>
     </button>
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ══ APP ══ -->
 
 <div id="app">
-  <div class="header">
-    <div class="header-left">
-      <div class="header-logo">📦</div>
-      <div class="header-title">ПВЗ Pro</div>
-      <div class="header-badge" id="headerBadge">Покупатель</div>
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-logo">📦</div>
+      <div class="hdr-title">ПВЗ Pro</div>
+      <div class="hdr-badge buyer" id="hdrBadge">Покупатель</div>
     </div>
-    <button class="switchBtn" onclick="switchRole()">← Выйти</button>
+    <button class="exit-btn" onclick="exitRole()">← Выйти</button>
   </div>
   <div class="tabs" id="tabBar"></div>
-  <div class="content" id="contentArea"></div>
+  <div class="content" id="content"></div>
 </div>
 
-<!-- TOAST -->
+<!-- ══ TOAST ══ -->
 
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
-<!-- MODAL: Add/Edit Product -->
+<!-- ══ MODAL: Product ══ -->
 
-<div class="overlay" id="productModal">
+<div class="overlay" id="mProduct">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="productModalTitle">✨ Новый товар</div>
-    <div class="formGroup">
-      <label>Иконка товара</label>
-      <div class="emojiGrid" id="emojiGrid"></div>
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mProductTitle">✨ Новый товар</div>
+    <div class="fg">
+      <label>Иконка</label>
+      <div class="egrid" id="egrid"></div>
     </div>
-    <div class="formGroup">
-      <label>Название</label>
-      <input type="text" id="pName" placeholder="Например: Наушники Sony">
-    </div>
-    <div class="formGroup">
-      <label>Цена (от 100 ₽)</label>
-      <input type="number" id="pPrice" placeholder="1500" min="100">
-    </div>
-    <div class="formGroup">
-      <label>Описание</label>
-      <textarea id="pDesc" placeholder="Краткое описание товара..."></textarea>
-    </div>
-    <button class="btn-full btn-primary" onclick="saveProduct()" style="margin-top:8px;">Сохранить товар</button>
-    <button class="btn-full btn-secondary" onclick="closeModal('productModal')" style="margin-top:10px;">Отмена</button>
+    <div class="fg"><label>Название</label><input id="pName" placeholder="Наушники Sony..."></div>
+    <div class="fg"><label>Цена (от 100 ₽)</label><input id="pPrice" type="number" placeholder="1500" min="100"></div>
+    <div class="fg"><label>Описание</label><textarea id="pDesc" placeholder="Краткое описание..."></textarea></div>
+    <button class="fullbtn p" onclick="saveProduct()">Сохранить</button>
+    <button class="fullbtn s" onclick="closeM('mProduct')">Отмена</button>
   </div>
 </div>
 
-<!-- MODAL: Cart Checkout -->
+<!-- ══ MODAL: Checkout ══ -->
 
-<div class="overlay" id="checkoutModal">
+<div class="overlay" id="mCheckout">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🧾 Оформление заказа</div>
-    <div id="checkoutItems"></div>
-    <div id="checkoutSummary"></div>
-    <button class="btn-full btn-primary" onclick="placeOrder()" style="margin-top:20px;">✅ Подтвердить заказ</button>
-    <button class="btn-full btn-secondary" onclick="closeModal('checkoutModal')" style="margin-top:10px;">Назад</button>
+    <div class="mhandle"></div>
+    <div class="mtitle">🧾 Оформление заказа</div>
+    <div id="coItems"></div>
+    <div id="coSum"></div>
+    <button class="fullbtn p" onclick="placeOrder()">✅ Подтвердить заказ</button>
+    <button class="fullbtn s" onclick="closeM('mCheckout')">Назад</button>
   </div>
 </div>
 
-<!-- MODAL: QR Code -->
+<!-- ══ MODAL: QR ══ -->
 
-<div class="overlay" id="qrModal">
-  <div class="modal qrModal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="qrModalTitle">🔲 QR-код заказа</div>
-    <div id="qrContainer"></div>
-    <div class="qrOrderInfo" id="qrOrderInfo"></div>
-    <div style="color:var(--text2);font-size:12px;margin-bottom:20px;">Покажите этот QR-код сотруднику ПВЗ</div>
-    <button class="btn-full btn-secondary" onclick="closeModal('qrModal')">Закрыть</button>
+<div class="overlay" id="mQR">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mQRTitle">🔲 QR‑код заказа</div>
+    <div class="qr-wrap">
+      <div id="qrBox"></div>
+      <div class="qr-hint" id="qrHint"></div>
+      <div style="color:var(--text2);font-size:12px;margin-bottom:18px;">Покажите этот код сотруднику ПВЗ</div>
+    </div>
+    <button class="fullbtn s" onclick="closeM('mQR')">Закрыть</button>
   </div>
 </div>
 
-<!-- MODAL: Scanner -->
+<!-- ══ MODAL: Scanner ══ -->
 
-<div class="overlay" id="scanModal">
+<div class="overlay" id="mScan">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">📷 Сканер QR-кода</div>
-    <div class="scannerWrap">
-      <video id="scanVideo" autoplay playsinline muted></video>
-      <div class="scanOverlay">
-        <div class="scanFrame">
-          <div class="scanFrame-inner"></div>
-          <div class="scanLine"></div>
+    <div class="mhandle"></div>
+    <div class="mtitle">📷 Сканирование QR‑кода</div>
+    <div class="vid-wrap">
+      <video id="scanVid" autoplay playsinline muted></video>
+      <div class="scan-dim"></div>
+      <div class="vid-overlay">
+        <div class="scan-frame">
+          <div class="sf-inner"></div>
+          <div class="scan-beam"></div>
         </div>
       </div>
     </div>
-    <div class="scanHint">Наведите камеру на QR-код клиента</div>
-    <button class="btn-full btn-secondary" onclick="stopScanner()" style="margin-top:16px;">✕ Закрыть</button>
+    <div class="scan-hint-txt">Наведите камеру на QR‑код клиента</div>
+    <button class="fullbtn s" onclick="stopScan()" style="margin-top:16px;">✕ Отмена</button>
   </div>
 </div>
 
-<!-- MODAL: Return -->
+<!-- ══ MODAL: Return ══ -->
 
-<div class="overlay" id="returnModal">
+<div class="overlay" id="mReturn">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">↩️ Оформить возврат</div>
+    <div class="mhandle"></div>
+    <div class="mtitle">↩️ Возврат товаров</div>
     <div style="color:var(--text2);font-size:13px;margin-bottom:16px;">Выберите товары для возврата</div>
-    <div id="returnItems"></div>
-    <button class="btn-full btn-danger" onclick="confirmReturn()" style="margin-top:20px;">Подтвердить возврат</button>
-    <button class="btn-full btn-secondary" onclick="closeModal('returnModal')" style="margin-top:10px;">Отмена</button>
+    <div id="retItems"></div>
+    <button class="fullbtn d" onclick="confirmReturn()">Подтвердить возврат</button>
+    <button class="fullbtn s" onclick="closeM('mReturn')">Отмена</button>
   </div>
 </div>
 
 <script>
-// ====== AUDIO ENGINE ======
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-
-function getCtx() {
-  if (!audioCtx) audioCtx = new AudioCtx();
-  return audioCtx;
+/* ═══════════════════════════════════════
+   AUDIO
+═══════════════════════════════════════ */
+let AC = null;
+function ac() {
+  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
 }
-
-function playTone(freq, type = 'sine', duration = 0.12, volume = 0.15, delay = 0) {
+function tone(freq, type='sine', dur=0.1, vol=0.12, delay=0) {
   try {
-    const ctx = getCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.9, ctx.currentTime + delay + duration);
-    gain.gain.setValueAtTime(0, ctx.currentTime + delay);
-    gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + delay + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
-    osc.start(ctx.currentTime + delay);
-    osc.stop(ctx.currentTime + delay + duration);
+    const c = ac(), o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type; o.frequency.value = freq;
+    const t = c.currentTime + delay;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.start(t); o.stop(t + dur);
   } catch(e) {}
 }
-
 const SFX = {
-  tap() { playTone(440, 'sine', 0.08, 0.1); },
-  add() { playTone(523, 'sine', 0.1, 0.12); playTone(659, 'sine', 0.1, 0.1, 0.08); },
-  success() {
-    playTone(523, 'sine', 0.12, 0.12, 0);
-    playTone(659, 'sine', 0.12, 0.12, 0.1);
-    playTone(784, 'sine', 0.18, 0.15, 0.2);
-  },
-  error() { playTone(200, 'sawtooth', 0.15, 0.12); },
-  scan() {
-    playTone(880, 'sine', 0.08, 0.15, 0);
-    playTone(1047, 'sine', 0.12, 0.15, 0.07);
-  },
-  remove() { playTone(330, 'sine', 0.1, 0.1); },
-  checkout() {
-    [523,659,784,1047].forEach((f,i) => playTone(f, 'sine', 0.12, 0.12, i*0.07));
-  },
-  complete() {
-    [523,784,659,1047,880].forEach((f,i) => playTone(f, 'triangle', 0.15, 0.13, i*0.06));
-  }
+  tap:      () => tone(440,'sine',.07,.09),
+  add:      () => { tone(523,'sine',.09,.1); tone(659,'sine',.09,.1,.09); },
+  remove:   () => tone(330,'sine',.1,.1),
+  success:  () => { [523,659,784].forEach((f,i) => tone(f,'sine',.13,.12,i*.08)); },
+  error:    () => tone(180,'sawtooth',.15,.12),
+  scan:     () => { tone(880,'sine',.07,.13); tone(1100,'sine',.1,.13,.07); },
+  checkout: () => { [523,659,784,1047].forEach((f,i) => tone(f,'sine',.12,.11,i*.065)); },
+  complete: () => { [523,784,1047,880,1319].forEach((f,i) => tone(f,'triangle',.14,.12,i*.055)); }
 };
+document.addEventListener('click', () => { if (!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); }, {once:true});
 
-// ====== STATE ======
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
 let role = 'buyer';
+let curPage = 'shop';
 let products = [
-  { id: 1, name: 'Наушники Sony', price: 3990, desc: 'Беспроводные наушники с шумоподавлением', emoji: '🎧' },
-  { id: 2, name: 'Чехол iPhone', price: 490, desc: 'Силиконовый защитный чехол', emoji: '📱' },
-  { id: 3, name: 'Зарядка 65W', price: 890, desc: 'Быстрая зарядка USB-C', emoji: '🔌' },
+  {id:1, name:'Наушники Sony',    price:3990, desc:'Беспроводные с шумоподавлением', emoji:'🎧'},
+  {id:2, name:'Чехол iPhone',     price:490,  desc:'Силиконовый защитный чехол',      emoji:'📱'},
+  {id:3, name:'Зарядка 65W',      price:890,  desc:'Быстрая зарядка USB-C',           emoji:'🔌'},
 ];
 let cart = [];
 let orders = [];
-let employeeOrders = [];
-let editProductId = null;
-let selectedEmoji = '📦';
-let selectedPayment = 'delivery';
-let currentReturnOrderId = null;
-let scannerStream = null;
-let scanInterval = null;
-let returnSelected = new Set();
-let productIdCounter = 10;
-let orderIdCounter = 100;
+let empOrders = [];
+let editId = null;
+let selEmoji = '📦';
+let selPay = 'delivery';
+let retOrderId = null;
+let retSel = new Set();
+let scanStream = null;
+let scanTick = null;
+let pidC = 20, oidC = 100;
+function pid() { return ++pidC; }
+function oid() { return ++oidC; }
 
 const EMOJIS = ['📦','🎧','📱','👟','👜','🎮','💻','⌚','🔌','📷','🎁','🧴','👗','🕹️','📚','🍕','🧸','💡','🖥️','🎵','🎒','🛍️','🖱️','🎸','🏋️'];
+const FMT = n => n.toLocaleString('ru-RU') + ' ₽';
+const CC  = () => cart.reduce((s,i) => s+i.qty, 0);
+const CT  = () => cart.reduce((s,i) => s+i.p.price*i.qty, 0);
 
-const buyerProfile = { name: 'Анна К.', avatar: '🛍️', detail: 'VIP клиент · Активный покупатель' };
-const empProfile = { name: 'Дмитрий В.', avatar: '👷', detail: 'Старший оператор ПВЗ' };
+/* profiles */
+const PROF = {
+  buyer: {name:'Анна К.',        detail:'VIP клиент · Активный покупатель', av:'🛍️'},
+  emp:   {name:'Дмитрий В.',     detail:'Старший оператор ПВЗ',             av:'👷'}
+};
 
-// ====== HELPERS ======
-function uid() { return ++productIdCounter; }
-function oid() { return ++orderIdCounter; }
-function formatPrice(p) { return p.toLocaleString('ru-RU') + ' ₽'; }
-function cartCount() { return cart.reduce((s,i) => s + i.qty, 0); }
-function cartTotal() { return cart.reduce((s,i) => s + i.product.price * i.qty, 0); }
-
-let toastTimer = null;
-function showToast(msg, duration = 2500) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+let toastT = null;
+function toast(msg, dur=2600) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('on'), dur);
 }
 
-function openModal(id) {
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+function openM(id) { SFX.tap(); document.getElementById(id).classList.add('on'); }
+function closeM(id) { document.getElementById(id).classList.remove('on'); }
+
+/* ═══════════════════════════════════════
+   ROLE / PROFILE PREVIEW
+═══════════════════════════════════════ */
+function switchPrev(r) {
   SFX.tap();
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-// ====== PROFILE VIEW SWITCH ======
-let previewRole = 'buyer';
-function switchProfileView(r) {
-  previewRole = r;
-  const tabs = document.querySelectorAll('.profileTab');
-  tabs.forEach((t, i) => t.classList.toggle('active', (i === 0 && r === 'buyer') || (i === 1 && r === 'employee')));
-  const p = r === 'buyer' ? buyerProfile : empProfile;
-  document.getElementById('previewAvatar').textContent = p.avatar;
-  document.getElementById('previewName').textContent = p.name;
-  document.getElementById('previewDetail').textContent = p.detail;
-  const badge = document.getElementById('previewBadge');
-  badge.textContent = r === 'buyer' ? 'Покупатель' : 'Сотрудник';
-  badge.className = r === 'buyer' ? 'profileBadge' : 'profileBadge emp';
-  SFX.tap();
+  const tabs = document.querySelectorAll('.ptab');
+  tabs[0].classList.toggle('on', r==='buyer');
+  tabs[1].classList.toggle('on', r==='emp');
+  const p = PROF[r];
+  document.getElementById('prevAv').textContent    = p.av;
+  document.getElementById('prevAv').className      = 'pavatar ' + r;
+  document.getElementById('prevName').textContent  = p.name;
+  document.getElementById('prevDetail').textContent= p.detail;
+  document.getElementById('prevBadge').textContent = r==='buyer'?'Покупатель':'Сотрудник';
+  document.getElementById('prevBadge').className   = 'pbadge ' + r;
 }
 
-// ====== ROLE ======
 function setRole(r) {
   SFX.success();
   role = r;
   document.getElementById('roleScreen').style.display = 'none';
-  const app = document.getElementById('app');
-  app.classList.add('visible');
-
-  const badge = document.getElementById('headerBadge');
-  if (r === 'buyer') {
-    badge.textContent = '🛍️ Покупатель';
-    badge.className = 'header-badge buyer';
-  } else {
-    badge.textContent = '👷 Сотрудник';
-    badge.className = 'header-badge emp';
-  }
-  currentPage = r === 'buyer' ? 'shop' : 'scanner';
-  renderTabs();
-  renderPage(currentPage);
+  document.getElementById('app').classList.add('on');
+  const b = document.getElementById('hdrBadge');
+  if (r === 'buyer') { b.textContent='🛍️ Покупатель'; b.className='hdr-badge buyer'; }
+  else               { b.textContent='👷 Сотрудник';   b.className='hdr-badge emp'; }
+  curPage = r==='buyer' ? 'shop' : 'scanner';
+  renderTabs(); renderPage(curPage);
 }
 
-function switchRole() {
+function exitRole() {
   SFX.tap();
-  if (scannerStream) stopScanner();
+  stopScan();
+  document.getElementById('app').classList.remove('on');
   document.getElementById('roleScreen').style.display = 'flex';
-  document.getElementById('app').classList.remove('visible');
 }
 
-// ====== TABS ======
-const buyerTabs = [
-  { id: 'shop', icon: '🏪', label: 'Магазин' },
-  { id: 'cart', icon: '🛒', label: 'Корзина', badge: 'cart' },
-  { id: 'orders', icon: '📋', label: 'Заказы' },
-  { id: 'profilePage', icon: '👤', label: 'Профиль' },
+/* ═══════════════════════════════════════
+   TABS
+═══════════════════════════════════════ */
+const BTABS = [
+  {id:'shop',    icon:'🏪', label:'Магазин'},
+  {id:'cart',    icon:'🛒', label:'Корзина',  bdg:'cart'},
+  {id:'orders',  icon:'📋', label:'Заказы'},
+  {id:'profile', icon:'👤', label:'Профиль'},
 ];
-const employeeTabs = [
-  { id: 'scanner', icon: '📷', label: 'Сканер' },
-  { id: 'empOrders', icon: '📋', label: 'Заказы', badge: 'emp' },
-  { id: 'profilePage', icon: '👤', label: 'Профиль' },
+const ETABS = [
+  {id:'scanner', icon:'📷', label:'Сканер'},
+  {id:'eorders', icon:'📋', label:'Заказы', bdg:'emp'},
+  {id:'profile', icon:'👤', label:'Профиль'},
 ];
-
-let currentPage = 'shop';
 
 function renderTabs() {
-  const bar = document.getElementById('tabBar');
-  const tabs = role === 'buyer' ? buyerTabs : employeeTabs;
-  bar.innerHTML = tabs.map(t => {
-    let badgeHTML = '';
-    if (t.badge === 'cart' && cartCount() > 0) badgeHTML = `<span class="badge">${cartCount()}</span>`;
-    if (t.badge === 'emp') {
-      const n = employeeOrders.filter(o => o.status !== 'done').length;
-      if (n > 0) badgeHTML = `<span class="badge">${n}</span>`;
-    }
-    return `<div class="tab ${currentPage === t.id ? 'active' : ''}" onclick="navTo('${t.id}')">
-      <span class="tabIcon">${t.icon}</span>${t.label}${badgeHTML}
+  const tabs = role==='buyer' ? BTABS : ETABS;
+  document.getElementById('tabBar').innerHTML = tabs.map(t => {
+    let b = '';
+    if (t.bdg==='cart' && CC()>0) b = `<span class="bdg">${CC()}</span>`;
+    if (t.bdg==='emp') { const n=empOrders.filter(o=>o.status!=='done').length; if(n) b=`<span class="bdg">${n}</span>`; }
+    return `<div class="tab${curPage===t.id?' on':''}" onclick="navTo('${t.id}')">
+      <span class="ti">${t.icon}</span>${t.label}${b}
     </div>`;
   }).join('');
 }
 
-function navTo(id) {
-  SFX.tap();
-  renderPage(id);
-}
+function navTo(id) { SFX.tap(); renderPage(id); }
 
-// ====== PAGES ======
-function renderPage(pageId) {
-  currentPage = pageId;
+/* ═══════════════════════════════════════
+   PAGES
+═══════════════════════════════════════ */
+function renderPage(id) {
+  curPage = id;
   renderTabs();
-  const area = document.getElementById('contentArea');
-  if (pageId === 'shop') area.innerHTML = renderShop();
-  else if (pageId === 'cart') area.innerHTML = renderCart();
-  else if (pageId === 'orders') area.innerHTML = renderOrders();
-  else if (pageId === 'scanner') area.innerHTML = renderScannerPage();
-  else if (pageId === 'empOrders') area.innerHTML = renderEmpOrders();
-  else if (pageId === 'profilePage') area.innerHTML = renderProfile();
+  const el = document.getElementById('content');
+
+  if      (id==='shop')    el.innerHTML = renderShop();
+  else if (id==='cart')    el.innerHTML = renderCart();
+  else if (id==='orders')  el.innerHTML = renderOrders();
+  else if (id==='scanner') el.innerHTML = renderScanner();
+  else if (id==='eorders') el.innerHTML = renderEOrders();
+  else if (id==='profile') el.innerHTML = renderProfile();
 
   // FAB
-  let fab = document.getElementById('fabBtn');
-  if (fab) fab.remove();
-  if (pageId === 'shop') {
+  const old = document.getElementById('FAB');
+  if (old) old.remove();
+  if (id==='shop') {
     const f = document.createElement('button');
-    f.className = 'fab'; f.id = 'fabBtn'; f.innerHTML = '+';
+    f.className='fab'; f.id='FAB'; f.textContent='+';
     f.onclick = () => { SFX.tap(); openProductModal(null); };
     document.body.appendChild(f);
   }
 }
 
-// ====== SHOP ======
+/* ═══════════════════════════════════════
+   SHOP
+═══════════════════════════════════════ */
 function renderShop() {
-  if (!products.length) return `<div class="empty"><div class="emptyIcon">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить первый</p></div>`;
-  return `<div class="sectionTitle">Доступные товары · ${products.length}</div>
-  <div class="productsGrid">${products.map(p => productCardHTML(p)).join('')}</div>`;
+  if (!products.length) return `<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
+  return `<div class="sec">Товары · ${products.length}</div>
+  <div class="pgrid">${products.map(pc).join('')}</div>`;
 }
-
-function productCardHTML(p) {
-  return `<div class="productCard">
-    <div class="cardImg">${p.emoji}</div>
-    <div class="cardBody">
-      <div class="cardName">${p.name}</div>
-      <div class="cardDesc">${p.desc}</div>
-      <div class="cardPrice">${formatPrice(p.price)}</div>
+function pc(p) {
+  return `<div class="pcard glass">
+    <div class="pcard-img">${p.emoji}</div>
+    <div class="pcard-body">
+      <div class="pcard-name">${p.name}</div>
+      <div class="pcard-desc">${p.desc}</div>
+      <div class="pcard-price">${FMT(p.price)}</div>
     </div>
-    <div class="cardActions">
-      <button class="btn-sm btn-secondary" onclick="openProductModal(${p.id})">✏️</button>
-      <button class="btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
-      <button class="btn-sm btn-primary" onclick="addToCart(${p.id})">+ В корзину</button>
+    <div class="pcard-acts">
+      <button class="btn s" onclick="openProductModal(${p.id})">✏️</button>
+      <button class="btn d" onclick="delProduct(${p.id})">🗑️</button>
+      <button class="btn p grow" onclick="addCart(${p.id})">+ Корзина</button>
     </div>
   </div>`;
 }
 
-// ====== PRODUCT MODAL ======
+/* ═══════════════════════════════════════
+   PRODUCT MODAL
+═══════════════════════════════════════ */
 function openProductModal(id) {
-  editProductId = id;
-  const p = id ? products.find(x => x.id === id) : null;
-  document.getElementById('productModalTitle').textContent = id ? '✏️ Редактировать' : '✨ Новый товар';
-  document.getElementById('pName').value = p ? p.name : '';
+  editId = id;
+  const p = id ? products.find(x=>x.id===id) : null;
+  document.getElementById('mProductTitle').textContent = id ? '✏️ Редактировать' : '✨ Новый товар';
+  document.getElementById('pName').value  = p ? p.name  : '';
   document.getElementById('pPrice').value = p ? p.price : '';
-  document.getElementById('pDesc').value = p ? p.desc : '';
-  selectedEmoji = p ? p.emoji : '📦';
-  renderEmojiGrid();
-  openModal('productModal');
+  document.getElementById('pDesc').value  = p ? p.desc  : '';
+  selEmoji = p ? p.emoji : '📦';
+  renderEGrid();
+  openM('mProduct');
 }
-
-function renderEmojiGrid() {
-  document.getElementById('emojiGrid').innerHTML = EMOJIS.map(e =>
-    `<div class="emojiOption ${e === selectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${e}')">${e}</div>`
-  ).join('');
+function renderEGrid() {
+  document.getElementById('egrid').innerHTML =
+    EMOJIS.map(e=>`<div class="eo${e===selEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');
 }
-
-function selectEmoji(e) {
-  SFX.tap();
-  selectedEmoji = e;
-  renderEmojiGrid();
-}
-
+function pickEmoji(e) { SFX.tap(); selEmoji=e; renderEGrid(); }
 function saveProduct() {
-  const name = document.getElementById('pName').value.trim();
+  const name  = document.getElementById('pName').value.trim();
   const price = parseInt(document.getElementById('pPrice').value);
-  const desc = document.getElementById('pDesc').value.trim();
-  if (!name) { SFX.error(); return showToast('⚠️ Введите название'); }
-  if (!price || price < 100) { SFX.error(); return showToast('⚠️ Цена от 100 ₽'); }
-
-  if (editProductId) {
-    const p = products.find(x => x.id === editProductId);
-    Object.assign(p, { name, price, desc, emoji: selectedEmoji });
-    SFX.success(); showToast('✅ Товар обновлён');
+  const desc  = document.getElementById('pDesc').value.trim();
+  if (!name)            { SFX.error(); return toast('⚠️ Введите название'); }
+  if (!price||price<100){ SFX.error(); return toast('⚠️ Цена от 100 ₽'); }
+  if (editId) {
+    Object.assign(products.find(x=>x.id===editId), {name,price,desc,emoji:selEmoji});
+    SFX.success(); toast('✅ Товар обновлён');
   } else {
-    products.push({ id: uid(), name, price, desc, emoji: selectedEmoji });
-    SFX.add(); showToast('✅ Товар добавлен');
+    products.push({id:pid(),name,price,desc,emoji:selEmoji});
+    SFX.add(); toast('✅ Товар добавлен');
   }
-  closeModal('productModal');
-  renderPage('shop');
+  closeM('mProduct'); renderPage('shop');
 }
-
-function deleteProduct(id) {
-  if (!confirm('Удалить этот товар?')) return;
+function delProduct(id) {
+  if (!confirm('Удалить товар?')) return;
   SFX.remove();
-  products = products.filter(p => p.id !== id);
-  cart = cart.filter(i => i.product.id !== id);
-  renderPage('shop');
-  showToast('🗑️ Товар удалён');
+  products = products.filter(p=>p.id!==id);
+  cart     = cart.filter(i=>i.p.id!==id);
+  renderPage('shop'); toast('🗑️ Удалено');
 }
 
-// ====== CART ======
-function addToCart(id) {
-  const product = products.find(p => p.id === id);
-  const existing = cart.find(i => i.product.id === id);
-  if (existing) existing.qty++;
-  else cart.push({ product, qty: 1 });
-  SFX.add();
-  showToast(`🛒 ${product.name} добавлен`);
-  renderTabs();
+/* ═══════════════════════════════════════
+   CART
+═══════════════════════════════════════ */
+function addCart(id) {
+  const p = products.find(x=>x.id===id);
+  const e = cart.find(i=>i.p.id===id);
+  if (e) e.qty++; else cart.push({p, qty:1});
+  SFX.add(); toast(`🛒 ${p.name} добавлен`); renderTabs();
 }
-
 function renderCart() {
-  if (!cart.length) return `<div class="empty"><div class="emptyIcon">🛒</div><p>Корзина пуста.<br>Перейдите в магазин и добавьте товары</p></div>`;
-  return `<div class="sectionTitle">Корзина · ${cartCount()} поз.</div>
-  ${cart.map(i => cartItemHTML(i)).join('')}
-  <div class="cartSummary">
-    <div class="cartRow"><span class="label">Позиций:</span><span>${cartCount()}</span></div>
-    <div class="divider" style="margin:8px 0;"></div>
-    <div class="cartRow"><span class="label">Итого:</span><span class="cartTotal">${formatPrice(cartTotal())}</span></div>
-    <div style="margin-top:16px;">
-      <div style="font-size:12px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Способ оплаты</div>
-      <div class="paymentOptions">
-        <div class="payOpt ${selectedPayment==='delivery'?'selected':''}" onclick="selectPayment('delivery')">
-          <span class="payIcon">💵</span>При получении
-        </div>
-        <div class="payOpt ${selectedPayment==='online'?'selected':''}" onclick="selectPayment('online')">
-          <span class="payIcon">💳</span>Онлайн сейчас
-        </div>
+  if (!cart.length) return `<div class="empty"><div class="ei">🛒</div><p>Корзина пуста</p></div>`;
+  return `<div class="sec">Корзина · ${CC()} поз.</div>
+  ${cart.map(i=>`<div class="cart-item glass">
+    <div class="ci-emoji">${i.p.emoji}</div>
+    <div class="ci-info">
+      <div class="ci-name">${i.p.name}</div>
+      <div class="ci-price">${FMT(i.p.price)} за шт.</div>
+      <div class="qty-row">
+        <button class="qbtn" onclick="chQty(${i.p.id},-1)">−</button>
+        <span class="qnum">${i.qty}</span>
+        <button class="qbtn" onclick="chQty(${i.p.id},1)">+</button>
+        <button class="qbtn" onclick="remCart(${i.p.id})" style="font-size:14px">🗑️</button>
       </div>
     </div>
-    <button class="btn-full btn-primary" onclick="openCheckout()" style="margin-top:16px;">🚀 Оформить заказ</button>
-  </div>`;
-}
-
-function cartItemHTML(i) {
-  return `<div class="cartItem">
-    <div class="cartItemEmoji">${i.product.emoji}</div>
-    <div class="cartItemInfo">
-      <div class="cartItemName">${i.product.name}</div>
-      <div class="cartItemPrice">${formatPrice(i.product.price)} за шт.</div>
-      <div class="qtyControl">
-        <button class="qtyBtn" onclick="changeQty(${i.product.id}, -1)">−</button>
-        <span class="qtyNum">${i.qty}</span>
-        <button class="qtyBtn" onclick="changeQty(${i.product.id}, 1)">+</button>
-        <button class="qtyBtn" onclick="removeFromCart(${i.product.id})" style="font-size:14px;">🗑️</button>
+    <div class="ci-total">${FMT(i.p.price*i.qty)}</div>
+  </div>`).join('')}
+  <div class="cart-sum glass">
+    <div class="csr"><span class="lbl">Позиций:</span><span style="font-weight:800">${CC()}</span></div>
+    <div style="height:1px;background:rgba(255,255,255,.08);margin:8px 0"></div>
+    <div class="csr"><span class="lbl">Итого:</span><span class="big-total">${FMT(CT())}</span></div>
+    <div style="margin-top:18px;font-size:11px;font-weight:900;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Оплата</div>
+    <div class="pay-opts">
+      <div class="pay-opt${selPay==='delivery'?' on':''}" onclick="setPay('delivery')">
+        <span class="pi">💵</span>При получении
+      </div>
+      <div class="pay-opt${selPay==='online'?' on':''}" onclick="setPay('online')">
+        <span class="pi">💳</span>Онлайн сейчас
       </div>
     </div>
-    <div class="cartItemTotal">${formatPrice(i.product.price * i.qty)}</div>
+    <button class="fullbtn p" onclick="openCheckout()" style="margin-top:14px">🚀 Оформить заказ</button>
   </div>`;
 }
-
-function changeQty(id, delta) {
+function chQty(id,d) {
   SFX.tap();
-  const item = cart.find(i => i.product.id === id);
-  if (!item) return;
-  item.qty += delta;
-  if (item.qty <= 0) { cart = cart.filter(i => i.product.id !== id); SFX.remove(); }
+  const i = cart.find(x=>x.p.id===id);
+  if (!i) return;
+  i.qty += d;
+  if (i.qty<=0) { cart=cart.filter(x=>x.p.id!==id); SFX.remove(); }
   renderPage('cart');
 }
-
-function removeFromCart(id) { SFX.remove(); cart = cart.filter(i => i.product.id !== id); renderPage('cart'); }
-function selectPayment(p) { SFX.tap(); selectedPayment = p; renderPage('cart'); }
-
+function remCart(id) { SFX.remove(); cart=cart.filter(i=>i.p.id!==id); renderPage('cart'); }
+function setPay(p)   { SFX.tap(); selPay=p; renderPage('cart'); }
 function openCheckout() {
   if (!cart.length) return;
   SFX.tap();
-  document.getElementById('checkoutItems').innerHTML = cart.map(i =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--glass-border);font-size:14px;">
-      <span>${i.product.emoji} ${i.product.name} <span style="color:var(--text2);">× ${i.qty}</span></span>
-      <span style="font-weight:700;color:var(--accent3);">${formatPrice(i.product.price*i.qty)}</span>
-    </div>`
-  ).join('');
-  document.getElementById('checkoutSummary').innerHTML = `
-    <div style="background:rgba(0,122,255,0.1);border:1px solid rgba(0,122,255,0.2);border-radius:14px;padding:16px;margin-top:16px;">
-      <div class="cartRow"><span style="color:var(--text2);">Позиций:</span><span style="font-weight:700;">${cartCount()}</span></div>
-      <div class="cartRow"><span style="color:var(--text2);">Оплата:</span><span style="font-weight:700;">${selectedPayment==='delivery'?'💵 При получении':'💳 Оплачено онлайн'}</span></div>
-      <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 0;"></div>
-      <div class="cartRow"><span style="color:var(--text2);font-size:16px;">Итого:</span><span class="cartTotal">${formatPrice(cartTotal())}</span></div>
+  document.getElementById('coItems').innerHTML =
+    cart.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px">
+      <span>${i.p.emoji} ${i.p.name} <span style="color:var(--text2)">×${i.qty}</span></span>
+      <span style="font-weight:800;color:var(--orange)">${FMT(i.p.price*i.qty)}</span>
+    </div>`).join('');
+  document.getElementById('coSum').innerHTML =
+    `<div style="background:rgba(0,122,255,.1);border:1px solid rgba(0,122,255,.2);border-radius:16px;padding:16px;margin-top:16px">
+      <div class="csr"><span class="lbl">Позиций:</span><span style="font-weight:800">${CC()}</span></div>
+      <div class="csr"><span class="lbl">Оплата:</span><span style="font-weight:800">${selPay==='delivery'?'💵 При получении':'💳 Оплачено онлайн'}</span></div>
+      <div style="height:1px;background:rgba(255,255,255,.1);margin:8px 0"></div>
+      <div class="csr"><span class="lbl" style="font-size:16px">Итого:</span><span class="big-total">${FMT(CT())}</span></div>
     </div>`;
-  openModal('checkoutModal');
+  openM('mCheckout');
 }
-
 function placeOrder() {
   SFX.checkout();
-  const cell = Math.floor(Math.random() * 89 + 10).toString();
-  const order = {
-    id: oid(), items: cart.map(i => ({...i})),
-    total: cartTotal(), payment: selectedPayment, status: 'pending',
-    cell, scanned: [], returned: [], createdAt: new Date()
-  };
-  orders.push(order);
-  cart = [];
-  closeModal('checkoutModal');
-  showToast('🎉 Заказ оформлен!');
+  const cell = Math.floor(Math.random()*89+10).toString();
+  orders.push({
+    id:oid(), items:cart.map(i=>({...i})), total:CT(),
+    payment:selPay, status:'pending', cell,
+    scanned:[], returned:[], at: new Date()
+  });
+  cart=[];
+  closeM('mCheckout');
+  toast('🎉 Заказ оформлен!');
   renderPage('orders');
 }
 
-// ====== ORDERS ======
+/* ═══════════════════════════════════════
+   ORDERS (buyer)
+═══════════════════════════════════════ */
 function renderOrders() {
-  if (!orders.length) return `<div class="empty"><div class="emptyIcon">📋</div><p>Заказов пока нет.<br>Оформите первый заказ в корзине</p></div>`;
-  return `<div class="sectionTitle">Мои заказы · ${orders.length}</div>
-  ${orders.slice().reverse().map(o => orderCardHTML(o)).join('')}`;
+  if (!orders.length) return `<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
+  return `<div class="sec">Мои заказы · ${orders.length}</div>
+  ${orders.slice().reverse().map(o=>{
+    const st = o.status==='ready';
+    return `<div class="order-card glass">
+      <div class="oh">
+        <div class="onum">Заказ #${o.id}</div>
+        <div class="ostatus ${st?'st-done':'st-wait'}">${st?'✅ Выдан':'⏳ Ожидание'}</div>
+      </div>
+      <div class="ometa">
+        <div class="ombadge">📦 Ячейка ${o.cell}</div>
+        <div class="ombadge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
+        <div class="ombadge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
+      </div>
+      <div class="oprice">${FMT(o.total)}</div>
+      <button class="fullbtn p" style="margin-top:0" onclick="showQR(${o.id})">🔲 Показать QR‑код</button>
+    </div>`;
+  }).join('')}`;
 }
 
-function orderCardHTML(o) {
-  const payLabel = o.payment === 'delivery' ? '💵 При получении' : '💳 Оплачено';
-  const statusLabel = o.status === 'ready' ? '✅ Выдан' : '⏳ В ожидании';
-  const statusClass = o.status === 'ready' ? 'status-ready' : 'status-pending';
-  return `<div class="orderCard">
-    <div class="orderHeader">
-      <div class="orderNum">Заказ #${o.id}</div>
-      <div class="orderStatus ${statusClass}">${statusLabel}</div>
-    </div>
-    <div class="orderMeta">
-      <div class="orderMetaBadge">📦 Ячейка ${o.cell}</div>
-      <div class="orderMetaBadge">${payLabel}</div>
-      <div class="orderMetaBadge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
-    </div>
-    <div class="orderPrice">${formatPrice(o.total)}</div>
-    <button class="btn-sm btn-primary" style="width:100%;padding:12px;" onclick="showQR(${o.id})">🔲 Показать QR-код</button>
-  </div>`;
-}
-
-// ====== QR ======
+/* ═══════════════════════════════════════
+   QR CODE  (self-contained generator)
+═══════════════════════════════════════ */
 function showQR(orderId) {
-  const order = orders.find(o => o.id === orderId);
-  if (!order) return;
+  const o = orders.find(x=>x.id===orderId);
+  if (!o) return;
   SFX.scan();
 
-  const qrData = JSON.stringify({
-    orderId: order.id, cell: order.cell,
-    count: order.items.reduce((s,i)=>s+i.qty,0),
-    total: order.total, payment: order.payment,
-    items: order.items.map(i => ({
-      id: i.product.id, name: i.product.name,
-      price: i.product.price, qty: i.qty, emoji: i.product.emoji
+  const data = JSON.stringify({
+    orderId: o.id, cell: o.cell,
+    count: o.items.reduce((s,i)=>s+i.qty,0),
+    total: o.total, payment: o.payment,
+    items: o.items.map(i=>({
+      id: i.p.id, name: i.p.name, price: i.p.price, qty: i.qty, emoji: i.p.emoji
     }))
   });
 
-  document.getElementById('qrModalTitle').textContent = `🔲 Заказ #${order.id}`;
-  document.getElementById('qrOrderInfo').innerHTML =
-    `${order.items.reduce((s,i)=>s+i.qty,0)} позиций · Ячейка <b>${order.cell}</b> · ${formatPrice(order.total)}`;
+  document.getElementById('mQRTitle').textContent = `🔲 Заказ #${o.id}`;
+  document.getElementById('qrHint').innerHTML =
+    `${o.items.reduce((s,i)=>s+i.qty,0)} позиций · Ячейка <b>${o.cell}</b> · ${FMT(o.total)}`;
 
-  openModal('qrModal');
+  openM('mQR');
 
-  setTimeout(() => {
-    const container = document.getElementById('qrContainer');
-    container.innerHTML = '';
-    // Use Google Charts QR API - always works, no library needed
-    const encoded = encodeURIComponent(qrData);
-    const img = document.createElement('img');
-    img.width = 220;
-    img.height = 220;
-    img.style.display = 'block';
-    img.style.borderRadius = '4px';
-    img.src = `https://chart.googleapis.com/chart?cht=qr&chs=220x220&chl=${encoded}&choe=UTF-8&chld=M|1`;
-    img.onerror = () => {
-      // If Google Charts unavailable, draw QR manually
-      container.innerHTML = '';
-      const canvas = document.createElement('canvas');
-      canvas.width = 220; canvas.height = 220;
-      container.appendChild(canvas);
-      drawQRManual(canvas, qrData);
-    };
-    container.appendChild(img);
-  }, 150);
+  // Build QR after modal opens
+  requestAnimationFrame(() => {
+    const box = document.getElementById('qrBox');
+    box.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    canvas.width  = 230;
+    canvas.height = 230;
+    box.appendChild(canvas);
+    qrDraw(canvas, data);
+  });
 }
 
-// Manual QR draw fallback using qr-gen algorithm
-function drawQRManual(canvas, text) {
+/* ── Tiny QR encoder (Mode 4=Byte, ECC=M, mask 0) ── */
+function qrDraw(canvas, text) {
+  const bytes = utf8(text);
+  const version = pickVersion(bytes.length);
+  if (!version) { canvas.getContext('2d').fillText('Слишком длинный текст',10,20); return; }
+
+  const N = version * 4 + 17;
+  const m = buildMatrix(N, version, bytes);
+  applyMask(m, N);
+  placeFormat(m, N);
+
   const ctx = canvas.getContext('2d');
-  // Simple visual QR placeholder that encodes order number
-  const size = 220;
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0,0,size,size);
-  
-  // Draw finder patterns to look like QR
-  function finder(x,y) {
-    ctx.fillStyle='#000';
-    ctx.fillRect(x,y,49,49);
-    ctx.fillStyle='#fff';
-    ctx.fillRect(x+7,y+7,35,35);
-    ctx.fillStyle='#000';
-    ctx.fillRect(x+14,y+14,21,21);
+  const sz = canvas.width;
+  const cell = sz / N;
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,sz,sz);
+  ctx.fillStyle = '#000000';
+  for (let r=0;r<N;r++)
+    for (let c=0;c<N;c++)
+      if (m[r][c]===1)
+        ctx.fillRect(Math.floor(c*cell), Math.floor(r*cell), Math.ceil(cell)+0.5, Math.ceil(cell)+0.5);
+}
+
+function utf8(str) {
+  const b=[];
+  for (let i=0;i<str.length;i++){
+    const c=str.charCodeAt(i);
+    if(c<0x80) b.push(c);
+    else if(c<0x800){b.push(0xC0|(c>>6));b.push(0x80|(c&0x3F));}
+    else{b.push(0xE0|(c>>12));b.push(0x80|((c>>6)&0x3F));b.push(0x80|(c&0x3F));}
   }
-  finder(10,10); finder(161,10); finder(10,161);
-  
-  // Timing
-  for(let i=0;i<16;i++) {
-    ctx.fillStyle = i%2===0?'#000':'#fff';
-    ctx.fillRect(66+i*6,10,6,6);
-    ctx.fillRect(10,66+i*6,6,6);
+  return b;
+}
+
+/* Capacities for ECC=M (byte mode) */
+const CAP=[0,14,26,42,62,84,106,122,154,180,213,251,287,331,370,411,461,511,535,593,625,658,698,742,790,842,898,958,983,1051,1093,1139,1183,1229,1283,1351,1423,1499,1579,1663,1749];
+function pickVersion(n){for(let v=1;v<=40;v++)if(CAP[v]>=n+3)return v;return null;}
+
+/* Total data codewords per version (ECC=M) */
+const DC=[0,16,28,44,64,86,108,124,154,182,216,254,290,334,365,415,453,507,563,627,669,714,782,860,914,1000,1062,1128,1193,1267,1373,1455,1541,1631,1725,1812,1914,1992,2102,2216,2334];
+
+function buildMatrix(N, V, bytes) {
+  const m = Array.from({length:N},()=>new Int8Array(N).fill(-1)); // -1=unfilled
+
+  /* Finder patterns */
+  function finder(r,c){
+    for(let dr=-1;dr<=7;dr++)for(let dc=-1;dc<=7;dc++){
+      const rr=r+dr,cc=c+dc;
+      if(rr<0||rr>=N||cc<0||cc>=N) continue;
+      const inside=dr>=0&&dr<=6&&dc>=0&&dc<=6;
+      const border=dr===0||dr===6||dc===0||dc===6;
+      const inner=dr>=2&&dr<=4&&dc>=2&&dc<=4;
+      m[rr][cc]=inside&&(border||inner)?1:0;
+    }
   }
-  
-  // Data area - fill with pseudo-random based on text hash
-  let hash = 0;
-  for(let i=0;i<text.length;i++) hash=(hash*31+text.charCodeAt(i))>>>0;
-  
-  for(let r=0;r<15;r++) for(let c=0;c<15;c++) {
-    const skip = (r<7&&c<7)||(r<7&&c>9)||(r>9&&c<7);
-    if(!skip) {
-      hash = (hash * 1664525 + 1013904223) >>> 0;
-      if(hash & 0x80000000) {
-        ctx.fillStyle='#000';
-        ctx.fillRect(10+c*14, 10+r*14, 12, 12);
+  finder(0,0); finder(0,N-7); finder(N-7,0);
+
+  /* Timing */
+  for(let i=8;i<N-8;i++){
+    if(m[6][i]<0) m[6][i]=i%2===0?1:0;
+    if(m[i][6]<0) m[i][6]=i%2===0?1:0;
+  }
+
+  /* Dark module */
+  m[N-8][8]=1;
+
+  /* Alignment patterns */
+  const AL=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+  if(V>=2&&AL[V]){
+    const a=AL[V];
+    for(const r of a)for(const c of a){
+      if(m[r][c]>=0) continue;
+      for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
+        m[r+dr][c+dc]=(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0))?1:0;
       }
     }
   }
-  
-  ctx.fillStyle='#000';
-  ctx.font='bold 11px sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText('⚠ Нет сети', 110, 210);
+
+  /* Data bits */
+  const dbytes=[];
+  // Mode indicator (4=byte) + length
+  dbytes.push(0x40|(bytes.length>>4));
+  dbytes.push(((bytes.length&0xF)<<4)|(bytes.length>0?bytes[0]>>4:0));
+  for(let i=0;i<bytes.length;i++){
+    const lo=bytes[i]&0xF;
+    const hi=i+1<bytes.length?bytes[i+1]>>4:0;
+    dbytes.push((lo<<4)|hi);
+  }
+  const total=DC[V]||128;
+  while(dbytes.length<total) dbytes.push(dbytes.length%2===0?0xEC:0x11);
+
+  /* Convert to bits */
+  const bits=[];
+  for(const b of dbytes) for(let i=7;i>=0;i--) bits.push((b>>i)&1);
+
+  /* Place in zigzag */
+  let bi=0, up=true;
+  for(let col=N-1;col>=1;col-=2){
+    if(col===6) col--;
+    for(let i=0;i<N;i++){
+      const row=up?N-1-i:i;
+      for(const dc of [0,-1]){
+        const c=col+dc;
+        if(m[row][c]<0) m[row][c]=bi<bits.length?bits[bi++]:0;
+      }
+    }
+    up=!up;
+  }
+
+  return m;
 }
 
-// ====== SCANNER PAGE ======
-function renderScannerPage() {
-  return `<div class="scannerCard">
-    <div class="scannerIcon">📷</div>
-    <div class="scannerTitle">Сканер QR-кодов</div>
-    <div class="scannerSub">Нажмите кнопку и поднесите<br>QR-код клиента к камере устройства</div>
-    <button class="btn-full btn-blue" onclick="startScanner()" style="font-size:17px;padding:18px;max-width:320px;margin:0 auto;">
+function applyMask(m,N){
+  // mask pattern 0: (r+c)%2===0
+  const skip=(r,c)=>{
+    const rf=(r<9&&c<9)||(r<9&&c>=N-8)||(r>=N-8&&c<9);
+    if(rf) return true;
+    // timing
+    if(r===6||c===6) return true;
+    return false;
+  };
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(!skip(r,c)&&m[r][c]>=0&&(r+c)%2===0) m[r][c]^=1;
+  }
+}
+
+function placeFormat(m,N){
+  // Format string for ECC=M, mask=0 (pre-calculated): 101010000010010
+  const fs=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
+  // Positions around top-left finder
+  const p=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+  for(let i=0;i<15;i++){
+    m[p[i][0]][p[i][1]]=fs[i];
+    // top-right / bottom-left copies
+    if(i<7)  m[N-1-i][8]=fs[i];
+    else     m[8][N-15+i]=fs[i];
+  }
+}
+
+/* ═══════════════════════════════════════
+   SCANNER (employee)
+═══════════════════════════════════════ */
+function renderScanner() {
+  const hist = empOrders.slice(-3).reverse();
+  return `<div class="scan-card glass">
+    <div class="scan-big-icon">📷</div>
+    <div class="scan-title">Сканер QR‑кодов</div>
+    <div class="scan-sub">Нажмите кнопку, поднесите QR‑код клиента к камере</div>
+    <button class="fullbtn p" onclick="startScan()" style="margin:0 auto;max-width:300px;font-size:17px;padding:17px">
       📷 Запустить камеру
     </button>
   </div>
-  <div style="padding:0 4px;">
-    <div class="sectionTitle">Последние сканирования</div>
-    ${employeeOrders.length === 0
-      ? '<div class="empty" style="padding:30px 20px;"><div class="emptyIcon" style="font-size:40px;">🔲</div><p style="font-size:13px;">Ещё нет отсканированных заказов</p></div>'
-      : employeeOrders.slice(-3).reverse().map(o => `
-        <div style="background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
-          <div style="font-size:28px;">📦</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">Заказ #${o.id || o.orderId}</div>
-            <div style="color:var(--text2);font-size:12px;">Ячейка ${o.cell} · ${formatPrice(o.total)}</div>
-          </div>
-          <div style="color:${o.status==='done'?'#34C759':'#FF9500'};font-size:12px;font-weight:700;">${o.status==='done'?'Выдан':'Активен'}</div>
-        </div>`
-      ).join('')
-    }
+  <div style="margin-top:4px">
+    <div class="sec">Последние сканирования</div>
+    ${!hist.length ? '<div class="empty" style="padding:24px 20px"><div class="ei" style="font-size:40px">🔲</div><p style="font-size:13px">Нет отсканированных заказов</p></div>'
+    : hist.map(o=>`<div class="scan-hist-item glass-sm">
+        <span style="font-size:28px">📦</span>
+        <div style="flex:1">
+          <div style="font-weight:800">Заказ #${o.id}</div>
+          <div style="color:var(--text2);font-size:12px">Ячейка ${o.cell} · ${FMT(o.total)}</div>
+        </div>
+        <div style="font-size:12px;font-weight:800;color:${o.status==='done'?'var(--green)':'var(--orange)'}">
+          ${o.status==='done'?'Выдан':'Активен'}
+        </div>
+      </div>`).join('')}
   </div>`;
 }
 
-function startScanner() {
+let scanCanvas = null;
+let scanCtx    = null;
+
+function startScan() {
   SFX.tap();
-  openModal('scanModal');
-  const video = document.getElementById('scanVideo');
+  openM('mScan');
+  const vid = document.getElementById('scanVid');
 
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-  }).then(stream => {
-    scannerStream = stream;
-    video.srcObject = stream;
-    video.play();
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-    scanInterval = setInterval(() => {
-      if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert'
-        });
-        if (code && code.data) {
-          clearInterval(scanInterval);
-          stopScanner();
-          processQR(code.data);
-        }
-      }
-    }, 150);
-  }).catch(err => {
-    closeModal('scanModal');
-    SFX.error();
-    showToast('⚠️ Нет доступа к камере');
-  });
-}
-
-function stopScanner() {
-  clearInterval(scanInterval);
-  if (scannerStream) {
-    scannerStream.getTracks().forEach(t => t.stop());
-    scannerStream = null;
+  if (!scanCanvas) {
+    scanCanvas = document.createElement('canvas');
+    scanCtx    = scanCanvas.getContext('2d', {willReadFrequently:true});
   }
-  closeModal('scanModal');
-}
 
-function processQR(data) {
-  try {
-    const order = JSON.parse(data);
-    const orderId = order.orderId || order.id;
-    const exists = employeeOrders.find(o => (o.id || o.orderId) === orderId);
-
-    if (!exists) {
-      order.id = orderId;
-      order.scanned = [];
-      order.returned = [];
-      order.status = 'pending';
-      employeeOrders.push(order);
+  const constraints = {
+    video: {
+      facingMode: {ideal:'environment'},
+      width:  {ideal:1280},
+      height: {ideal:720}
     }
+  };
 
-    SFX.scan();
-    const payLabel = order.payment === 'delivery' ? 'оплата при получении' : 'оплачено онлайн';
-    const n = order.count || order.items.reduce((s,i)=>s+i.qty,0);
-    speak(`Ячейка ${order.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${payLabel}.`);
-    showToast(`📦 Заказ #${orderId} загружен!`);
-    renderPage('empOrders');
-  } catch(e) {
-    SFX.error();
-    showToast('⚠️ Не удалось прочитать QR-код');
-  }
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      scanStream = stream;
+      vid.srcObject = stream;
+
+      vid.onloadedmetadata = () => {
+        vid.play().catch(()=>{});
+      };
+
+      // Give video time to start then begin scanning
+      setTimeout(() => {
+        clearInterval(scanTick);
+        scanTick = setInterval(() => {
+          if (vid.readyState < vid.HAVE_ENOUGH_DATA) return;
+          if (!vid.videoWidth) return;
+
+          scanCanvas.width  = vid.videoWidth;
+          scanCanvas.height = vid.videoHeight;
+          scanCtx.drawImage(vid, 0, 0);
+
+          let img;
+          try { img = scanCtx.getImageData(0,0,scanCanvas.width,scanCanvas.height); }
+          catch(e) { return; }
+
+          const code = jsQR(img.data, img.width, img.height, {inversionAttempts:'dontInvert'});
+          if (code && code.data) {
+            clearInterval(scanTick);
+            stopScan();
+            processQR(code.data);
+          }
+        }, 120);
+      }, 800);
+    })
+    .catch(err => {
+      closeM('mScan');
+      SFX.error();
+      if (err.name === 'NotAllowedError') toast('⚠️ Разрешите доступ к камере');
+      else if (err.name === 'NotFoundError') toast('⚠️ Камера не найдена');
+      else toast('⚠️ Ошибка камеры: ' + err.message);
+    });
 }
 
-// ====== EMP ORDERS ======
-function renderEmpOrders() {
-  const active = employeeOrders.filter(o => o.status !== 'done');
-  const done = employeeOrders.filter(o => o.status === 'done');
-  if (!employeeOrders.length) return `<div class="empty"><div class="emptyIcon">📋</div><p>Нет активных заказов.<br>Отсканируйте QR-код клиента</p></div>`;
+function stopScan() {
+  clearInterval(scanTick);
+  if (scanStream) {
+    scanStream.getTracks().forEach(t=>t.stop());
+    scanStream = null;
+  }
+  closeM('mScan');
+}
 
-  let html = '';
-  if (active.length) {
-    html += `<div class="sectionTitle">Активные · ${active.length}</div>`;
-    html += active.map(o => empOrderHTML(o)).join('');
+function processQR(raw) {
+  let data;
+  try { data = JSON.parse(raw); }
+  catch(e) { SFX.error(); toast('⚠️ Нечитаемый QR‑код'); return; }
+
+  const id = data.orderId || data.id;
+  if (!id) { SFX.error(); toast('⚠️ QR не содержит данных заказа'); return; }
+
+  const exists = empOrders.find(o=>o.id===id);
+  if (!exists) {
+    const o = {
+      id, cell: data.cell, total: data.total,
+      payment: data.payment, status: 'pending',
+      items: data.items||[], scanned:[], returned:[]
+    };
+    empOrders.push(o);
   }
-  if (done.length) {
-    html += `<div class="sectionTitle" style="margin-top:24px;">Завершённые · ${done.length}</div>`;
-    html += done.map(o => `<div style="opacity:0.5;">${empOrderHTML(o)}</div>`).join('');
-  }
+
+  SFX.scan();
+  const n = data.count || (data.items||[]).reduce((s,i)=>s+i.qty,0);
+  speak(`Ячейка ${data.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${data.payment==='delivery'?'оплата при получении':'оплачено онлайн'}.`);
+  toast(`📦 Заказ #${id} загружен`);
+  renderPage('eorders');
+}
+
+/* ═══════════════════════════════════════
+   EMP ORDERS
+═══════════════════════════════════════ */
+function renderEOrders() {
+  const active = empOrders.filter(o=>o.status!=='done');
+  const done   = empOrders.filter(o=>o.status==='done');
+  if (!empOrders.length)
+    return `<div class="empty"><div class="ei">📋</div><p>Нет активных заказов.<br>Отсканируйте QR‑код клиента</p></div>`;
+
+  let html='';
+  if(active.length){ html+=`<div class="sec">Активные · ${active.length}</div>`; html+=active.map(empCard).join(''); }
+  if(done.length)  { html+=`<div class="sec" style="margin-top:22px">Завершённые · ${done.length}</div>`; html+=done.map(o=>`<div style="opacity:.5">${empCard(o)}</div>`).join(''); }
   return html;
 }
 
-function empOrderHTML(o) {
-  const payLabel = o.payment === 'delivery' ? '💵 При получении' : '💳 Оплачено';
+function empCard(o) {
+  const sc = o.scanned||[], rt = o.returned||[];
   const total = o.items.reduce((s,i)=>s+i.price*i.qty,0);
-  const allDone = o.items.every(i => (o.scanned||[]).includes(i.id) || (o.returned||[]).includes(i.id));
-  const scannedCount = (o.scanned||[]).length + (o.returned||[]).length;
-  const totalItems = o.items.length;
-  const progress = Math.round(scannedCount / totalItems * 100);
+  const done  = o.items.every(i=>sc.includes(i.id)||rt.includes(i.id));
+  const prog  = Math.round((sc.length+rt.length)/Math.max(o.items.length,1)*100);
 
-  let actionsHTML = '';
-  if (o.status === 'done') {
-    actionsHTML = `<div style="text-align:center;color:var(--accent4);font-weight:700;padding:10px;">✅ Заказ завершён</div>`;
-  } else if (allDone) {
-    actionsHTML = `
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        ${(o.returned||[]).length === 0 ? `<button class="btn-sm btn-danger" onclick="openReturn(${o.id})">↩️ Возврат</button>` : ''}
-        <button class="btn-sm btn-green" style="flex:2;" onclick="completeOrder(${o.id})">✅ Завершить выдачу</button>
-      </div>`;
+  let acts='';
+  if(o.status==='done'){
+    acts=`<div style="text-align:center;color:var(--green);font-weight:800;padding:10px">✅ Заказ завершён</div>`;
+  } else if(done){
+    acts=`<div style="display:flex;gap:8px;margin-top:12px">
+      ${rt.length===0?`<button class="btn d" onclick="openReturn(${o.id})">↩️ Возврат</button>`:''}
+      <button class="btn g grow" onclick="completeOrder(${o.id})">✅ Завершить</button>
+    </div>`;
   } else {
-    actionsHTML = `
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <button class="btn-sm btn-danger" onclick="openReturn(${o.id})">↩️ Возврат</button>
-      </div>`;
+    acts=`<div style="margin-top:12px"><button class="btn d" onclick="openReturn(${o.id})">↩️ Возврат</button></div>`;
   }
 
-  return `<div class="empOrderCard" style="${o.status==='done'?'opacity:0.6;':''}">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div style="font-size:17px;font-weight:800;">Заказ #${o.id}</div>
-      <div class="orderStatus ${o.status==='done'?'status-ready':'status-pending'}">${o.status==='done'?'Выдан':'Активен'}</div>
+  return `<div class="emp-card glass">
+    <div class="emp-hdr">
+      <div class="emp-title">Заказ #${o.id}</div>
+      <div class="ostatus ${o.status==='done'?'st-done':'st-wait'}">${o.status==='done'?'Выдан':'Активен'}</div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-      <div class="infoBadge">📦 Ячейка ${o.cell}</div>
-      <div class="infoBadge">${payLabel}</div>
-      <div class="infoBadge">💰 ${formatPrice(total)}</div>
+    <div class="info-row">
+      <div class="infobdg">📦 Ячейка ${o.cell}</div>
+      <div class="infobdg">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
+      <div class="infobdg">💰 ${FMT(total)}</div>
     </div>
-    ${totalItems > 0 ? `
-    <div style="margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;">
-        <span>Прогресс</span><span>${scannedCount}/${totalItems}</span>
+    ${o.items.length?`
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px">
+        <span>Прогресс</span><span>${sc.length+rt.length}/${o.items.length}</span>
       </div>
-      <div class="progressWrap"><div class="progressBar" style="width:${progress}%"></div></div>
-    </div>` : ''}
-    <div class="sectionTitle" style="margin-bottom:8px;">Товары</div>
-    <div class="itemsToScan">
-      ${o.items.map(i => {
-        const isScanned = (o.scanned||[]).includes(i.id);
-        const isReturned = (o.returned||[]).includes(i.id);
-        const rowClass = isScanned ? 'scanItemRow scanned' : isReturned ? 'scanItemRow returned' : 'scanItemRow';
-        const mark = isScanned ? '✅' : isReturned ? '↩️' : '';
-        const scanBtn = (!isScanned && !isReturned && o.status !== 'done')
-          ? `<button class="btn-sm btn-primary" onclick="scanItem(${o.id},${i.id})" style="flex:0;width:60px;font-size:11px;">Выдать</button>` : '';
-        return `<div class="${rowClass}">
-          <div class="scanItemEmoji">${i.emoji}</div>
-          <div class="scanItemInfo">
-            <div class="scanItemName">${i.name}</div>
-            <div class="scanItemPrice">${formatPrice(i.price)} × ${i.qty}</div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${prog}%"></div></div>
+    </div>`:''}
+    <div class="sec" style="margin-bottom:8px">Товары</div>
+    <div class="items-list">
+      ${o.items.map(i=>{
+        const isS=sc.includes(i.id), isR=rt.includes(i.id);
+        const cls=isS?'item-row scanned':isR?'item-row returned':'item-row';
+        const mark=isS?'✅':isR?'↩️':'';
+        const btn=(!isS&&!isR&&o.status!=='done')
+          ?`<button class="btn p" style="font-size:11px;padding:7px 11px" onclick="scanItem(${o.id},${i.id})">Выдать</button>`:'';
+        return `<div class="${cls}">
+          <div class="item-emoji">${i.emoji}</div>
+          <div class="item-info">
+            <div class="item-name">${i.name}</div>
+            <div class="item-price">${FMT(i.price)} × ${i.qty}</div>
           </div>
-          <span class="checkMark">${mark}</span>
-          ${scanBtn}
+          <span class="item-mark">${mark}</span>${btn}
         </div>`;
       }).join('')}
     </div>
-    ${actionsHTML}
+    ${acts}
   </div>`;
 }
 
-function scanItem(orderId, itemId) {
-  const order = employeeOrders.find(o => o.id === orderId);
-  if (!order) return;
-  if (!order.scanned) order.scanned = [];
-  if (order.scanned.includes(itemId)) return;
-  order.scanned.push(itemId);
+function scanItem(oid, iid) {
+  const o=empOrders.find(x=>x.id===oid); if(!o) return;
+  if (!o.scanned) o.scanned=[];
+  if (o.scanned.includes(iid)) return;
+  o.scanned.push(iid);
   SFX.scan();
-
-  const allDone = order.items.every(i => order.scanned.includes(i.id) || (order.returned||[]).includes(i.id));
-  if (allDone) { SFX.success(); showToast('🎉 Все товары выданы!'); }
-  else showToast('✅ Товар отмечен');
-  renderPage('empOrders');
+  const done=o.items.every(i=>o.scanned.includes(i.id)||(o.returned||[]).includes(i.id));
+  if(done){SFX.success();toast('🎉 Все товары выданы!');}
+  else toast('✅ Товар отмечен');
+  renderPage('eorders');
 }
 
-function openReturn(orderId) {
+function openReturn(oid) {
   SFX.tap();
-  currentReturnOrderId = orderId;
-  returnSelected = new Set();
-  const order = employeeOrders.find(o => o.id === orderId);
-  const returnable = order.items.filter(i => !(order.returned||[]).includes(i.id));
-
-  document.getElementById('returnItems').innerHTML = returnable.length === 0
-    ? '<div style="text-align:center;color:var(--text2);padding:20px;">Нет товаров для возврата</div>'
-    : returnable.map(i =>
-      `<div class="returnItem" id="ri_${i.id}" onclick="toggleReturn(${i.id})">
-        <div class="returnCheckbox" id="rc_${i.id}"></div>
-        <div style="font-size:26px;">${i.emoji}</div>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:14px;">${i.name}</div>
-          <div style="color:var(--text2);font-size:12px;">${formatPrice(i.price)} × ${i.qty}</div>
+  retOrderId=oid; retSel=new Set();
+  const o=empOrders.find(x=>x.id===oid);
+  const items=o.items.filter(i=>!(o.returned||[]).includes(i.id));
+  document.getElementById('retItems').innerHTML = !items.length
+    ? '<div style="text-align:center;color:var(--text2);padding:20px">Нет товаров для возврата</div>'
+    : items.map(i=>`<div class="ret-item" id="ri${i.id}" onclick="togRet(${i.id})">
+        <div class="ret-cb" id="rc${i.id}"></div>
+        <div style="font-size:26px">${i.emoji}</div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:14px">${i.name}</div>
+          <div style="color:var(--text2);font-size:12px">${FMT(i.price)} × ${i.qty}</div>
         </div>
-      </div>`
-    ).join('');
-  openModal('returnModal');
+      </div>`).join('');
+  openM('mReturn');
 }
-
-function toggleReturn(itemId) {
+function togRet(id){
   SFX.tap();
-  if (returnSelected.has(itemId)) returnSelected.delete(itemId);
-  else returnSelected.add(itemId);
-  const el = document.getElementById(`ri_${itemId}`);
-  const cb = document.getElementById(`rc_${itemId}`);
-  el.classList.toggle('selected', returnSelected.has(itemId));
-  cb.textContent = returnSelected.has(itemId) ? '✓' : '';
+  retSel.has(id)?retSel.delete(id):retSel.add(id);
+  document.getElementById(`ri${id}`).classList.toggle('on',retSel.has(id));
+  document.getElementById(`rc${id}`).textContent=retSel.has(id)?'✓':'';
 }
-
-function confirmReturn() {
-  if (!returnSelected.size) { SFX.error(); return showToast('⚠️ Выберите товары для возврата'); }
-  const order = employeeOrders.find(o => o.id === currentReturnOrderId);
-  if (!order.returned) order.returned = [];
-  returnSelected.forEach(id => {
-    if (!order.returned.includes(id)) order.returned.push(id);
-    if (order.scanned) order.scanned = order.scanned.filter(s => s !== id);
+function confirmReturn(){
+  if(!retSel.size){SFX.error();return toast('⚠️ Выберите товары');}
+  const o=empOrders.find(x=>x.id===retOrderId);
+  if(!o.returned)o.returned=[];
+  retSel.forEach(id=>{
+    if(!o.returned.includes(id))o.returned.push(id);
+    if(o.scanned)o.scanned=o.scanned.filter(s=>s!==id);
   });
-  SFX.success();
-  closeModal('returnModal');
-  showToast('↩️ Возврат оформлен');
-  renderPage('empOrders');
+  SFX.success(); closeM('mReturn'); toast('↩️ Возврат оформлен'); renderPage('eorders');
+}
+function completeOrder(oid){
+  const o=empOrders.find(x=>x.id===oid); o.status='done';
+  SFX.complete(); toast('🎉 Заказ выдан!'); renderPage('eorders');
 }
 
-function completeOrder(orderId) {
-  const order = employeeOrders.find(o => o.id === orderId);
-  order.status = 'done';
-  SFX.complete();
-  showToast('🎉 Заказ успешно выдан!');
-  renderPage('empOrders');
-}
-
-// ====== PROFILE PAGE ======
+/* ═══════════════════════════════════════
+   PROFILE
+═══════════════════════════════════════ */
 function renderProfile() {
-  const isBuyer = role === 'buyer';
-  const prof = isBuyer ? buyerProfile : empProfile;
-  const myOrders = isBuyer ? orders : employeeOrders;
-  const totalSpent = isBuyer ? orders.reduce((s,o)=>s+o.total,0) : 0;
-  const completed = isBuyer
-    ? orders.filter(o=>o.status==='ready').length
-    : employeeOrders.filter(o=>o.status==='done').length;
+  const isBuyer = role==='buyer';
+  const p = PROF[isBuyer?'buyer':'emp'];
+  const myList = isBuyer?orders:empOrders;
+  const spent = isBuyer?orders.reduce((s,o)=>s+o.total,0):0;
+  const compl = isBuyer?orders.filter(o=>o.status==='ready').length:empOrders.filter(o=>o.status==='done').length;
 
-  return `
-  <div class="profilePageCard">
-    <div class="profileHero">
-      <div class="profileHeroAvatar ${isBuyer?'':'emp'}">${prof.avatar}</div>
-      <div class="profileHeroName">${prof.name}</div>
-      <div class="profileHeroRole">${prof.detail}</div>
-    </div>
-    <div class="profileStats">
-      <div class="statBox">
-        <div class="statNum">${myOrders.length}</div>
-        <div class="statLabel">${isBuyer?'Заказов':'Принято'}</div>
-      </div>
-      <div class="statBox">
-        <div class="statNum">${completed}</div>
-        <div class="statLabel">${isBuyer?'Получено':'Выдано'}</div>
-      </div>
-      <div class="statBox">
-        <div class="statNum">${isBuyer ? (totalSpent > 0 ? Math.round(totalSpent/1000)+'к' : '0') : products.length}</div>
-        <div class="statLabel">${isBuyer?'Потрачено':'Товаров'}</div>
-      </div>
+  return `<div class="prof-hero glass">
+    <div class="prof-av ${isBuyer?'buyer':'emp'}">${p.av}</div>
+    <div class="prof-name">${p.name}</div>
+    <div class="prof-role">${p.detail}</div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-n">${myList.length}</div><div class="stat-l">${isBuyer?'Заказов':'Принято'}</div></div>
+      <div class="stat-box"><div class="stat-n">${compl}</div><div class="stat-l">${isBuyer?'Получено':'Выдано'}</div></div>
+      <div class="stat-box"><div class="stat-n">${isBuyer?(spent>0?Math.round(spent/1000)+'к':'0'):products.length}</div><div class="stat-l">${isBuyer?'Трат (₽)':'Товаров'}</div></div>
     </div>
   </div>
-  
-  <div class="profilePageCard">
-    <div class="sectionTitle" style="margin-bottom:16px;">Информация</div>
-    ${isBuyer ? `
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--glass-border);">
-        <span style="color:var(--text2);">Статус</span><span style="font-weight:700;color:var(--accent4);">VIP Клиент ⭐</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--glass-border);">
-        <span style="color:var(--text2);">Всего заказов</span><span style="font-weight:700;">${orders.length}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;">
-        <span style="color:var(--text2);">Сумма покупок</span><span style="font-weight:700;color:var(--accent3);">${formatPrice(totalSpent)}</span>
-      </div>
-    </div>` : `
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--glass-border);">
-        <span style="color:var(--text2);">Должность</span><span style="font-weight:700;">Старший оператор</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--glass-border);">
-        <span style="color:var(--text2);">Смена</span><span style="font-weight:700;color:var(--accent4);">● Онлайн</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;">
-        <span style="color:var(--text2);">Выдано сегодня</span><span style="font-weight:700;">${completed} заказов</span>
-      </div>
-    </div>`}
+  <div class="info-card glass">
+    <div class="sec" style="margin-bottom:14px">Информация</div>
+    ${isBuyer?`
+      <div class="info-row-item"><span class="lbl">Статус</span><span class="val" style="color:var(--green)">VIP Клиент ⭐</span></div>
+      <div class="info-row-item"><span class="lbl">Заказов</span><span class="val">${orders.length}</span></div>
+      <div class="info-row-item"><span class="lbl">Сумма покупок</span><span class="val" style="color:var(--orange)">${FMT(spent)}</span></div>
+    `:`
+      <div class="info-row-item"><span class="lbl">Должность</span><span class="val">Старший оператор</span></div>
+      <div class="info-row-item"><span class="lbl">Смена</span><span class="val" style="color:var(--green)">● Онлайн</span></div>
+      <div class="info-row-item"><span class="lbl">Выдано</span><span class="val">${compl} заказов</span></div>
+    `}
   </div>
-
-  <button class="btn-full btn-secondary" onclick="switchRole()" style="margin-top:8px;">← Сменить роль</button>`;
+  <button class="fullbtn s" onclick="exitRole()">← Сменить роль</button>`;
 }
 
-// ====== SPEECH ======
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'ru-RU'; utt.rate = 0.95;
-  window.speechSynthesis.speak(utt);
+/* ═══════════════════════════════════════
+   SPEECH
+═══════════════════════════════════════ */
+function speak(txt){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='ru-RU'; u.rate=0.95;
+  speechSynthesis.speak(u);
 }
-
-// ====== CLICK SOUND INIT ======
-document.addEventListener('click', () => {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}, { once: true });
 </script>
 
 </body>
