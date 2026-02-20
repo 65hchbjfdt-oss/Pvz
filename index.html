@@ -3,877 +3,1046 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ПВЗ Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ПВЗ</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-:root {
-–bg: #06060f;
-–accent: #007AFF;
-–purple: #5E5CE6;
-–green: #30D158;
-–orange: #FF9F0A;
-–red: #FF453A;
-–text: rgba(255,255,255,0.93);
-–text2: rgba(255,255,255,0.5);
-–text3: rgba(255,255,255,0.28);
-–g1: rgba(255,255,255,0.11);
-–g2: rgba(255,255,255,0.06);
-–gb: rgba(255,255,255,0.18);
-–blur: blur(28px) saturate(200%) brightness(1.1);
-–blur2: blur(16px) saturate(160%);
-–r: 20px;
-–r2: 28px;
-–sh: 0 8px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
-–sh2: 0 20px 70px rgba(0,0,0,0.6);
+*,::before,::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000}
+body{
+  font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  color:#fff;
+  position:relative;
 }
 
-html { height: 100%; }
-body {
-font-family: ‘Nunito’, -apple-system, sans-serif;
-background: var(–bg);
-color: var(–text);
-min-height: 100dvh;
-overflow-x: hidden;
-position: relative;
+/* ═══ WALLPAPER ═══ */
+#wall{
+position:fixed;inset:0;z-index:0;
+background:radial-gradient(ellipse 120% 80% at 15% 5%, #1a0533 0%,transparent 55%),
+radial-gradient(ellipse 100% 70% at 85% 10%, #001a3d 0%,transparent 50%),
+radial-gradient(ellipse 80% 60% at 50% 95%, #001a0d 0%,transparent 50%),
+#000;
+overflow:hidden;
+}
+#wall::before{
+content:’’;position:absolute;inset:0;
+background:
+radial-gradient(circle 400px at 10% 20%, rgba(120,50,255,0.35) 0%,transparent 70%),
+radial-gradient(circle 350px at 90% 15%, rgba(0,100,255,0.3) 0%,transparent 70%),
+radial-gradient(circle 300px at 60% 80%, rgba(0,180,80,0.2) 0%,transparent 70%),
+radial-gradient(circle 250px at 20% 70%, rgba(255,80,0,0.15) 0%,transparent 70%);
+animation:wallShift 20s ease-in-out infinite alternate;
+}
+@keyframes wallShift{
+0%{transform:scale(1) translate(0,0)}
+50%{transform:scale(1.05) translate(-15px,10px)}
+100%{transform:scale(1.02) translate(10px,-8px)}
 }
 
-/* ── BACKGROUND ── */
-#bg {
-position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+/* ═══ LIQUID GLASS MIXIN ═══ */
+.glass{
+background:rgba(255,255,255,0.07);
+backdrop-filter:blur(40px) saturate(180%) brightness(1.15);
+-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.15);
+border:1px solid rgba(255,255,255,0.18);
+box-shadow:
+inset 0 1px 0 rgba(255,255,255,0.22),
+inset 0 -1px 0 rgba(0,0,0,0.15),
+0 8px 32px rgba(0,0,0,0.4),
+0 2px 8px rgba(0,0,0,0.3);
 }
-.orb {
-position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.55;
-animation: drift linear infinite;
+.glass-card{
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(60px) saturate(200%) brightness(1.1);
+-webkit-backdrop-filter:blur(60px) saturate(200%) brightness(1.1);
+border:1px solid rgba(255,255,255,0.15);
+box-shadow:
+inset 0 1.5px 0 rgba(255,255,255,0.2),
+inset 0 -1px 0 rgba(0,0,0,0.2),
+0 20px 60px rgba(0,0,0,0.5);
 }
-.o1 { width:500px; height:500px; top:-150px; left:-150px; background:radial-gradient(circle,#5E5CE6,transparent 70%); animation-duration:18s; }
-.o2 { width:400px; height:400px; top:20%; right:-120px; background:radial-gradient(circle,#007AFF,transparent 70%); animation-duration:14s; animation-direction:reverse; }
-.o3 { width:350px; height:350px; bottom:-100px; left:30%; background:radial-gradient(circle,#30D158,transparent 70%); animation-duration:20s; opacity:0.3; }
-.o4 { width:280px; height:280px; top:50%; left:-80px; background:radial-gradient(circle,#FF9F0A,transparent 70%); animation-duration:16s; opacity:0.25; }
-
-@keyframes drift {
-0%   { transform: translate(0,0) scale(1); }
-25%  { transform: translate(30px,-40px) scale(1.05); }
-50%  { transform: translate(-20px,30px) scale(0.95); }
-75%  { transform: translate(40px,10px) scale(1.03); }
-100% { transform: translate(0,0) scale(1); }
-}
-
-/* ── GLASS ── */
-.glass {
-background: var(–g1);
-backdrop-filter: var(–blur);
--webkit-backdrop-filter: var(–blur);
-border: 1px solid var(–gb);
-box-shadow: var(–sh);
-}
-.glass-sm {
-background: var(–g2);
-backdrop-filter: var(–blur2);
--webkit-backdrop-filter: var(–blur2);
-border: 1px solid rgba(255,255,255,0.1);
+.glass-btn{
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(20px) saturate(150%);
+-webkit-backdrop-filter:blur(20px) saturate(150%);
+border:1px solid rgba(255,255,255,0.2);
+box-shadow:
+inset 0 1px 0 rgba(255,255,255,0.25),
+0 4px 12px rgba(0,0,0,0.3);
 }
 
-/* ── SCREENS ── */
-#roleScreen, #app {
-position: relative; z-index: 1;
-}
-#app { display: none; min-height: 100dvh; flex-direction: column; }
-#app.on { display: flex; }
-
-/* ── ROLE SCREEN ── */
-#roleScreen {
-display: flex; flex-direction: column; align-items: center;
-justify-content: center; min-height: 100dvh; padding: 32px 20px; gap: 0;
-}
-.logo-wrap { margin-bottom: 20px; animation: popIn 0.6s cubic-bezier(.34,1.56,.64,1); }
-.logo-icon {
-width: 96px; height: 96px; border-radius: 28px; font-size: 52px;
-display: flex; align-items: center; justify-content: center;
-background: linear-gradient(135deg, rgba(94,92,230,0.7), rgba(0,122,255,0.6));
-backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid rgba(255,255,255,0.25);
-box-shadow: 0 0 60px rgba(94,92,230,0.4), var(–sh);
-animation: glowPulse 3s ease-in-out infinite;
-}
-@keyframes glowPulse {
-0%,100% { box-shadow: 0 0 40px rgba(94,92,230,0.35), var(–sh); }
-50%      { box-shadow: 0 0 80px rgba(0,122,255,0.5), var(–sh); }
-}
-@keyframes popIn {
-from { opacity:0; transform: scale(0.6) translateY(20px); }
-to   { opacity:1; transform: scale(1) translateY(0); }
-}
-.role-title {
-font-size: 38px; font-weight: 900; letter-spacing: -1.5px; text-align: center;
-background: linear-gradient(135deg, #fff 20%, rgba(255,255,255,0.65));
--webkit-background-clip: text; -webkit-text-fill-color: transparent;
-background-clip: text; margin-bottom: 8px;
-animation: popIn 0.6s .1s cubic-bezier(.34,1.56,.64,1) both;
-}
-.role-sub {
-color: var(–text2); font-size: 15px; text-align: center; line-height: 1.5;
-margin-bottom: 36px;
-animation: popIn 0.6s .2s cubic-bezier(.34,1.56,.64,1) both;
+/* ═══ ROOT LAYOUT ═══ */
+#root{
+position:relative;z-index:1;
+height:100dvh;
+display:flex;flex-direction:column;
+overflow:hidden;
 }
 
-/* Profile preview card */
-.profile-preview {
-width: 100%; max-width: 360px; margin-bottom: 24px;
-animation: popIn 0.6s .25s cubic-bezier(.34,1.56,.64,1) both;
+/* ═══ SCREENS ═══ */
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+
+/* ══════════════════════════════════════
+ROLE SCREEN
+══════════════════════════════════════ */
+#roleScreen{
+align-items:center;justify-content:center;
+padding:0 24px;gap:0;
+padding-top:env(safe-area-inset-top,0);
+padding-bottom:env(safe-area-inset-bottom,0);
 }
-.profile-tabs {
-display: flex; background: rgba(255,255,255,0.06); border-radius: 14px;
-border: 1px solid var(–gb); padding: 3px; margin-bottom: 12px;
+
+.rs-logo{
+width:100px;height:100px;border-radius:28px;
+background:linear-gradient(145deg,rgba(120,50,255,0.6),rgba(0,122,255,0.5));
+display:flex;align-items:center;justify-content:center;
+font-size:52px;margin-bottom:24px;
+box-shadow:
+inset 0 2px 0 rgba(255,255,255,0.3),
+0 0 60px rgba(88,0,255,0.4),
+0 20px 40px rgba(0,0,0,0.5);
+border:1px solid rgba(255,255,255,0.25);
+animation:logoPop 0.6s cubic-bezier(.34,1.56,.64,1);
 }
-.ptab {
-flex: 1; padding: 9px; border-radius: 11px; font-size: 13px; font-weight: 800;
-color: var(–text2); cursor: pointer; text-align: center; transition: all 0.25s;
+@keyframes logoPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+
+.rs-title{
+font-size:34px;font-weight:700;letter-spacing:-0.8px;
+margin-bottom:6px;text-align:center;
+animation:fadeUp 0.5s 0.1s both;
 }
-.ptab.on {
-background: rgba(0,122,255,0.4); color: #fff;
-box-shadow: 0 2px 12px rgba(0,122,255,0.3);
+.rs-sub{
+font-size:15px;color:rgba(255,255,255,0.5);
+text-align:center;margin-bottom:40px;line-height:1.5;
+animation:fadeUp 0.5s 0.15s both;
 }
-.pcard {
-border-radius: var(–r2); padding: 18px 20px;
-display: flex; align-items: center; gap: 14px;
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Profile preview */
+.rs-profile{
+width:100%;max-width:360px;margin-bottom:28px;
+animation:fadeUp 0.5s 0.2s both;
 }
-.pavatar {
-width: 54px; height: 54px; border-radius: 50%; font-size: 28px;
-display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-border: 2px solid rgba(255,255,255,0.2);
+.rs-ptabs{
+display:flex;gap:0;padding:3px;border-radius:12px;margin-bottom:12px;
 }
-.pavatar.buyer { background: linear-gradient(135deg,rgba(0,122,255,.5),rgba(94,92,230,.5)); }
-.pavatar.emp   { background: linear-gradient(135deg,rgba(48,209,88,.45),rgba(0,199,190,.4)); }
-.pname { font-size: 17px; font-weight: 800; margin-bottom: 2px; }
-.pdetail { font-size: 12px; color: var(–text2); }
-.pbadge {
-margin-left: auto; padding: 5px 13px; border-radius: 20px;
-font-size: 11px; font-weight: 800; flex-shrink: 0;
+.rs-ptab{
+flex:1;padding:8px;border-radius:9px;font-size:13px;font-weight:600;
+color:rgba(255,255,255,0.45);cursor:pointer;text-align:center;
+transition:all 0.2s;
 }
-.pbadge.buyer { background: rgba(0,122,255,0.25); border:1px solid rgba(0,122,255,0.4); color:#007AFF; }
-.pbadge.emp   { background: rgba(48,209,88,0.2);  border:1px solid rgba(48,209,88,0.35); color:#30D158; }
+.rs-ptab.on{
+background:rgba(255,255,255,0.12);
+color:#fff;
+box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 2px 8px rgba(0,0,0,0.3);
+}
+.rs-pcard{
+border-radius:18px;padding:16px 18px;
+display:flex;align-items:center;gap:14px;
+}
+.rs-pav{
+width:52px;height:52px;border-radius:50%;
+display:flex;align-items:center;justify-content:center;font-size:26px;
+border:2px solid rgba(255,255,255,0.2);flex-shrink:0;
+}
+.rs-pav.buyer{background:linear-gradient(135deg,rgba(0,122,255,0.6),rgba(88,86,214,0.5))}
+.rs-pav.emp{background:linear-gradient(135deg,rgba(52,199,89,0.5),rgba(0,199,190,0.4))}
+.rs-pname{font-size:16px;font-weight:600;margin-bottom:2px}
+.rs-pdetail{font-size:12px;color:rgba(255,255,255,0.45)}
+.rs-pbadge{
+margin-left:auto;padding:4px 12px;border-radius:20px;
+font-size:11px;font-weight:600;flex-shrink:0;
+}
+.rs-pbadge.buyer{background:rgba(0,122,255,0.2);border:1px solid rgba(0,122,255,0.35);color:#007AFF}
+.rs-pbadge.emp{background:rgba(52,199,89,0.18);border:1px solid rgba(52,199,89,0.3);color:#34C759}
 
 /* Role buttons */
-.role-btns { display: flex; flex-direction: column; gap: 14px; width:100%; max-width:360px;
-animation: popIn 0.6s .35s cubic-bezier(.34,1.56,.64,1) both; }
-.rbtn {
-width: 100%; padding: 22px 22px; border-radius: var(–r2); border: none;
-cursor: pointer; display: flex; align-items: center; gap: 18px; text-align: left;
-transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
-position: relative; overflow: hidden;
+.rs-btns{
+display:flex;flex-direction:column;gap:14px;
+width:100%;max-width:360px;
+animation:fadeUp 0.5s 0.25s both;
 }
-.rbtn::after {
-content:’’; position:absolute; inset:0; opacity:0; transition:opacity 0.2s;
-background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15), transparent 70%);
+.rs-btn{
+width:100%;padding:20px 22px;border-radius:22px;border:none;cursor:pointer;
+display:flex;align-items:center;gap:18px;text-align:left;
+transition:transform 0.2s cubic-bezier(.34,1.56,.64,1),box-shadow 0.2s;
+position:relative;overflow:hidden;
 }
-.rbtn:hover::after { opacity:1; }
-.rbtn:active { transform: scale(0.95) !important; }
-.rbtn.buyer {
-background: linear-gradient(135deg, rgba(0,122,255,.28), rgba(94,92,230,.22));
-backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid rgba(0,122,255,.38);
-box-shadow: 0 8px 32px rgba(0,122,255,.18), var(–sh);
+.rs-btn::after{
+content:’’;position:absolute;inset:0;opacity:0;transition:opacity 0.15s;
+background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.15),transparent 70%);
 }
-.rbtn.emp {
-background: linear-gradient(135deg, rgba(48,209,88,.22), rgba(0,199,190,.18));
-backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border: 1px solid rgba(48,209,88,.3);
-box-shadow: 0 8px 32px rgba(48,209,88,.12), var(–sh);
+.rs-btn:active{transform:scale(0.96)}
+.rs-btn:active::after{opacity:1}
+.rs-btn.buyer{
+background:linear-gradient(145deg,rgba(0,100,255,0.25),rgba(88,86,214,0.18));
+backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+border:1px solid rgba(0,122,255,0.35);
+box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.2),0 8px 32px rgba(0,100,255,0.2),0 2px 8px rgba(0,0,0,0.4);
 }
-.rbtn-icon { font-size: 42px; }
-.rbtn-title { font-size: 18px; font-weight: 800; color: var(–text); margin-bottom: 3px; }
-.rbtn-sub   { font-size: 12px; color: var(–text2); }
+.rs-btn.emp{
+background:linear-gradient(145deg,rgba(52,199,89,0.2),rgba(0,199,190,0.15));
+backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+border:1px solid rgba(52,199,89,0.3);
+box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.2),0 8px 32px rgba(52,199,89,0.15),0 2px 8px rgba(0,0,0,0.4);
+}
+.rs-bicon{font-size:40px}
+.rs-btitle{font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
+.rs-bsub{font-size:12px;color:rgba(255,255,255,0.45)}
 
-/* ── HEADER ── */
-.hdr {
-position: sticky; top: 0; z-index: 100; padding: 14px 18px;
-display: flex; align-items: center; justify-content: space-between;
-background: rgba(6,6,15,0.55);
-backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.hdr-l { display: flex; align-items: center; gap: 11px; }
-.hdr-logo { font-size: 28px; }
-.hdr-title { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; }
-.hdr-badge {
-padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
-}
-.hdr-badge.buyer { background: rgba(0,122,255,.2); border:1px solid rgba(0,122,255,.35); color:#007AFF; }
-.hdr-badge.emp   { background: rgba(48,209,88,.18); border:1px solid rgba(48,209,88,.3); color:#30D158; }
-.exit-btn {
-background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,.15);
-color: var(–text2); padding: 7px 14px; border-radius: 12px;
-font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
-transition: all 0.2s;
-}
-.exit-btn:active { transform: scale(0.93); }
-
-/* ── TABS ── */
-.tabs {
-display: flex; overflow-x: auto; padding: 0 14px;
-background: rgba(6,6,15,0.4);
-backdrop-filter: var(–blur2); -webkit-backdrop-filter: var(–blur2);
-border-bottom: 1px solid rgba(255,255,255,0.08);
-gap: 2px;
-}
-.tabs::-webkit-scrollbar { display: none; }
-.tab {
-flex: 1; min-width: 72px; padding: 10px 6px 13px;
-text-align: center; font-size: 10px; font-weight: 800; letter-spacing: 0.4px;
-color: var(–text3); cursor: pointer; white-space: nowrap; text-transform: uppercase;
-position: relative; transition: color 0.2s;
-user-select: none;
-}
-.tab .ti { font-size: 21px; display: block; margin-bottom: 3px; }
-.tab::after {
-content:’’; position:absolute; bottom:0; left:15%; right:15%; height:2.5px;
-border-radius: 2px 2px 0 0; background: transparent; transition: background 0.25s;
-}
-.tab.on { color: var(–text); }
-.tab.on::after { background: var(–accent); }
-.bdg {
-display: inline-flex; align-items: center; justify-content: center;
-background: var(–red); color:#fff; font-size:9px; font-weight:900;
-min-width:15px; height:15px; border-radius:8px; padding:0 3px;
-margin-left:3px; vertical-align: middle;
+/* ══════════════════════════════════════
+APP SCREEN
+══════════════════════════════════════ */
+#appScreen{
+padding-top:env(safe-area-inset-top,0);
 }
 
-/* ── CONTENT ── */
-.content { flex:1; overflow-y:auto; padding: 18px 16px 110px; }
-.page { display: none; }
-.page.on { display: block; animation: pgIn 0.22s ease; }
-@keyframes pgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
-
-.sec { font-size: 11px; font-weight: 900; color: var(–text3); letter-spacing: 0.9px;
-text-transform: uppercase; margin-bottom: 12px; padding-left: 2px; }
-
-/* ── PRODUCT GRID ── */
-.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media(min-width:560px) { .pgrid { grid-template-columns: repeat(3,1fr); } }
-@media(min-width:800px) { .pgrid { grid-template-columns: repeat(4,1fr); } }
-
-.pcard {
-border-radius: var(–r2); overflow: hidden; display: flex; flex-direction: column;
-transition: transform 0.25s, box-shadow 0.25s;
+/* ─── Nav bar (top) ─── */
+.navbar{
+padding:14px 20px 12px;
+display:flex;align-items:center;justify-content:space-between;
+flex-shrink:0;
+border-bottom:1px solid rgba(255,255,255,0.08);
+background:rgba(0,0,0,0.2);
+backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
 }
-.pcard:hover { transform: translateY(-3px); box-shadow: var(–sh2); }
-.pcard-img {
-background: rgba(255,255,255,0.05); height: 88px;
-display: flex; align-items: center; justify-content: center; font-size: 46px;
-border-bottom: 1px solid rgba(255,255,255,0.07);
+.nb-l{display:flex;align-items:center;gap:10px}
+.nb-logo{font-size:24px}
+.nb-title{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.nb-badge{
+padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
 }
-.pcard-body { padding: 11px 12px; flex:1; display:flex; flex-direction:column; gap:3px; }
-.pcard-name  { font-size: 13px; font-weight: 800; line-height: 1.3; }
-.pcard-desc  { font-size: 11px; color: var(–text2); line-height: 1.4; flex:1; }
-.pcard-price { font-size: 15px; font-weight: 900; color: var(–orange); margin-top: 5px; }
-.pcard-acts  { display:flex; gap:6px; padding:8px 10px; border-top:1px solid rgba(255,255,255,0.07); }
+.nb-badge.buyer{background:rgba(0,122,255,0.2);border:1px solid rgba(0,122,255,0.3);color:#007AFF}
+.nb-badge.emp{background:rgba(52,199,89,0.18);border:1px solid rgba(52,199,89,0.25);color:#34C759}
+.nb-exit{
+background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+color:rgba(255,255,255,0.5);padding:6px 14px;border-radius:10px;
+font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
+transition:all 0.15s;
+}
+.nb-exit:active{transform:scale(0.94);background:rgba(255,255,255,0.13)}
 
-/* ── BUTTONS ── */
-.btn {
-padding: 8px 10px; border-radius: 11px; font-size: 12px; font-weight: 800;
-border: none; cursor: pointer; transition: transform 0.15s, opacity 0.15s; font-family: inherit;
+/* ─── Tab bar ─── */
+.tabbar{
+display:flex;
+padding:8px 10px calc(8px + env(safe-area-inset-bottom,16px));
+gap:4px;
+flex-shrink:0;
+border-top:1px solid rgba(255,255,255,0.08);
+background:rgba(0,0,0,0.35);
+backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
 }
-.btn:active { transform: scale(0.91); }
-.btn.p  { background: var(–accent); color: #fff; box-shadow: 0 4px 14px rgba(0,122,255,.35); }
-.btn.s  { background: rgba(255,255,255,.1); color: var(–text); border:1px solid rgba(255,255,255,.15); }
-.btn.d  { background: var(–red); color: #fff; box-shadow: 0 4px 14px rgba(255,69,58,.3); }
-.btn.g  { background: var(–green); color: #fff; box-shadow: 0 4px 14px rgba(48,209,88,.3); }
-.btn.grow { flex:1; }
+.tb-item{
+flex:1;display:flex;flex-direction:column;align-items:center;
+gap:3px;padding:6px 4px;border-radius:12px;cursor:pointer;
+transition:all 0.2s;position:relative;
+}
+.tb-item:active{transform:scale(0.9)}
+.tb-item.on{background:rgba(255,255,255,0.08)}
+.tb-icon{font-size:22px;line-height:1}
+.tb-label{font-size:10px;font-weight:500;color:rgba(255,255,255,0.35);letter-spacing:0.1px}
+.tb-item.on .tb-label{color:rgba(255,255,255,0.85);font-weight:600}
+.tb-badge{
+position:absolute;top:2px;right:calc(50% - 18px);
+background:#FF3B30;color:#fff;font-size:9px;font-weight:700;
+min-width:15px;height:15px;border-radius:8px;padding:0 3px;
+display:flex;align-items:center;justify-content:center;
+}
 
-.fullbtn {
-width: 100%; padding: 16px; border-radius: var(–r); font-size: 15px; font-weight: 800;
-border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit;
-margin-top: 10px;
+/* ─── Page content ─── */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{
+position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+padding:16px 16px 20px;
+display:none;
+-webkit-overflow-scrolling:touch;
 }
-.fullbtn:active { transform: scale(0.97); }
-.fullbtn.p { background: linear-gradient(135deg,#007AFF,#5E5CE6); color:#fff; box-shadow:0 8px 24px rgba(0,122,255,.35); }
-.fullbtn.s { background: rgba(255,255,255,.08); color:var(–text2); border:1px solid rgba(255,255,255,.13); }
-.fullbtn.d { background: linear-gradient(135deg,#FF453A,#FF6B6B); color:#fff; }
-.fullbtn.g { background: linear-gradient(135deg,#30D158,#00C897); color:#fff; box-shadow:0 8px 24px rgba(48,209,88,.3); }
+.page.active{display:block;animation:pgIn 0.22s ease}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Scrollbar hide */
+.page::-webkit-scrollbar{display:none}
+
+/* ─── Section label ─── */
+.sec-label{
+font-size:13px;font-weight:600;color:rgba(255,255,255,0.35);
+letter-spacing:0.5px;text-transform:uppercase;
+margin-bottom:12px;padding-left:4px;
+}
+
+/* ════════════════════════════
+PRODUCT CARDS
+════════════════════════════ */
+.pgrid{
+display:grid;grid-template-columns:1fr 1fr;gap:12px;
+}
+@media(min-width:500px){.pgrid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:700px){.pgrid{grid-template-columns:repeat(4,1fr)}}
+
+.pcard{
+border-radius:22px;overflow:hidden;
+display:flex;flex-direction:column;
+transition:transform 0.2s cubic-bezier(.34,1.56,.64,1);
+}
+.pcard:active{transform:scale(0.97)}
+.pcard-img{
+background:rgba(255,255,255,0.04);
+height:90px;display:flex;align-items:center;justify-content:center;
+font-size:44px;
+border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.pcard-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:4px}
+.pcard-name{font-size:13px;font-weight:600;line-height:1.3}
+.pcard-desc{font-size:11px;color:rgba(255,255,255,0.4);flex:1;line-height:1.4}
+.pcard-price{font-size:15px;font-weight:700;color:#FF9500;margin-top:4px}
+.pcard-acts{
+display:flex;gap:6px;padding:9px 10px;
+border-top:1px solid rgba(255,255,255,0.07);
+}
+
+/* ════════════════════════════
+BUTTONS
+════════════════════════════ */
+.btn{
+padding:8px 10px;border-radius:12px;font-size:12px;font-weight:600;
+border:none;cursor:pointer;font-family:inherit;
+transition:transform 0.15s,opacity 0.15s;
+display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.btn:active{transform:scale(0.9);opacity:0.8}
+.btn.flex{flex:1}
+.btn-blue{
+background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff;
+box-shadow:0 4px 12px rgba(0,122,255,0.35);
+}
+.btn-red{
+background:linear-gradient(135deg,#FF3B30,#FF6B6B);color:#fff;
+box-shadow:0 4px 12px rgba(255,59,48,0.3);
+}
+.btn-green{
+background:linear-gradient(135deg,#34C759,#30D158);color:#fff;
+box-shadow:0 4px 12px rgba(52,199,89,0.3);
+}
+.btn-glass{
+background:rgba(255,255,255,0.09);
+border:1px solid rgba(255,255,255,0.14);
+color:rgba(255,255,255,0.7);
+}
+.btn-glass:active{background:rgba(255,255,255,0.15)}
+
+.fullbtn{
+width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:600;
+border:none;cursor:pointer;font-family:inherit;margin-top:10px;
+transition:transform 0.15s,box-shadow 0.15s;
+}
+.fullbtn:active{transform:scale(0.97)}
+.fullbtn.blue{
+background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff;
+box-shadow:0 8px 24px rgba(0,122,255,0.4);
+}
+.fullbtn.red{background:linear-gradient(135deg,#FF3B30,#FF6B6B);color:#fff}
+.fullbtn.green{
+background:linear-gradient(135deg,#34C759,#30D158);color:#fff;
+box-shadow:0 8px 20px rgba(52,199,89,0.35);
+}
+.fullbtn.glass{
+background:rgba(255,255,255,0.08);
+border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);
+}
 
 /* FAB */
-.fab {
-position: fixed; bottom: calc(84px + env(safe-area-inset-bottom,0px)); right: 20px;
-width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
-background: linear-gradient(135deg,#007AFF,#5E5CE6);
-color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center;
-box-shadow: 0 8px 28px rgba(0,122,255,.5); z-index: 200;
-transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+.fab{
+position:fixed;bottom:calc(90px + env(safe-area-inset-bottom,16px));right:20px;
+width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;
+background:linear-gradient(145deg,#007AFF,#5856D6);color:#fff;
+font-size:28px;display:flex;align-items:center;justify-content:center;
+box-shadow:0 8px 28px rgba(0,122,255,0.5),inset 0 1px 0 rgba(255,255,255,0.3);
+z-index:100;transition:transform 0.25s cubic-bezier(.34,1.56,.64,1);
 }
-.fab:active { transform: scale(0.86); }
+.fab:active{transform:scale(0.88)}
 
-/* ── CART ── */
-.cart-item {
-border-radius: var(–r2); padding: 14px 16px;
-display: flex; align-items: center; gap: 14px; margin-bottom: 10px;
+/* ════════════════════════════
+CART
+════════════════════════════ */
+.cart-item{
+border-radius:18px;padding:14px 16px;
+display:flex;align-items:center;gap:14px;margin-bottom:10px;
 }
-.ci-emoji { font-size: 36px; }
-.ci-info { flex:1; }
-.ci-name  { font-size: 14px; font-weight: 800; }
-.ci-price { font-size: 12px; color: var(–text2); margin-top: 2px; }
-.qty-row  { display:flex; align-items:center; gap:10px; margin-top:8px; }
-.qbtn {
-width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.1);
-border:1px solid rgba(255,255,255,.15); color:var(–text); font-size:19px;
-cursor:pointer; display:flex; align-items:center; justify-content:center;
-transition: all 0.15s; font-family: inherit;
+.ci-em{font-size:36px}
+.ci-info{flex:1}
+.ci-name{font-size:14px;font-weight:600}
+.ci-price{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px}
+.qty-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.qbtn{
+width:28px;height:28px;border-radius:50%;border:none;
+background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
+color:#fff;font-size:17px;cursor:pointer;font-family:inherit;
+display:flex;align-items:center;justify-content:center;
+transition:all 0.15s;
 }
-.qbtn:active { background:rgba(0,122,255,.35); transform:scale(0.86); }
-.qnum { font-size: 16px; font-weight: 900; min-width: 26px; text-align:center; }
-.ci-total { font-size: 15px; font-weight: 900; color: var(–orange); }
+.qbtn:active{background:rgba(0,122,255,0.4);transform:scale(0.85)}
+.qnum{font-size:16px;font-weight:700;min-width:24px;text-align:center}
+.ci-total{font-size:15px;font-weight:700;color:#FF9500;white-space:nowrap}
 
-.cart-sum {
-border-radius: var(–r2); padding: 20px; margin-top: 16px;
+.cart-summary{border-radius:18px;padding:18px;margin-top:14px}
+.cs-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14px}
+.cs-row .l{color:rgba(255,255,255,0.45)}
+.cs-total{font-size:22px;font-weight:700;color:#FF9500}
+.pay-opts{display:flex;gap:10px;margin-top:14px}
+.pay-opt{
+flex:1;padding:13px 10px;border-radius:14px;border:2px solid rgba(255,255,255,0.1);
+background:rgba(255,255,255,0.04);text-align:center;font-size:12px;font-weight:600;
+cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.45);font-family:inherit;
 }
-.csr { display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-size:14px; }
-.csr .lbl { color:var(–text2); }
-.big-total { font-size: 24px; font-weight: 900; color: var(–orange); }
-.pay-opts  { display:flex; gap:10px; margin-top:16px; }
-.pay-opt {
-flex:1; padding:14px 10px; border-radius:16px; border:2px solid rgba(255,255,255,.12);
-background: rgba(255,255,255,.04); text-align:center; font-size:12px; font-weight:800;
-cursor:pointer; transition:all 0.22s; color:var(–text2);
+.pay-opt.on{
+border-color:#007AFF;background:rgba(0,122,255,0.15);color:#fff;
+box-shadow:0 0 0 1px rgba(0,122,255,0.3) inset;
 }
-.pay-opt.on { border-color:var(–accent); background:rgba(0,122,255,.18); color:var(–text); }
-.pay-opt .pi { font-size:26px; display:block; margin-bottom:6px; }
+.pay-opt .pi{font-size:24px;display:block;margin-bottom:5px}
 
-/* ── ORDERS ── */
-.order-card { border-radius:var(–r2); padding:18px; margin-bottom:12px; }
-.oh { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
-.onum { font-size:16px; font-weight:900; }
-.ostatus { font-size:11px; padding:4px 11px; border-radius:20px; font-weight:800; }
-.st-wait { background:rgba(255,159,10,.2); color:var(–orange); border:1px solid rgba(255,159,10,.3); }
-.st-done { background:rgba(48,209,88,.2);  color:var(–green);  border:1px solid rgba(48,209,88,.3); }
-.ometa { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:12px; }
-.ombadge { font-size:12px; color:var(–text2); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:4px 10px; }
-.oprice { font-size:22px; font-weight:900; color:var(–orange); margin-bottom:14px; }
+/* ════════════════════════════
+ORDERS
+════════════════════════════ */
+.order-card{border-radius:20px;padding:18px;margin-bottom:12px}
+.oc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.oc-num{font-size:16px;font-weight:700}
+.oc-status{font-size:11px;padding:4px 11px;border-radius:20px;font-weight:600}
+.st-wait{background:rgba(255,149,0,0.18);color:#FF9500;border:1px solid rgba(255,149,0,0.28)}
+.st-done{background:rgba(52,199,89,0.18);color:#34C759;border:1px solid rgba(52,199,89,0.28)}
+.oc-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.oc-badge{
+font-size:12px;color:rgba(255,255,255,0.5);
+background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+border-radius:8px;padding:4px 10px;
+}
+.oc-price{font-size:20px;font-weight:700;color:#FF9500;margin-bottom:14px}
 
-/* ── QR MODAL ── */
-.qr-wrap {
-display:flex; flex-direction:column; align-items:center; text-align:center; padding:8px 0;
+/* ════════════════════════════
+QR MODAL
+════════════════════════════ */
+.qr-center{display:flex;flex-direction:column;align-items:center;text-align:center}
+#qrBox{
+padding:16px;background:#fff;border-radius:16px;
+display:inline-block;margin:16px 0;
+box-shadow:0 8px 40px rgba(0,0,0,0.5);
 }
-#qrBox {
-padding: 18px; background: #fff; border-radius: 18px; display:inline-block;
-margin: 18px auto; box-shadow: 0 8px 40px rgba(0,0,0,.5);
-}
-#qrBox img, #qrBox canvas { display:block; border-radius: 4px; }
-.qr-hint { color:var(–text2); font-size:13px; margin-bottom:18px; line-height:1.5; }
+#qrBox canvas{display:block}
+.qr-info{color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:6px}
 
-/* ── SCANNER ── */
-.scan-card { border-radius:var(–r2); padding:28px; text-align:center; margin-bottom:16px; }
-.scan-big-icon { font-size:70px; margin-bottom:16px; }
-.scan-title { font-size:22px; font-weight:900; margin-bottom:8px; }
-.scan-sub { font-size:14px; color:var(–text2); margin-bottom:26px; line-height:1.5; }
+/* ════════════════════════════
+SCANNER PAGE
+════════════════════════════ */
+.scan-hero{
+border-radius:26px;padding:32px 24px;text-align:center;margin-bottom:16px;
+}
+.scan-icon{font-size:64px;margin-bottom:16px}
+.scan-title{font-size:22px;font-weight:700;margin-bottom:8px}
+.scan-sub{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:24px}
 
-/* Scanner modal internals */
-.vid-wrap { position:relative; border-radius:var(–r2); overflow:hidden; background:#000; border:1px solid rgba(255,255,255,.12); }
-#scanVid { width:100%; display:block; max-height:58dvh; object-fit:cover; }
-.vid-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
-.scan-frame {
-width: 190px; height: 190px; position: relative;
+/* ════════════════════════════
+SCANNER OVERLAY
+════════════════════════════ */
+#scanOverlay{
+display:none;position:fixed;inset:0;z-index:500;
+background:rgba(0,0,0,0.85);
+backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+flex-direction:column;align-items:center;justify-content:center;
+padding:24px;
 }
-/* Corner brackets */
-.scan-frame::before, .scan-frame::after,
-.sf-inner::before, .sf-inner::after {
-content:’’; position:absolute; width:28px; height:28px;
-border-color: #007AFF; border-style: solid; border-radius: 4px;
-}
-.scan-frame::before { top:0; left:0; border-width:3px 0 0 3px; border-radius:7px 0 0 0; }
-.scan-frame::after  { top:0; right:0; border-width:3px 3px 0 0; border-radius:0 7px 0 0; }
-.sf-inner::before   { bottom:0; left:0; border-width:0 0 3px 3px; border-radius:0 0 0 7px; }
-.sf-inner::after    { bottom:0; right:0; border-width:0 3px 3px 0; border-radius:0 0 7px 0; }
-.scan-beam {
-position:absolute; left:4px; right:4px; height:2px;
-background: linear-gradient(90deg,transparent,#007AFF 40%,#5E5CE6 60%,transparent);
-box-shadow: 0 0 10px #007AFF; border-radius:1px;
-animation: beam 2s ease-in-out infinite;
-}
-@keyframes beam { 0%,100%{top:6px;} 50%{top:calc(100% - 6px);} }
-.scan-dim {
-position:absolute; inset:0;
-background: rgba(0,0,0,0.55);
-/* punch a hole in the middle */
--webkit-mask: radial-gradient(ellipse 200px 200px at 50% 50%, transparent 95px, black 96px);
-mask: radial-gradient(ellipse 200px 200px at 50% 50%, transparent 95px, black 96px);
-}
-.scan-hint-txt { text-align:center; color:var(–text2); font-size:13px; font-weight:600; margin-top:14px; }
+#scanOverlay.active{display:flex}
 
-/* ── EMP ORDER ── */
-.emp-card { border-radius:var(–r2); padding:18px; margin-bottom:14px; }
-.emp-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.emp-title { font-size:18px; font-weight:900; }
-.info-row  { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
-.infobdg {
-background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
-border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700;
+.scan-modal{
+width:100%;max-width:420px;border-radius:28px;padding:0;overflow:hidden;
 }
-.items-list { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
-.item-row {
-display:flex; align-items:center; gap:12px;
-background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09);
-border-radius:14px; padding:12px; transition:all 0.3s;
+.scan-modal-head{
+padding:20px 22px 16px;
+border-bottom:1px solid rgba(255,255,255,0.08);
 }
-.item-row.scanned  { opacity:.45; background:rgba(48,209,88,.08);  border-color:rgba(48,209,88,.2); }
-.item-row.returned { opacity:.45; background:rgba(255,69,58,.08);   border-color:rgba(255,69,58,.2); }
-.item-emoji { font-size:26px; }
-.item-info  { flex:1; }
-.item-name  { font-size:13px; font-weight:800; }
-.item-price { font-size:11px; color:var(–text2); margin-top:2px; }
-.item-mark  { font-size:22px; }
+.scan-modal-title{font-size:18px;font-weight:700;margin-bottom:2px}
+.scan-modal-sub{font-size:13px;color:rgba(255,255,255,0.4)}
 
-/* progress */
-.prog-wrap { background:rgba(255,255,255,.1); border-radius:10px; height:5px; overflow:hidden; margin-top:10px; }
-.prog-bar  { height:100%; border-radius:10px; background:linear-gradient(90deg,#007AFF,#5E5CE6); transition:width .5s ease; }
+.vid-container{
+position:relative;background:#000;
+aspect-ratio:1;width:100%;max-height:50dvh;overflow:hidden;
+}
+#scanVid{width:100%;height:100%;object-fit:cover;display:block}
 
-/* ── PROFILE PAGE ── */
-.prof-hero {
-border-radius:var(–r2); padding:28px; text-align:center; margin-bottom:14px;
+/* Dimming with transparent centre */
+.vid-dim{
+position:absolute;inset:0;pointer-events:none;
+background:rgba(0,0,0,0.5);
+-webkit-mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);
+mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);
 }
-.prof-av {
-width:88px; height:88px; border-radius:50%; font-size:46px;
-display:flex; align-items:center; justify-content:center; margin:0 auto 14px;
-border:2.5px solid rgba(255,255,255,.25);
-}
-.prof-av.buyer { background:linear-gradient(135deg,rgba(0,122,255,.5),rgba(94,92,230,.5)); box-shadow:0 8px 32px rgba(0,122,255,.3); }
-.prof-av.emp   { background:linear-gradient(135deg,rgba(48,209,88,.4),rgba(0,199,190,.4)); box-shadow:0 8px 32px rgba(48,209,88,.25); }
-.prof-name { font-size:26px; font-weight:900; margin-bottom:4px; }
-.prof-role { font-size:13px; color:var(–text2); }
-.stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:20px 0; }
-.stat-box { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:14px 10px; text-align:center; }
-.stat-n { font-size:24px; font-weight:900; color:var(–orange); }
-.stat-l { font-size:10px; color:var(–text2); margin-top:3px; text-transform:uppercase; font-weight:800; letter-spacing:0.3px; }
-.info-card { border-radius:var(–r2); padding:20px; margin-bottom:14px; }
-.info-row-item { display:flex; justify-content:space-between; align-items:center; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.07); }
-.info-row-item:last-child { border-bottom:none; }
-.info-row-item .lbl { color:var(–text2); }
-.info-row-item .val { font-weight:800; }
 
-/* ── RETURN ── */
-.ret-item {
-display:flex; align-items:center; gap:12px; padding:13px;
-background:rgba(255,255,255,.06); border:2px solid transparent;
-border-radius:14px; margin-bottom:8px; cursor:pointer; transition:all 0.2s;
+/* QR frame corners */
+.vid-frame{
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+width:58%;height:58%;pointer-events:none;
 }
-.ret-item.on { border-color:var(–red); background:rgba(255,69,58,.1); }
-.ret-cb {
-width:24px; height:24px; border-radius:7px; border:2px solid rgba(255,255,255,.2);
-background:rgba(255,255,255,.07); display:flex; align-items:center; justify-content:center;
-font-size:14px; font-weight:900; transition:all 0.2s; flex-shrink:0;
+.vid-frame::before,.vid-frame::after,
+.vf-inner::before,.vf-inner::after{
+content:’’;position:absolute;
+width:26px;height:26px;
+border-color:#fff;border-style:solid;
 }
-.ret-item.on .ret-cb { background:var(–red); border-color:var(–red); color:#fff; }
+.vid-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:6px 0 0 0}
+.vid-frame::after{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 6px 0 0}
+.vf-inner::before{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 6px}
+.vf-inner::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 6px 0}
 
-/* ── OVERLAY / MODAL ── */
-.overlay {
-display:none; position:fixed; inset:0; z-index:400;
-background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-align-items:flex-end; justify-content:center;
+/* scanning beam */
+.vid-beam{
+position:absolute;left:21%;right:21%;height:2px;
+background:linear-gradient(90deg,transparent,rgba(255,255,255,0.9) 40%,#007AFF 50%,rgba(255,255,255,0.9) 60%,transparent);
+box-shadow:0 0 12px rgba(0,122,255,0.8);
+animation:beam 2.2s ease-in-out infinite;
 }
-.overlay.on { display:flex; animation: ovIn 0.22s ease; }
-@keyframes ovIn { from{opacity:0;} to{opacity:1;} }
-.modal {
-background: rgba(14,14,28,0.88);
-backdrop-filter: var(–blur); -webkit-backdrop-filter: var(–blur);
-border:1px solid rgba(255,255,255,.15); border-bottom:none;
-border-radius:30px 30px 0 0; width:100%; max-width:520px;
-padding:6px 22px 36px; max-height:94dvh; overflow-y:auto;
-box-shadow:0 -20px 70px rgba(0,0,0,.6);
-animation: modalUp 0.35s cubic-bezier(.34,1.15,.64,1);
+@keyframes beam{
+0%{top:21%;opacity:1}
+48%{opacity:1}
+50%{top:79%;opacity:0}
+52%{opacity:0}
+54%{opacity:1}
+100%{top:21%;opacity:1}
 }
-@keyframes modalUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
-.mhandle {
-width:42px; height:4px; border-radius:2px; background:rgba(255,255,255,.18);
-margin:14px auto 22px;
-}
-.mtitle { font-size:21px; font-weight:900; margin-bottom:20px; }
 
-/* FORM */
-.fg { margin-bottom:16px; }
-.fg label { font-size:11px; font-weight:900; color:var(–text3); text-transform:uppercase; letter-spacing:.6px; display:block; margin-bottom:8px; }
-.fg input, .fg textarea {
-width:100%; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.15);
-border-radius:14px; color:var(–text); padding:13px 16px; font-size:15px;
-font-family:inherit; outline:none; resize:vertical; transition:all 0.2s;
+.scan-modal-foot{padding:16px 22px 20px}
+.scan-status{
+text-align:center;font-size:13px;color:rgba(255,255,255,0.45);
+margin-bottom:14px;min-height:20px;
 }
-.fg input:focus, .fg textarea:focus { border-color:rgba(0,122,255,.6); background:rgba(0,122,255,.1); }
-.fg textarea { min-height:80px; }
-input::placeholder, textarea::placeholder { color:var(–text3); }
 
-/* emoji grid */
-.egrid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:12px; }
-.eo {
-font-size:27px; text-align:center; padding:6px; border-radius:10px;
-cursor:pointer; border:2.5px solid transparent; transition:all 0.15s;
+/* ════════════════════════════
+EMP ORDERS
+════════════════════════════ */
+.emp-card{border-radius:22px;padding:18px;margin-bottom:14px}
+.ec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ec-title{font-size:17px;font-weight:700}
+.ec-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.ec-badge{
+background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;
 }
-.eo.on { border-color:var(–accent); background:rgba(0,122,255,.2); }
-
-/* ── EMPTY ── */
-.empty { text-align:center; padding:70px 20px; color:var(–text2); }
-.empty .ei { font-size:62px; margin-bottom:16px; opacity:.55; }
-.empty p { font-size:15px; line-height:1.6; }
-
-/* ── TOAST ── */
-#toast {
-position:fixed; top:80px; left:50%; transform:translateX(-50%) translateY(-12px);
-background:rgba(14,14,28,0.92); backdrop-filter:var(–blur); -webkit-backdrop-filter:var(–blur);
-border:1px solid rgba(255,255,255,.15); border-radius:14px;
-padding:12px 22px; font-size:14px; font-weight:800; z-index:999;
-opacity:0; transition:all 0.3s cubic-bezier(.34,1.15,.64,1);
-pointer-events:none; white-space:nowrap;
-box-shadow:0 8px 36px rgba(0,0,0,.5);
+.prog-wrap{background:rgba(255,255,255,0.1);border-radius:6px;height:4px;overflow:hidden;margin-bottom:14px}
+.prog-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,#007AFF,#5856D6);transition:width .4s}
+.items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.item-row{
+display:flex;align-items:center;gap:12px;
+background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+border-radius:14px;padding:12px;transition:all 0.3s;
 }
-#toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+.item-row.done-s{opacity:0.45;background:rgba(52,199,89,0.07);border-color:rgba(52,199,89,0.18)}
+.item-row.done-r{opacity:0.45;background:rgba(255,59,48,0.07);border-color:rgba(255,59,48,0.18)}
+.item-em{font-size:26px}
+.item-info{flex:1}
+.item-name{font-size:13px;font-weight:600}
+.item-price{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.item-mark{font-size:20px}
+.ec-acts{display:flex;gap:8px}
 
-/* ── SCAN HISTORY ── */
-.scan-hist-item {
-display:flex; align-items:center; gap:12px;
-background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09);
-border-radius:16px; padding:14px; margin-bottom:10px;
+/* ════════════════════════════
+PROFILE
+════════════════════════════ */
+.prof-hero{border-radius:24px;padding:28px;text-align:center;margin-bottom:14px}
+.prof-av{
+width:84px;height:84px;border-radius:50%;font-size:44px;
+display:flex;align-items:center;justify-content:center;
+margin:0 auto 14px;border:2.5px solid rgba(255,255,255,0.2);
+}
+.prof-av.buyer{
+background:linear-gradient(135deg,rgba(0,122,255,0.5),rgba(88,86,214,0.45));
+box-shadow:0 8px 32px rgba(0,122,255,0.3);
+}
+.prof-av.emp{
+background:linear-gradient(135deg,rgba(52,199,89,0.45),rgba(0,199,190,0.38));
+box-shadow:0 8px 32px rgba(52,199,89,0.25);
+}
+.prof-name-display{font-size:24px;font-weight:700;margin-bottom:4px;cursor:pointer}
+.prof-name-display:hover{opacity:0.75}
+.prof-name-input{
+font-size:22px;font-weight:700;background:rgba(255,255,255,0.08);
+border:1px solid rgba(0,122,255,0.5);border-radius:10px;
+color:#fff;text-align:center;padding:6px 14px;font-family:inherit;
+outline:none;width:100%;max-width:240px;margin:0 auto 4px;display:block;
+}
+.prof-role{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:4px}
+.prof-name-hint{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px}
+.stat-box{
+background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+border-radius:14px;padding:14px 10px;text-align:center;
+}
+.stat-n{font-size:22px;font-weight:700;color:#FF9500}
+.stat-l{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px}
+.info-list{border-radius:20px;overflow:hidden;margin-bottom:14px}
+.info-row{
+display:flex;justify-content:space-between;align-items:center;
+padding:13px 18px;font-size:14px;
+border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.info-row:last-child{border:none}
+.info-row .lbl{color:rgba(255,255,255,0.4)}
+.info-row .val{font-weight:600}
+
+/* ════════════════════════════
+MODAL (bottom sheet)
+════════════════════════════ */
+#modalBg{
+display:none;position:fixed;inset:0;z-index:300;
+background:rgba(0,0,0,0.6);
+backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#modalBg.active{display:block}
+.bottom-sheet{
+display:none;position:fixed;bottom:0;left:0;right:0;z-index:301;
+border-radius:28px 28px 0 0;
+padding:6px 22px calc(28px + env(safe-area-inset-bottom,0px));
+max-height:92dvh;overflow-y:auto;
+background:rgba(16,16,24,0.88);
+backdrop-filter:blur(60px) saturate(200%);
+-webkit-backdrop-filter:blur(60px) saturate(200%);
+border-top:1px solid rgba(255,255,255,0.12);
+border-left:1px solid rgba(255,255,255,0.06);
+border-right:1px solid rgba(255,255,255,0.06);
+box-shadow:0 -20px 80px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.bottom-sheet.active{display:block;animation:sheetUp 0.38s cubic-bezier(.32,0.72,0,.95)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.bs-handle{width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:12px auto 20px}
+.bs-title{font-size:20px;font-weight:700;margin-bottom:20px}
+
+/* Form */
+.fg{margin-bottom:16px}
+.fg label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);
+text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:8px}
+.fg input,.fg textarea{
+width:100%;background:rgba(255,255,255,0.07);
+border:1px solid rgba(255,255,255,0.12);border-radius:13px;
+color:#fff;padding:13px 15px;font-size:15px;font-family:inherit;
+outline:none;resize:vertical;transition:all 0.2s;
+}
+.fg input:focus,.fg textarea:focus{
+border-color:rgba(0,122,255,0.6);background:rgba(0,122,255,0.08);
+}
+.fg textarea{min-height:75px}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.2)}
+
+/* Emoji grid */
+.egrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:12px}
+.eo{
+font-size:26px;text-align:center;padding:5px;border-radius:9px;cursor:pointer;
+border:2px solid transparent;transition:all 0.14s;
+}
+.eo.on{border-color:#007AFF;background:rgba(0,122,255,0.18)}
+
+/* ════════════════════════════
+RETURN MODAL
+════════════════════════════ */
+.ret-item{
+display:flex;align-items:center;gap:12px;padding:13px;
+background:rgba(255,255,255,0.05);border:2px solid transparent;
+border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all 0.18s;
+}
+.ret-item.on{border-color:#FF3B30;background:rgba(255,59,48,0.1)}
+.ret-cb{
+width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,0.18);
+background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;
+font-size:13px;font-weight:700;transition:all 0.18s;flex-shrink:0;
+}
+.ret-item.on .ret-cb{background:#FF3B30;border-color:#FF3B30;color:#fff}
+
+/* ════════════════════════════
+EMPTY + TOAST
+════════════════════════════ */
+.empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.35)}
+.empty .ei{font-size:56px;margin-bottom:14px;opacity:0.5}
+.empty p{font-size:15px;line-height:1.6}
+
+#toast{
+position:fixed;top:80px;left:50%;
+transform:translateX(-50%) translateY(-10px) scale(0.95);
+background:rgba(18,18,28,0.92);
+backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+border:1px solid rgba(255,255,255,0.14);border-radius:14px;
+padding:12px 22px;font-size:14px;font-weight:600;z-index:999;
+opacity:0;transition:all 0.28s cubic-bezier(.34,1.3,.64,1);
+pointer-events:none;white-space:nowrap;
+box-shadow:0 8px 36px rgba(0,0,0,0.5);
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+
+/* PC tweaks */
+@media(min-width:600px){
+.bottom-sheet{max-width:520px;left:50%;transform:translateX(-50%);border-radius:28px 28px 0 0}
+.bottom-sheet.active{animation:sheetUpPC 0.38s cubic-bezier(.32,.72,0,.95)}
+@keyframes sheetUpPC{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+#scanOverlay .scan-modal{max-width:400px}
 }
 </style>
 
 </head>
 <body>
 
-<div id="bg">
-  <div class="orb o1"></div>
-  <div class="orb o2"></div>
-  <div class="orb o3"></div>
-  <div class="orb o4"></div>
-</div>
+<div id="wall"></div>
+
+<div id="root">
 
 <!-- ══ ROLE SCREEN ══ -->
 
-<div id="roleScreen">
-  <div class="logo-wrap">
-    <div class="logo-icon">📦</div>
-  </div>
-  <div class="role-title">ПВЗ Pro</div>
-  <div class="role-sub">Симулятор пункта выдачи заказов<br>Выберите ваш профиль</div>
+<div class="screen active" id="roleScreen">
+  <div class="rs-logo">📦</div>
+  <div class="rs-title">ПВЗ Pro</div>
+  <div class="rs-sub">Симулятор пункта выдачи<br>Выберите ваш профиль</div>
 
-  <div class="profile-preview">
-    <div class="profile-tabs">
-      <div class="ptab on" onclick="switchPrev('buyer')">🛍️ Покупатель</div>
-      <div class="ptab"    onclick="switchPrev('emp')">👷 Сотрудник</div>
+  <div class="rs-profile">
+    <div class="rs-ptabs glass" style="border-radius:12px;display:flex">
+      <div class="rs-ptab on" onclick="previewSwitch('buyer')">🛍️ Покупатель</div>
+      <div class="rs-ptab"    onclick="previewSwitch('emp')">👷 Сотрудник</div>
     </div>
-    <div class="pcard glass" id="prevCard">
-      <div class="pavatar buyer" id="prevAv">🛍️</div>
+    <div class="rs-pcard glass-card" style="border-radius:18px">
+      <div class="rs-pav buyer" id="pvAv">🛍️</div>
       <div>
-        <div class="pname" id="prevName">Анна К.</div>
-        <div class="pdetail" id="prevDetail">VIP клиент · Активный покупатель</div>
+        <div class="rs-pname" id="pvName">Загрузка...</div>
+        <div class="rs-pdetail" id="pvDetail">Нажмите на имя в профиле чтобы изменить</div>
       </div>
-      <div class="pbadge buyer" id="prevBadge">Покупатель</div>
+      <div class="rs-pbadge buyer" id="pvBadge">Покупатель</div>
     </div>
   </div>
 
-  <div class="role-btns">
-    <button class="rbtn buyer" onclick="setRole('buyer')">
-      <span class="rbtn-icon">🛍️</span>
+  <div class="rs-btns">
+    <button class="rs-btn buyer" onclick="setRole('buyer')">
+      <span class="rs-bicon">🛍️</span>
       <div>
-        <div class="rbtn-title">Войти как покупатель</div>
-        <div class="rbtn-sub">Создавайте товары, заказывайте, получайте QR‑коды</div>
+        <div class="rs-btitle">Войти как покупатель</div>
+        <div class="rs-bsub">Магазин, корзина, QR‑коды заказов</div>
       </div>
     </button>
-    <button class="rbtn emp" onclick="setRole('emp')">
-      <span class="rbtn-icon">👷</span>
+    <button class="rs-btn emp" onclick="setRole('emp')">
+      <span class="rs-bicon">👷</span>
       <div>
-        <div class="rbtn-title">Войти как сотрудник</div>
-        <div class="rbtn-sub">Сканируйте QR‑коды камерой, выдавайте заказы</div>
+        <div class="rs-btitle">Войти как сотрудник</div>
+        <div class="rs-bsub">Сканировать QR, выдавать заказы</div>
       </div>
     </button>
   </div>
 </div>
 
-<!-- ══ APP ══ -->
+<!-- ══ APP SCREEN ══ -->
 
-<div id="app">
-  <div class="hdr">
-    <div class="hdr-l">
-      <div class="hdr-logo">📦</div>
-      <div class="hdr-title">ПВЗ Pro</div>
-      <div class="hdr-badge buyer" id="hdrBadge">Покупатель</div>
+<div class="screen" id="appScreen">
+  <div class="navbar glass" style="border-radius:0">
+    <div class="nb-l">
+      <span class="nb-logo">📦</span>
+      <span class="nb-title">ПВЗ Pro</span>
+      <span class="nb-badge buyer" id="nbBadge">Покупатель</span>
     </div>
-    <button class="exit-btn" onclick="exitRole()">← Выйти</button>
+    <button class="nb-exit" onclick="exitRole()">Выйти</button>
   </div>
-  <div class="tabs" id="tabBar"></div>
-  <div class="content" id="content"></div>
+
+  <div class="pages" id="pages">
+    <div class="page active" id="pg-shop"></div>
+    <div class="page" id="pg-cart"></div>
+    <div class="page" id="pg-orders"></div>
+    <div class="page" id="pg-scanner"></div>
+    <div class="page" id="pg-eorders"></div>
+    <div class="page" id="pg-profile"></div>
+  </div>
+
+  <div class="tabbar glass" style="border-radius:0" id="tabbar"></div>
+</div>
+
+</div><!-- #root -->
+
+<!-- ══ SCANNER OVERLAY ══ -->
+
+<div id="scanOverlay">
+  <div class="scan-modal glass-card">
+    <div class="scan-modal-head">
+      <div class="scan-modal-title">📷 Сканирование QR‑кода</div>
+      <div class="scan-modal-sub">Наведите камеру на QR‑код клиента</div>
+    </div>
+    <div class="vid-container">
+      <video id="scanVid" autoplay playsinline muted></video>
+      <div class="vid-dim"></div>
+      <div class="vid-frame"><div class="vf-inner"></div></div>
+      <div class="vid-beam"></div>
+    </div>
+    <div class="scan-modal-foot">
+      <div class="scan-status" id="scanStatus">Инициализация камеры…</div>
+      <button class="fullbtn glass" onclick="stopScan()" style="margin-top:0">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL BG ══ -->
+
+<div id="modalBg" onclick="closeAllModals()"></div>
+
+<!-- ══ MODALS ══ -->
+
+<div class="bottom-sheet" id="mProduct">
+  <div class="bs-handle"></div>
+  <div class="bs-title" id="mProductTitle">Новый товар</div>
+  <div class="fg"><label>Иконка</label><div class="egrid" id="egrid"></div></div>
+  <div class="fg"><label>Название</label><input id="pName" placeholder="Наушники Sony"></div>
+  <div class="fg"><label>Цена (от 100 ₽)</label><input id="pPrice" type="number" min="100" placeholder="1500"></div>
+  <div class="fg"><label>Описание</label><textarea id="pDesc" placeholder="Краткое описание..."></textarea></div>
+  <button class="fullbtn blue" onclick="saveProduct()">Сохранить</button>
+  <button class="fullbtn glass" onclick="closeModal('mProduct')">Отмена</button>
+</div>
+
+<div class="bottom-sheet" id="mCheckout">
+  <div class="bs-handle"></div>
+  <div class="bs-title">Оформление заказа</div>
+  <div id="coItems"></div>
+  <div id="coSum"></div>
+  <button class="fullbtn blue" onclick="placeOrder()">✅ Подтвердить</button>
+  <button class="fullbtn glass" onclick="closeModal('mCheckout')">Назад</button>
+</div>
+
+<div class="bottom-sheet" id="mQR">
+  <div class="bs-handle"></div>
+  <div class="bs-title" id="mQRtitle">QR‑код заказа</div>
+  <div class="qr-center">
+    <div id="qrBox"></div>
+    <div class="qr-info" id="qrInfo"></div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:18px">Покажите код сотруднику ПВЗ</div>
+  </div>
+  <button class="fullbtn glass" onclick="closeModal('mQR')">Закрыть</button>
+</div>
+
+<div class="bottom-sheet" id="mReturn">
+  <div class="bs-handle"></div>
+  <div class="bs-title">Возврат товаров</div>
+  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px">Отметьте товары для возврата</div>
+  <div id="retList"></div>
+  <button class="fullbtn red" onclick="confirmReturn()">Оформить возврат</button>
+  <button class="fullbtn glass" onclick="closeModal('mReturn')">Отмена</button>
 </div>
 
 <!-- ══ TOAST ══ -->
 
 <div id="toast"></div>
 
-<!-- ══ MODAL: Product ══ -->
-
-<div class="overlay" id="mProduct">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle" id="mProductTitle">✨ Новый товар</div>
-    <div class="fg">
-      <label>Иконка</label>
-      <div class="egrid" id="egrid"></div>
-    </div>
-    <div class="fg"><label>Название</label><input id="pName" placeholder="Наушники Sony..."></div>
-    <div class="fg"><label>Цена (от 100 ₽)</label><input id="pPrice" type="number" placeholder="1500" min="100"></div>
-    <div class="fg"><label>Описание</label><textarea id="pDesc" placeholder="Краткое описание..."></textarea></div>
-    <button class="fullbtn p" onclick="saveProduct()">Сохранить</button>
-    <button class="fullbtn s" onclick="closeM('mProduct')">Отмена</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: Checkout ══ -->
-
-<div class="overlay" id="mCheckout">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">🧾 Оформление заказа</div>
-    <div id="coItems"></div>
-    <div id="coSum"></div>
-    <button class="fullbtn p" onclick="placeOrder()">✅ Подтвердить заказ</button>
-    <button class="fullbtn s" onclick="closeM('mCheckout')">Назад</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: QR ══ -->
-
-<div class="overlay" id="mQR">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle" id="mQRTitle">🔲 QR‑код заказа</div>
-    <div class="qr-wrap">
-      <div id="qrBox"></div>
-      <div class="qr-hint" id="qrHint"></div>
-      <div style="color:var(--text2);font-size:12px;margin-bottom:18px;">Покажите этот код сотруднику ПВЗ</div>
-    </div>
-    <button class="fullbtn s" onclick="closeM('mQR')">Закрыть</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: Scanner ══ -->
-
-<div class="overlay" id="mScan">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">📷 Сканирование QR‑кода</div>
-    <div class="vid-wrap">
-      <video id="scanVid" autoplay playsinline muted></video>
-      <div class="scan-dim"></div>
-      <div class="vid-overlay">
-        <div class="scan-frame">
-          <div class="sf-inner"></div>
-          <div class="scan-beam"></div>
-        </div>
-      </div>
-    </div>
-    <div class="scan-hint-txt">Наведите камеру на QR‑код клиента</div>
-    <button class="fullbtn s" onclick="stopScan()" style="margin-top:16px;">✕ Отмена</button>
-  </div>
-</div>
-
-<!-- ══ MODAL: Return ══ -->
-
-<div class="overlay" id="mReturn">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <div class="mtitle">↩️ Возврат товаров</div>
-    <div style="color:var(--text2);font-size:13px;margin-bottom:16px;">Выберите товары для возврата</div>
-    <div id="retItems"></div>
-    <button class="fullbtn d" onclick="confirmReturn()">Подтвердить возврат</button>
-    <button class="fullbtn s" onclick="closeM('mReturn')">Отмена</button>
-  </div>
-</div>
-
 <script>
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    AUDIO
-═══════════════════════════════════════ */
-let AC = null;
-function ac() {
-  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-  if (AC.state === 'suspended') AC.resume();
-  return AC;
+═══════════════════════════════ */
+let _ac = null;
+function ac(){
+  if(!_ac) _ac = new (window.AudioContext||window.webkitAudioContext)();
+  if(_ac.state==='suspended') _ac.resume();
+  return _ac;
 }
-function tone(freq, type='sine', dur=0.1, vol=0.12, delay=0) {
-  try {
-    const c = ac(), o = c.createOscillator(), g = c.createGain();
-    o.connect(g); g.connect(c.destination);
-    o.type = type; o.frequency.value = freq;
-    const t = c.currentTime + delay;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.start(t); o.stop(t + dur);
-  } catch(e) {}
+function beep(freq,type,dur,vol,delay=0){
+  try{
+    const c=ac(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.type=type;o.frequency.value=freq;
+    const t=c.currentTime+delay;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    o.start(t);o.stop(t+dur);
+  }catch(e){}
 }
-const SFX = {
-  tap:      () => tone(440,'sine',.07,.09),
-  add:      () => { tone(523,'sine',.09,.1); tone(659,'sine',.09,.1,.09); },
-  remove:   () => tone(330,'sine',.1,.1),
-  success:  () => { [523,659,784].forEach((f,i) => tone(f,'sine',.13,.12,i*.08)); },
-  error:    () => tone(180,'sawtooth',.15,.12),
-  scan:     () => { tone(880,'sine',.07,.13); tone(1100,'sine',.1,.13,.07); },
-  checkout: () => { [523,659,784,1047].forEach((f,i) => tone(f,'sine',.12,.11,i*.065)); },
-  complete: () => { [523,784,1047,880,1319].forEach((f,i) => tone(f,'triangle',.14,.12,i*.055)); }
+const SFX={
+  tap:     ()=>beep(440,'sine',0.06,0.08),
+  add:     ()=>{beep(523,'sine',0.08,0.1);beep(659,'sine',0.08,0.1,0.08)},
+  del:     ()=>beep(300,'sine',0.1,0.09),
+  ok:      ()=>{[523,659,784].forEach((f,i)=>beep(f,'sine',0.12,0.11,i*0.08))},
+  err:     ()=>beep(160,'sawtooth',0.15,0.11),
+  scan:    ()=>{beep(800,'sine',0.06,0.12);beep(1046,'sine',0.1,0.12,0.07)},
+  pay:     ()=>{[523,659,784,1047].forEach((f,i)=>beep(f,'sine',0.11,0.1,i*0.06))},
+  done:    ()=>{[523,784,1047,880,1319].forEach((f,i)=>beep(f,'triangle',0.13,0.11,i*0.05))}
 };
-document.addEventListener('click', () => { if (!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); }, {once:true});
+document.addEventListener('pointerdown',()=>{if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)()},{once:true});
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    STATE
-═══════════════════════════════════════ */
-let role = 'buyer';
-let curPage = 'shop';
-let products = [
-  {id:1, name:'Наушники Sony',    price:3990, desc:'Беспроводные с шумоподавлением', emoji:'🎧'},
-  {id:2, name:'Чехол iPhone',     price:490,  desc:'Силиконовый защитный чехол',      emoji:'📱'},
-  {id:3, name:'Зарядка 65W',      price:890,  desc:'Быстрая зарядка USB-C',           emoji:'🔌'},
+═══════════════════════════════ */
+let ROLE = 'buyer';
+let CUR  = 'shop';
+let products=[
+  {id:1,name:'Наушники Sony',price:3990,desc:'Беспроводные, шумоподавление',emoji:'🎧'},
+  {id:2,name:'Чехол iPhone',price:490,desc:'Силиконовый защитный чехол',emoji:'📱'},
+  {id:3,name:'Зарядка 65W',price:890,desc:'Быстрая зарядка USB-C',emoji:'🔌'},
 ];
-let cart = [];
-let orders = [];
-let empOrders = [];
-let editId = null;
-let selEmoji = '📦';
-let selPay = 'delivery';
-let retOrderId = null;
-let retSel = new Set();
-let scanStream = null;
-let scanTick = null;
-let pidC = 20, oidC = 100;
-function pid() { return ++pidC; }
-function oid() { return ++oidC; }
+let cart=[];
+let orders=[];
+let empOrders=[];
+let editId=null;
+let selEmoji='📦';
+let selPay='delivery';
+let retOid=null;
+let retSel=new Set();
+let scanStream=null;
+let scanTimer=null;
+let pidC=20,oidC=100;
+function pid(){return ++pidC}
+function oid(){return ++oidC}
 
-const EMOJIS = ['📦','🎧','📱','👟','👜','🎮','💻','⌚','🔌','📷','🎁','🧴','👗','🕹️','📚','🍕','🧸','💡','🖥️','🎵','🎒','🛍️','🖱️','🎸','🏋️'];
-const FMT = n => n.toLocaleString('ru-RU') + ' ₽';
-const CC  = () => cart.reduce((s,i) => s+i.qty, 0);
-const CT  = () => cart.reduce((s,i) => s+i.p.price*i.qty, 0);
-
-/* profiles */
-const PROF = {
-  buyer: {name:'Анна К.',        detail:'VIP клиент · Активный покупатель', av:'🛍️'},
-  emp:   {name:'Дмитрий В.',     detail:'Старший оператор ПВЗ',             av:'👷'}
+/* profiles – editable */
+const profiles={
+  buyer:{name:'Имя покупателя',role:'Покупатель',av:'🛍️'},
+  emp:  {name:'Имя сотрудника',role:'Сотрудник ПВЗ',av:'👷'}
 };
 
-/* ═══════════════════════════════════════
+const FMT=n=>n.toLocaleString('ru-RU')+' ₽';
+const CC =()=>cart.reduce((s,i)=>s+i.qty,0);
+const CT =()=>cart.reduce((s,i)=>s+i.p.price*i.qty,0);
+const EMOJIS=['📦','🎧','📱','👟','👜','🎮','💻','⌚','🔌','📷','🎁','🧴','👗','🕹️','📚','🍕','🧸','💡','🖥️','🎵','🎒','🛍️','🖱️','🎸','🏋️'];
+
+/* ═══════════════════════════════
    TOAST
-═══════════════════════════════════════ */
-let toastT = null;
-function toast(msg, dur=2600) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('on');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => el.classList.remove('on'), dur);
+═══════════════════════════════ */
+let _tt=null;
+function toast(msg,dur=2600){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),dur);
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    MODAL
-═══════════════════════════════════════ */
-function openM(id) { SFX.tap(); document.getElementById(id).classList.add('on'); }
-function closeM(id) { document.getElementById(id).classList.remove('on'); }
-
-/* ═══════════════════════════════════════
-   ROLE / PROFILE PREVIEW
-═══════════════════════════════════════ */
-function switchPrev(r) {
+═══════════════════════════════ */
+let _openModal=null;
+function openModal(id){
+  closeAllModals();
+  const el=document.getElementById(id);
+  document.getElementById('modalBg').classList.add('active');
+  el.classList.add('active');
+  _openModal=id;
   SFX.tap();
-  const tabs = document.querySelectorAll('.ptab');
-  tabs[0].classList.toggle('on', r==='buyer');
-  tabs[1].classList.toggle('on', r==='emp');
-  const p = PROF[r];
-  document.getElementById('prevAv').textContent    = p.av;
-  document.getElementById('prevAv').className      = 'pavatar ' + r;
-  document.getElementById('prevName').textContent  = p.name;
-  document.getElementById('prevDetail').textContent= p.detail;
-  document.getElementById('prevBadge').textContent = r==='buyer'?'Покупатель':'Сотрудник';
-  document.getElementById('prevBadge').className   = 'pbadge ' + r;
+}
+function closeModal(id){
+  document.getElementById(id)?.classList.remove('active');
+  document.getElementById('modalBg').classList.remove('active');
+  _openModal=null;
+}
+function closeAllModals(){
+  ['mProduct','mCheckout','mQR','mReturn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('modalBg').classList.remove('active');
+  _openModal=null;
 }
 
-function setRole(r) {
-  SFX.success();
-  role = r;
-  document.getElementById('roleScreen').style.display = 'none';
-  document.getElementById('app').classList.add('on');
-  const b = document.getElementById('hdrBadge');
-  if (r === 'buyer') { b.textContent='🛍️ Покупатель'; b.className='hdr-badge buyer'; }
-  else               { b.textContent='👷 Сотрудник';   b.className='hdr-badge emp'; }
-  curPage = r==='buyer' ? 'shop' : 'scanner';
-  renderTabs(); renderPage(curPage);
+/* ═══════════════════════════════
+   ROLE / PREVIEW
+═══════════════════════════════ */
+function previewSwitch(r){
+  SFX.tap();
+  const tabs=document.querySelectorAll('.rs-ptab');
+  tabs[0].classList.toggle('on',r==='buyer');
+  tabs[1].classList.toggle('on',r==='emp');
+  const p=profiles[r];
+  document.getElementById('pvAv').textContent=p.av;
+  document.getElementById('pvAv').className='rs-pav '+(r==='buyer'?'buyer':'emp');
+  document.getElementById('pvName').textContent=p.name;
+  document.getElementById('pvBadge').textContent=r==='buyer'?'Покупатель':'Сотрудник';
+  document.getElementById('pvBadge').className='rs-pbadge '+(r==='buyer'?'buyer':'emp');
+}
+previewSwitch('buyer');
+
+function setRole(r){
+  SFX.ok();
+  ROLE=r;
+  document.getElementById('roleScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  const b=document.getElementById('nbBadge');
+  b.textContent=r==='buyer'?'🛍️ Покупатель':'👷 Сотрудник';
+  b.className='nb-badge '+(r==='buyer'?'buyer':'emp');
+  CUR=r==='buyer'?'shop':'scanner';
+  buildTabs();renderPage(CUR);
 }
 
-function exitRole() {
+function exitRole(){
   SFX.tap();
   stopScan();
-  document.getElementById('app').classList.remove('on');
-  document.getElementById('roleScreen').style.display = 'flex';
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('roleScreen').classList.add('active');
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    TABS
-═══════════════════════════════════════ */
-const BTABS = [
-  {id:'shop',    icon:'🏪', label:'Магазин'},
-  {id:'cart',    icon:'🛒', label:'Корзина',  bdg:'cart'},
-  {id:'orders',  icon:'📋', label:'Заказы'},
-  {id:'profile', icon:'👤', label:'Профиль'},
+═══════════════════════════════ */
+const BTABS=[
+  {id:'shop',   icon:'🏪',label:'Магазин'},
+  {id:'cart',   icon:'🛒',label:'Корзина',  bdg:'cart'},
+  {id:'orders', icon:'📋',label:'Заказы'},
+  {id:'profile',icon:'👤',label:'Профиль'},
 ];
-const ETABS = [
-  {id:'scanner', icon:'📷', label:'Сканер'},
-  {id:'eorders', icon:'📋', label:'Заказы', bdg:'emp'},
-  {id:'profile', icon:'👤', label:'Профиль'},
+const ETABS=[
+  {id:'scanner', icon:'📷',label:'Сканер'},
+  {id:'eorders', icon:'📋',label:'Заказы',bdg:'emp'},
+  {id:'profile', icon:'👤',label:'Профиль'},
 ];
 
-function renderTabs() {
-  const tabs = role==='buyer' ? BTABS : ETABS;
-  document.getElementById('tabBar').innerHTML = tabs.map(t => {
-    let b = '';
-    if (t.bdg==='cart' && CC()>0) b = `<span class="bdg">${CC()}</span>`;
-    if (t.bdg==='emp') { const n=empOrders.filter(o=>o.status!=='done').length; if(n) b=`<span class="bdg">${n}</span>`; }
-    return `<div class="tab${curPage===t.id?' on':''}" onclick="navTo('${t.id}')">
-      <span class="ti">${t.icon}</span>${t.label}${b}
+function buildTabs(){
+  const tabs=ROLE==='buyer'?BTABS:ETABS;
+  document.getElementById('tabbar').innerHTML=tabs.map(t=>{
+    let bdg='';
+    if(t.bdg==='cart'&&CC()>0) bdg=`<div class="tb-badge">${CC()}</div>`;
+    if(t.bdg==='emp'){const n=empOrders.filter(o=>o.status!=='done').length;if(n)bdg=`<div class="tb-badge">${n}</div>`;}
+    return `<div class="tb-item${CUR===t.id?' on':''}" onclick="navTo('${t.id}')">
+      <span class="tb-icon">${t.icon}</span>
+      <span class="tb-label">${t.label}</span>
+      ${bdg}
     </div>`;
   }).join('');
 }
 
-function navTo(id) { SFX.tap(); renderPage(id); }
+function navTo(id){
+  SFX.tap();
+  renderPage(id);
+}
 
-/* ═══════════════════════════════════════
-   PAGES
-═══════════════════════════════════════ */
-function renderPage(id) {
-  curPage = id;
-  renderTabs();
-  const el = document.getElementById('content');
-
-  if      (id==='shop')    el.innerHTML = renderShop();
-  else if (id==='cart')    el.innerHTML = renderCart();
-  else if (id==='orders')  el.innerHTML = renderOrders();
-  else if (id==='scanner') el.innerHTML = renderScanner();
-  else if (id==='eorders') el.innerHTML = renderEOrders();
-  else if (id==='profile') el.innerHTML = renderProfile();
+/* ═══════════════════════════════
+   PAGE RENDER
+═══════════════════════════════ */
+function renderPage(id){
+  CUR=id;
+  buildTabs();
+  // clear all pages
+  ['shop','cart','orders','scanner','eorders','profile'].forEach(p=>{
+    const el=document.getElementById('pg-'+p);
+    if(el){el.classList.remove('active');el.innerHTML='';}
+  });
+  const pg=document.getElementById('pg-'+id);
+  if(!pg)return;
+  if(id==='shop')    pg.innerHTML=shopHTML();
+  if(id==='cart')    pg.innerHTML=cartHTML();
+  if(id==='orders')  pg.innerHTML=ordersHTML();
+  if(id==='scanner') pg.innerHTML=scannerHTML();
+  if(id==='eorders') pg.innerHTML=eordersHTML();
+  if(id==='profile') pg.innerHTML=profileHTML();
+  pg.classList.add('active');
+  pg.scrollTop=0;
 
   // FAB
-  const old = document.getElementById('FAB');
-  if (old) old.remove();
-  if (id==='shop') {
-    const f = document.createElement('button');
-    f.className='fab'; f.id='FAB'; f.textContent='+';
-    f.onclick = () => { SFX.tap(); openProductModal(null); };
+  document.getElementById('_fab')?.remove();
+  if(id==='shop'){
+    const f=document.createElement('button');
+    f.className='fab';f.id='_fab';f.innerHTML='+';
+    f.onclick=()=>{SFX.tap();openProductModal(null)};
     document.body.appendChild(f);
   }
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    SHOP
-═══════════════════════════════════════ */
-function renderShop() {
-  if (!products.length) return `<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
-  return `<div class="sec">Товары · ${products.length}</div>
-  <div class="pgrid">${products.map(pc).join('')}</div>`;
+═══════════════════════════════ */
+function shopHTML(){
+  if(!products.length) return`<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
+  return`<div class="sec-label">Товары · ${products.length}</div>
+  <div class="pgrid">${products.map(cardHTML).join('')}</div>`;
 }
-function pc(p) {
-  return `<div class="pcard glass">
+function cardHTML(p){
+  return`<div class="pcard glass-card">
     <div class="pcard-img">${p.emoji}</div>
     <div class="pcard-body">
       <div class="pcard-name">${p.name}</div>
@@ -881,69 +1050,70 @@ function pc(p) {
       <div class="pcard-price">${FMT(p.price)}</div>
     </div>
     <div class="pcard-acts">
-      <button class="btn s" onclick="openProductModal(${p.id})">✏️</button>
-      <button class="btn d" onclick="delProduct(${p.id})">🗑️</button>
-      <button class="btn p grow" onclick="addCart(${p.id})">+ Корзина</button>
+      <button class="btn btn-glass" onclick="openProductModal(${p.id})">✏️</button>
+      <button class="btn btn-red"   onclick="delProduct(${p.id})">🗑️</button>
+      <button class="btn btn-blue flex" onclick="addCart(${p.id})">+ Корзина</button>
     </div>
   </div>`;
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    PRODUCT MODAL
-═══════════════════════════════════════ */
-function openProductModal(id) {
-  editId = id;
-  const p = id ? products.find(x=>x.id===id) : null;
-  document.getElementById('mProductTitle').textContent = id ? '✏️ Редактировать' : '✨ Новый товар';
-  document.getElementById('pName').value  = p ? p.name  : '';
-  document.getElementById('pPrice').value = p ? p.price : '';
-  document.getElementById('pDesc').value  = p ? p.desc  : '';
-  selEmoji = p ? p.emoji : '📦';
-  renderEGrid();
-  openM('mProduct');
+═══════════════════════════════ */
+function openProductModal(id){
+  editId=id;
+  const p=id?products.find(x=>x.id===id):null;
+  document.getElementById('mProductTitle').textContent=id?'✏️ Редактировать':'✨ Новый товар';
+  document.getElementById('pName').value=p?p.name:'';
+  document.getElementById('pPrice').value=p?p.price:'';
+  document.getElementById('pDesc').value=p?p.desc:'';
+  selEmoji=p?p.emoji:'📦';
+  buildEGrid();
+  openModal('mProduct');
 }
-function renderEGrid() {
-  document.getElementById('egrid').innerHTML =
-    EMOJIS.map(e=>`<div class="eo${e===selEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');
+function buildEGrid(){
+  document.getElementById('egrid').innerHTML=EMOJIS.map(e=>
+    `<div class="eo${e===selEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`
+  ).join('');
 }
-function pickEmoji(e) { SFX.tap(); selEmoji=e; renderEGrid(); }
-function saveProduct() {
-  const name  = document.getElementById('pName').value.trim();
-  const price = parseInt(document.getElementById('pPrice').value);
-  const desc  = document.getElementById('pDesc').value.trim();
-  if (!name)            { SFX.error(); return toast('⚠️ Введите название'); }
-  if (!price||price<100){ SFX.error(); return toast('⚠️ Цена от 100 ₽'); }
-  if (editId) {
-    Object.assign(products.find(x=>x.id===editId), {name,price,desc,emoji:selEmoji});
-    SFX.success(); toast('✅ Товар обновлён');
-  } else {
+function pickEmoji(e){SFX.tap();selEmoji=e;buildEGrid()}
+function saveProduct(){
+  const name=document.getElementById('pName').value.trim();
+  const price=parseInt(document.getElementById('pPrice').value);
+  const desc=document.getElementById('pDesc').value.trim();
+  if(!name){SFX.err();return toast('⚠️ Введите название')}
+  if(!price||price<100){SFX.err();return toast('⚠️ Цена от 100 ₽')}
+  if(editId){
+    Object.assign(products.find(x=>x.id===editId),{name,price,desc,emoji:selEmoji});
+    SFX.ok();toast('✅ Обновлено');
+  }else{
     products.push({id:pid(),name,price,desc,emoji:selEmoji});
-    SFX.add(); toast('✅ Товар добавлен');
+    SFX.add();toast('✅ Товар добавлен');
   }
-  closeM('mProduct'); renderPage('shop');
+  closeModal('mProduct');renderPage('shop');
 }
-function delProduct(id) {
-  if (!confirm('Удалить товар?')) return;
-  SFX.remove();
-  products = products.filter(p=>p.id!==id);
-  cart     = cart.filter(i=>i.p.id!==id);
-  renderPage('shop'); toast('🗑️ Удалено');
+function delProduct(id){
+  if(!confirm('Удалить товар?'))return;
+  SFX.del();
+  products=products.filter(p=>p.id!==id);
+  cart=cart.filter(i=>i.p.id!==id);
+  renderPage('shop');toast('🗑️ Удалено');
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    CART
-═══════════════════════════════════════ */
-function addCart(id) {
-  const p = products.find(x=>x.id===id);
-  const e = cart.find(i=>i.p.id===id);
-  if (e) e.qty++; else cart.push({p, qty:1});
-  SFX.add(); toast(`🛒 ${p.name} добавлен`); renderTabs();
+═══════════════════════════════ */
+function addCart(id){
+  const p=products.find(x=>x.id===id);
+  const e=cart.find(i=>i.p.id===id);
+  if(e)e.qty++;else cart.push({p,qty:1});
+  SFX.add();toast(`🛒 ${p.name}`);buildTabs();
 }
-function renderCart() {
-  if (!cart.length) return `<div class="empty"><div class="ei">🛒</div><p>Корзина пуста</p></div>`;
-  return `<div class="sec">Корзина · ${CC()} поз.</div>
-  ${cart.map(i=>`<div class="cart-item glass">
-    <div class="ci-emoji">${i.p.emoji}</div>
+function cartHTML(){
+  if(!cart.length)return`<div class="empty"><div class="ei">🛒</div><p>Корзина пуста</p></div>`;
+  return`<div class="sec-label">Корзина · ${CC()} поз.</div>
+  ${cart.map(i=>`<div class="cart-item glass-card">
+    <div class="ci-em">${i.p.emoji}</div>
     <div class="ci-info">
       <div class="ci-name">${i.p.name}</div>
       <div class="ci-price">${FMT(i.p.price)} за шт.</div>
@@ -951,455 +1121,356 @@ function renderCart() {
         <button class="qbtn" onclick="chQty(${i.p.id},-1)">−</button>
         <span class="qnum">${i.qty}</span>
         <button class="qbtn" onclick="chQty(${i.p.id},1)">+</button>
-        <button class="qbtn" onclick="remCart(${i.p.id})" style="font-size:14px">🗑️</button>
+        <button class="qbtn" onclick="remCart(${i.p.id})" style="font-size:13px">🗑️</button>
       </div>
     </div>
     <div class="ci-total">${FMT(i.p.price*i.qty)}</div>
   </div>`).join('')}
-  <div class="cart-sum glass">
-    <div class="csr"><span class="lbl">Позиций:</span><span style="font-weight:800">${CC()}</span></div>
-    <div style="height:1px;background:rgba(255,255,255,.08);margin:8px 0"></div>
-    <div class="csr"><span class="lbl">Итого:</span><span class="big-total">${FMT(CT())}</span></div>
-    <div style="margin-top:18px;font-size:11px;font-weight:900;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Оплата</div>
+  <div class="cart-summary glass-card">
+    <div class="cs-row"><span class="l">Позиций:</span><span style="font-weight:700">${CC()}</span></div>
+    <div style="height:1px;background:rgba(255,255,255,0.07);margin:8px 0"></div>
+    <div class="cs-row"><span class="l">Итого:</span><span class="cs-total">${FMT(CT())}</span></div>
+    <div style="margin-top:16px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Способ оплаты</div>
     <div class="pay-opts">
-      <div class="pay-opt${selPay==='delivery'?' on':''}" onclick="setPay('delivery')">
+      <button class="pay-opt${selPay==='delivery'?' on':''}" onclick="setPay('delivery')">
         <span class="pi">💵</span>При получении
-      </div>
-      <div class="pay-opt${selPay==='online'?' on':''}" onclick="setPay('online')">
-        <span class="pi">💳</span>Онлайн сейчас
-      </div>
+      </button>
+      <button class="pay-opt${selPay==='online'?' on':''}" onclick="setPay('online')">
+        <span class="pi">💳</span>Онлайн
+      </button>
     </div>
-    <button class="fullbtn p" onclick="openCheckout()" style="margin-top:14px">🚀 Оформить заказ</button>
+    <button class="fullbtn blue" onclick="openCheckout()">🚀 Оформить заказ</button>
   </div>`;
 }
-function chQty(id,d) {
+function chQty(id,d){
   SFX.tap();
-  const i = cart.find(x=>x.p.id===id);
-  if (!i) return;
-  i.qty += d;
-  if (i.qty<=0) { cart=cart.filter(x=>x.p.id!==id); SFX.remove(); }
+  const i=cart.find(x=>x.p.id===id);if(!i)return;
+  i.qty+=d;
+  if(i.qty<=0){cart=cart.filter(x=>x.p.id!==id);SFX.del();}
   renderPage('cart');
 }
-function remCart(id) { SFX.remove(); cart=cart.filter(i=>i.p.id!==id); renderPage('cart'); }
-function setPay(p)   { SFX.tap(); selPay=p; renderPage('cart'); }
-function openCheckout() {
-  if (!cart.length) return;
-  SFX.tap();
-  document.getElementById('coItems').innerHTML =
-    cart.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px">
-      <span>${i.p.emoji} ${i.p.name} <span style="color:var(--text2)">×${i.qty}</span></span>
-      <span style="font-weight:800;color:var(--orange)">${FMT(i.p.price*i.qty)}</span>
+function remCart(id){SFX.del();cart=cart.filter(i=>i.p.id!==id);renderPage('cart')}
+function setPay(p){SFX.tap();selPay=p;renderPage('cart')}
+function openCheckout(){
+  if(!cart.length)return;
+  document.getElementById('coItems').innerHTML=cart.map(i=>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:14px">
+      <span>${i.p.emoji} ${i.p.name} <span style="color:rgba(255,255,255,0.35)">×${i.qty}</span></span>
+      <span style="font-weight:700;color:#FF9500">${FMT(i.p.price*i.qty)}</span>
     </div>`).join('');
-  document.getElementById('coSum').innerHTML =
-    `<div style="background:rgba(0,122,255,.1);border:1px solid rgba(0,122,255,.2);border-radius:16px;padding:16px;margin-top:16px">
-      <div class="csr"><span class="lbl">Позиций:</span><span style="font-weight:800">${CC()}</span></div>
-      <div class="csr"><span class="lbl">Оплата:</span><span style="font-weight:800">${selPay==='delivery'?'💵 При получении':'💳 Оплачено онлайн'}</span></div>
-      <div style="height:1px;background:rgba(255,255,255,.1);margin:8px 0"></div>
-      <div class="csr"><span class="lbl" style="font-size:16px">Итого:</span><span class="big-total">${FMT(CT())}</span></div>
+  document.getElementById('coSum').innerHTML=
+    `<div style="background:rgba(0,122,255,0.08);border:1px solid rgba(0,122,255,0.2);border-radius:14px;padding:16px;margin-top:14px">
+      <div class="cs-row"><span class="l">Позиций:</span><span style="font-weight:700">${CC()}</span></div>
+      <div class="cs-row"><span class="l">Оплата:</span><span style="font-weight:700">${selPay==='delivery'?'💵 При получении':'💳 Онлайн'}</span></div>
+      <div style="height:1px;background:rgba(255,255,255,0.08);margin:8px 0"></div>
+      <div class="cs-row"><span class="l">Итого:</span><span class="cs-total">${FMT(CT())}</span></div>
     </div>`;
-  openM('mCheckout');
+  openModal('mCheckout');
 }
-function placeOrder() {
-  SFX.checkout();
-  const cell = Math.floor(Math.random()*89+10).toString();
+function placeOrder(){
+  SFX.pay();
+  const cell=String(Math.floor(Math.random()*89+10));
   orders.push({
-    id:oid(), items:cart.map(i=>({...i})), total:CT(),
-    payment:selPay, status:'pending', cell,
-    scanned:[], returned:[], at: new Date()
+    id:oid(),items:cart.map(i=>({...i})),
+    total:CT(),payment:selPay,status:'pending',
+    cell,scanned:[],returned:[]
   });
-  cart=[];
-  closeM('mCheckout');
-  toast('🎉 Заказ оформлен!');
-  renderPage('orders');
+  cart=[];closeModal('mCheckout');
+  toast('🎉 Заказ оформлен!');renderPage('orders');
 }
 
-/* ═══════════════════════════════════════
-   ORDERS (buyer)
-═══════════════════════════════════════ */
-function renderOrders() {
-  if (!orders.length) return `<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
-  return `<div class="sec">Мои заказы · ${orders.length}</div>
+/* ═══════════════════════════════
+   ORDERS
+═══════════════════════════════ */
+function ordersHTML(){
+  if(!orders.length)return`<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
+  return`<div class="sec-label">Мои заказы · ${orders.length}</div>
   ${orders.slice().reverse().map(o=>{
-    const st = o.status==='ready';
-    return `<div class="order-card glass">
-      <div class="oh">
-        <div class="onum">Заказ #${o.id}</div>
-        <div class="ostatus ${st?'st-done':'st-wait'}">${st?'✅ Выдан':'⏳ Ожидание'}</div>
+    const done=o.status==='ready';
+    return`<div class="order-card glass-card">
+      <div class="oc-head">
+        <div class="oc-num">Заказ #${o.id}</div>
+        <div class="oc-status ${done?'st-done':'st-wait'}">${done?'✅ Выдан':'⏳ Ожидание'}</div>
       </div>
-      <div class="ometa">
-        <div class="ombadge">📦 Ячейка ${o.cell}</div>
-        <div class="ombadge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
-        <div class="ombadge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
+      <div class="oc-meta">
+        <div class="oc-badge">📦 Ячейка ${o.cell}</div>
+        <div class="oc-badge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
+        <div class="oc-badge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
       </div>
-      <div class="oprice">${FMT(o.total)}</div>
-      <button class="fullbtn p" style="margin-top:0" onclick="showQR(${o.id})">🔲 Показать QR‑код</button>
+      <div class="oc-price">${FMT(o.total)}</div>
+      <button class="fullbtn blue" style="margin-top:0" onclick="showQR(${o.id})">🔲 Показать QR‑код</button>
     </div>`;
   }).join('')}`;
 }
 
-/* ═══════════════════════════════════════
-   QR CODE  (self-contained generator)
-═══════════════════════════════════════ */
-function showQR(orderId) {
-  const o = orders.find(x=>x.id===orderId);
-  if (!o) return;
+/* ═══════════════════════════════
+   QR CODE GENERATOR (pure JS)
+═══════════════════════════════ */
+function showQR(orderId){
+  const o=orders.find(x=>x.id===orderId);if(!o)return;
   SFX.scan();
-
-  const data = JSON.stringify({
-    orderId: o.id, cell: o.cell,
-    count: o.items.reduce((s,i)=>s+i.qty,0),
-    total: o.total, payment: o.payment,
-    items: o.items.map(i=>({
-      id: i.p.id, name: i.p.name, price: i.p.price, qty: i.qty, emoji: i.p.emoji
-    }))
+  const data=JSON.stringify({
+    orderId:o.id,cell:o.cell,total:o.total,payment:o.payment,
+    count:o.items.reduce((s,i)=>s+i.qty,0),
+    items:o.items.map(i=>({id:i.p.id,name:i.p.name,price:i.p.price,qty:i.qty,emoji:i.p.emoji}))
   });
-
-  document.getElementById('mQRTitle').textContent = `🔲 Заказ #${o.id}`;
-  document.getElementById('qrHint').innerHTML =
-    `${o.items.reduce((s,i)=>s+i.qty,0)} позиций · Ячейка <b>${o.cell}</b> · ${FMT(o.total)}`;
-
-  openM('mQR');
-
-  // Build QR after modal opens
-  requestAnimationFrame(() => {
-    const box = document.getElementById('qrBox');
-    box.innerHTML = '';
-    const canvas = document.createElement('canvas');
-    canvas.width  = 230;
-    canvas.height = 230;
-    box.appendChild(canvas);
-    qrDraw(canvas, data);
-  });
+  document.getElementById('mQRtitle').textContent=`🔲 Заказ #${o.id}`;
+  document.getElementById('qrInfo').textContent=
+    `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
+  openModal('mQR');
+  setTimeout(()=>{
+    const box=document.getElementById('qrBox');
+    box.innerHTML='';
+    const c=document.createElement('canvas');
+    c.width=c.height=256;
+    box.appendChild(c);
+    renderQR(c,data);
+  },80);
 }
 
-/* ── Tiny QR encoder (Mode 4=Byte, ECC=M, mask 0) ── */
-function qrDraw(canvas, text) {
-  const bytes = utf8(text);
-  const version = pickVersion(bytes.length);
-  if (!version) { canvas.getContext('2d').fillText('Слишком длинный текст',10,20); return; }
-
-  const N = version * 4 + 17;
-  const m = buildMatrix(N, version, bytes);
-  applyMask(m, N);
-  placeFormat(m, N);
-
-  const ctx = canvas.getContext('2d');
-  const sz = canvas.width;
-  const cell = sz / N;
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,sz,sz);
-  ctx.fillStyle = '#000000';
-  for (let r=0;r<N;r++)
-    for (let c=0;c<N;c++)
-      if (m[r][c]===1)
-        ctx.fillRect(Math.floor(c*cell), Math.floor(r*cell), Math.ceil(cell)+0.5, Math.ceil(cell)+0.5);
+/* ── Minimal self-contained QR encoder ── */
+function renderQR(canvas,text){
+  const bytes=toUTF8(text);
+  const ver=findVersion(bytes.length);
+  if(!ver){canvas.getContext('2d').fillText('Ошибка',10,20);return;}
+  const N=ver*4+17;
+  const mat=makeMatrix(N,ver,bytes);
+  const ctx=canvas.getContext('2d');
+  const sz=canvas.width,cell=sz/N;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+  ctx.fillStyle='#000';
+  for(let r=0;r<N;r++)
+    for(let c=0;c<N;c++)
+      if(mat[r][c]===1)
+        ctx.fillRect(~~(c*cell),~~(r*cell),Math.ceil(cell),Math.ceil(cell));
 }
-
-function utf8(str) {
+function toUTF8(s){
   const b=[];
-  for (let i=0;i<str.length;i++){
-    const c=str.charCodeAt(i);
-    if(c<0x80) b.push(c);
-    else if(c<0x800){b.push(0xC0|(c>>6));b.push(0x80|(c&0x3F));}
-    else{b.push(0xE0|(c>>12));b.push(0x80|((c>>6)&0x3F));b.push(0x80|(c&0x3F));}
+  for(let i=0;i<s.length;i++){
+    const c=s.charCodeAt(i);
+    if(c<128)b.push(c);
+    else if(c<2048){b.push(192|(c>>6));b.push(128|(c&63));}
+    else{b.push(224|(c>>12));b.push(128|((c>>6)&63));b.push(128|(c&63));}
   }
   return b;
 }
-
-/* Capacities for ECC=M (byte mode) */
-const CAP=[0,14,26,42,62,84,106,122,154,180,213,251,287,331,370,411,461,511,535,593,625,658,698,742,790,842,898,958,983,1051,1093,1139,1183,1229,1283,1351,1423,1499,1579,1663,1749];
-function pickVersion(n){for(let v=1;v<=40;v++)if(CAP[v]>=n+3)return v;return null;}
-
-/* Total data codewords per version (ECC=M) */
-const DC=[0,16,28,44,64,86,108,124,154,182,216,254,290,334,365,415,453,507,563,627,669,714,782,860,914,1000,1062,1128,1193,1267,1373,1455,1541,1631,1725,1812,1914,1992,2102,2216,2334];
-
-function buildMatrix(N, V, bytes) {
-  const m = Array.from({length:N},()=>new Int8Array(N).fill(-1)); // -1=unfilled
-
-  /* Finder patterns */
+/* ECC=M byte-mode capacities */
+const QR_CAP=[0,14,26,42,62,84,106,122,154,180,213,251,287,331,365,415,453,507,563,627,669,714,782,860,914,1000,1062,1128,1193,1267,1373,1455,1541,1631,1725,1812,1914,1992,2102,2216,2334];
+function findVersion(n){for(let v=1;v<=40;v++)if(QR_CAP[v]>=n+3)return v;return null}
+/* Total data codewords ECC=M */
+const QR_DC=[0,16,28,44,64,86,108,124,154,182,216,254,290,334,365,415,453,507,563,627,669,714,782,860,914,1000,1062,1128,1193,1267,1373,1455,1541,1631,1725,1812,1914,1992,2102,2216,2334];
+/* Alignment pattern centers */
+const QR_AL=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+function makeMatrix(N,V,bytes){
+  const m=Array.from({length:N},()=>new Int8Array(N).fill(-1));
+  /* finder */
   function finder(r,c){
     for(let dr=-1;dr<=7;dr++)for(let dc=-1;dc<=7;dc++){
-      const rr=r+dr,cc=c+dc;
-      if(rr<0||rr>=N||cc<0||cc>=N) continue;
-      const inside=dr>=0&&dr<=6&&dc>=0&&dc<=6;
-      const border=dr===0||dr===6||dc===0||dc===6;
-      const inner=dr>=2&&dr<=4&&dc>=2&&dc<=4;
-      m[rr][cc]=inside&&(border||inner)?1:0;
+      const rr=r+dr,cc=c+dc;if(rr<0||rr>=N||cc<0||cc>=N)continue;
+      m[rr][cc]=(dr>=0&&dr<=6&&dc>=0&&dc<=6&&(dr===0||dr===6||dc===0||dc===6||(dr>=2&&dr<=4&&dc>=2&&dc<=4)))?1:0;
     }
   }
-  finder(0,0); finder(0,N-7); finder(N-7,0);
-
-  /* Timing */
-  for(let i=8;i<N-8;i++){
-    if(m[6][i]<0) m[6][i]=i%2===0?1:0;
-    if(m[i][6]<0) m[i][6]=i%2===0?1:0;
-  }
-
-  /* Dark module */
+  finder(0,0);finder(0,N-7);finder(N-7,0);
+  /* timing */
+  for(let i=8;i<N-8;i++){if(m[6][i]<0)m[6][i]=i%2?0:1;if(m[i][6]<0)m[i][6]=i%2?0:1;}
   m[N-8][8]=1;
-
-  /* Alignment patterns */
-  const AL=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
-  if(V>=2&&AL[V]){
-    const a=AL[V];
+  /* alignment */
+  if(V>=2&&QR_AL[V]){
+    const a=QR_AL[V];
     for(const r of a)for(const c of a){
-      if(m[r][c]>=0) continue;
-      for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){
+      if(m[r][c]>=0)continue;
+      for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++)
         m[r+dr][c+dc]=(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0))?1:0;
-      }
     }
   }
-
-  /* Data bits */
-  const dbytes=[];
-  // Mode indicator (4=byte) + length
-  dbytes.push(0x40|(bytes.length>>4));
-  dbytes.push(((bytes.length&0xF)<<4)|(bytes.length>0?bytes[0]>>4:0));
+  /* data bytes */
+  const db=[];
+  db.push(0x40|(bytes.length>>4));
+  db.push(((bytes.length&15)<<4)|(bytes.length?bytes[0]>>4:0));
   for(let i=0;i<bytes.length;i++){
-    const lo=bytes[i]&0xF;
-    const hi=i+1<bytes.length?bytes[i+1]>>4:0;
-    dbytes.push((lo<<4)|hi);
+    const lo=bytes[i]&15,hi=i+1<bytes.length?bytes[i+1]>>4:0;
+    db.push((lo<<4)|hi);
   }
-  const total=DC[V]||128;
-  while(dbytes.length<total) dbytes.push(dbytes.length%2===0?0xEC:0x11);
-
-  /* Convert to bits */
-  const bits=[];
-  for(const b of dbytes) for(let i=7;i>=0;i--) bits.push((b>>i)&1);
-
-  /* Place in zigzag */
-  let bi=0, up=true;
+  const tot=QR_DC[V]||128;
+  while(db.length<tot)db.push(db.length%2?0x11:0xEC);
+  /* bits */
+  const bits=[];for(const b of db)for(let i=7;i>=0;i--)bits.push((b>>i)&1);
+  /* zigzag */
+  let bi=0,up=true;
   for(let col=N-1;col>=1;col-=2){
-    if(col===6) col--;
+    if(col===6)col--;
     for(let i=0;i<N;i++){
       const row=up?N-1-i:i;
-      for(const dc of [0,-1]){
-        const c=col+dc;
-        if(m[row][c]<0) m[row][c]=bi<bits.length?bits[bi++]:0;
-      }
+      for(const dc of[0,-1]){const c=col+dc;if(m[row][c]<0)m[row][c]=bi<bits.length?bits[bi++]:0;}
     }
     up=!up;
   }
-
+  /* mask 0: (r+c)%2===0 */
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const fixed=(r<9&&c<9)||(r<9&&c>=N-8)||(r>=N-8&&c<9)||r===6||c===6;
+    if(!fixed&&m[r][c]>=0&&(r+c)%2===0)m[r][c]^=1;
+  }
+  /* format string ECC=M mask=0: 101010000010010 */
+  const fs=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
+  const fp=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+  for(let i=0;i<15;i++){
+    m[fp[i][0]][fp[i][1]]=fs[i];
+    if(i<7)m[N-1-i][8]=fs[i];
+    if(i>=7)m[8][N-15+i]=fs[i];
+  }
   return m;
 }
 
-function applyMask(m,N){
-  // mask pattern 0: (r+c)%2===0
-  const skip=(r,c)=>{
-    const rf=(r<9&&c<9)||(r<9&&c>=N-8)||(r>=N-8&&c<9);
-    if(rf) return true;
-    // timing
-    if(r===6||c===6) return true;
-    return false;
-  };
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-    if(!skip(r,c)&&m[r][c]>=0&&(r+c)%2===0) m[r][c]^=1;
-  }
-}
-
-function placeFormat(m,N){
-  // Format string for ECC=M, mask=0 (pre-calculated): 101010000010010
-  const fs=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
-  // Positions around top-left finder
-  const p=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
-  for(let i=0;i<15;i++){
-    m[p[i][0]][p[i][1]]=fs[i];
-    // top-right / bottom-left copies
-    if(i<7)  m[N-1-i][8]=fs[i];
-    else     m[8][N-15+i]=fs[i];
-  }
-}
-
-/* ═══════════════════════════════════════
-   SCANNER (employee)
-═══════════════════════════════════════ */
-function renderScanner() {
-  const hist = empOrders.slice(-3).reverse();
-  return `<div class="scan-card glass">
-    <div class="scan-big-icon">📷</div>
+/* ═══════════════════════════════
+   SCANNER
+═══════════════════════════════ */
+function scannerHTML(){
+  const hist=empOrders.slice(-3).reverse();
+  return`<div class="scan-hero glass-card">
+    <div class="scan-icon">📷</div>
     <div class="scan-title">Сканер QR‑кодов</div>
-    <div class="scan-sub">Нажмите кнопку, поднесите QR‑код клиента к камере</div>
-    <button class="fullbtn p" onclick="startScan()" style="margin:0 auto;max-width:300px;font-size:17px;padding:17px">
-      📷 Запустить камеру
-    </button>
+    <div class="scan-sub">Нажмите кнопку и поднесите<br>QR‑код клиента к камере</div>
+    <button class="fullbtn blue" onclick="startScan()" style="margin:0;max-width:280px">📷 Открыть камеру</button>
   </div>
-  <div style="margin-top:4px">
-    <div class="sec">Последние сканирования</div>
-    ${!hist.length ? '<div class="empty" style="padding:24px 20px"><div class="ei" style="font-size:40px">🔲</div><p style="font-size:13px">Нет отсканированных заказов</p></div>'
-    : hist.map(o=>`<div class="scan-hist-item glass-sm">
-        <span style="font-size:28px">📦</span>
-        <div style="flex:1">
-          <div style="font-weight:800">Заказ #${o.id}</div>
-          <div style="color:var(--text2);font-size:12px">Ячейка ${o.cell} · ${FMT(o.total)}</div>
-        </div>
-        <div style="font-size:12px;font-weight:800;color:${o.status==='done'?'var(--green)':'var(--orange)'}">
-          ${o.status==='done'?'Выдан':'Активен'}
-        </div>
-      </div>`).join('')}
-  </div>`;
+  ${hist.length?`<div class="sec-label" style="margin-top:16px">Последние сканирования</div>
+  ${hist.map(o=>`<div class="glass-card" style="border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px">
+    <span style="font-size:28px">📦</span>
+    <div style="flex:1"><div style="font-weight:600">Заказ #${o.id}</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.35)">Ячейка ${o.cell} · ${FMT(o.total)}</div></div>
+    <div style="font-size:12px;font-weight:600;color:${o.status==='done'?'#34C759':'#FF9500'}">${o.status==='done'?'Выдан':'Активен'}</div>
+  </div>`).join('')}`:''}`;
 }
 
-let scanCanvas = null;
-let scanCtx    = null;
+let _qrCanvas=null,_qrCtx=null;
 
-function startScan() {
+function startScan(){
   SFX.tap();
-  openM('mScan');
-  const vid = document.getElementById('scanVid');
+  const ov=document.getElementById('scanOverlay');
+  ov.classList.add('active');
+  setStatus('Запрос доступа к камере…');
 
-  if (!scanCanvas) {
-    scanCanvas = document.createElement('canvas');
-    scanCtx    = scanCanvas.getContext('2d', {willReadFrequently:true});
+  if(!_qrCanvas){
+    _qrCanvas=document.createElement('canvas');
+    _qrCtx=_qrCanvas.getContext('2d',{willReadFrequently:true});
   }
 
-  const constraints = {
-    video: {
-      facingMode: {ideal:'environment'},
-      width:  {ideal:1280},
-      height: {ideal:720}
-    }
-  };
+  navigator.mediaDevices.getUserMedia({
+    video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
+  })
+  .then(stream=>{
+    scanStream=stream;
+    const vid=document.getElementById('scanVid');
+    vid.srcObject=stream;
+    vid.play().catch(()=>{});
+    setStatus('Наведите на QR‑код…');
 
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-      scanStream = stream;
-      vid.srcObject = stream;
-
-      vid.onloadedmetadata = () => {
-        vid.play().catch(()=>{});
-      };
-
-      // Give video time to start then begin scanning
-      setTimeout(() => {
-        clearInterval(scanTick);
-        scanTick = setInterval(() => {
-          if (vid.readyState < vid.HAVE_ENOUGH_DATA) return;
-          if (!vid.videoWidth) return;
-
-          scanCanvas.width  = vid.videoWidth;
-          scanCanvas.height = vid.videoHeight;
-          scanCtx.drawImage(vid, 0, 0);
-
-          let img;
-          try { img = scanCtx.getImageData(0,0,scanCanvas.width,scanCanvas.height); }
-          catch(e) { return; }
-
-          const code = jsQR(img.data, img.width, img.height, {inversionAttempts:'dontInvert'});
-          if (code && code.data) {
-            clearInterval(scanTick);
-            stopScan();
-            processQR(code.data);
-          }
-        }, 120);
-      }, 800);
-    })
-    .catch(err => {
-      closeM('mScan');
-      SFX.error();
-      if (err.name === 'NotAllowedError') toast('⚠️ Разрешите доступ к камере');
-      else if (err.name === 'NotFoundError') toast('⚠️ Камера не найдена');
-      else toast('⚠️ Ошибка камеры: ' + err.message);
+    // wait for video ready then start decoding
+    vid.addEventListener('playing',function onplay(){
+      vid.removeEventListener('playing',onplay);
+      clearInterval(scanTimer);
+      scanTimer=setInterval(()=>decode(vid),100);
     });
+    // fallback if event already fired
+    setTimeout(()=>{if(!scanTimer)scanTimer=setInterval(()=>decode(vid),100);},1000);
+  })
+  .catch(err=>{
+    setStatus('');
+    ov.classList.remove('active');
+    SFX.err();
+    if(err.name==='NotAllowedError') toast('⚠️ Разрешите доступ к камере в настройках браузера');
+    else if(err.name==='NotFoundError') toast('⚠️ Камера не найдена');
+    else toast('⚠️ Ошибка: '+err.message);
+  });
 }
 
-function stopScan() {
-  clearInterval(scanTick);
-  if (scanStream) {
-    scanStream.getTracks().forEach(t=>t.stop());
-    scanStream = null;
+function decode(vid){
+  if(!vid.videoWidth||!vid.videoHeight||vid.paused||vid.ended)return;
+  _qrCanvas.width=vid.videoWidth;
+  _qrCanvas.height=vid.videoHeight;
+  _qrCtx.drawImage(vid,0,0);
+  let img;
+  try{img=_qrCtx.getImageData(0,0,_qrCanvas.width,_qrCanvas.height);}catch(e){return;}
+  const code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+  if(code&&code.data){
+    clearInterval(scanTimer);scanTimer=null;
+    stopScan();
+    processQR(code.data);
   }
-  closeM('mScan');
 }
 
-function processQR(raw) {
+function stopScan(){
+  clearInterval(scanTimer);scanTimer=null;
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+  const vid=document.getElementById('scanVid');
+  vid.srcObject=null;
+  document.getElementById('scanOverlay').classList.remove('active');
+}
+
+function setStatus(t){
+  const el=document.getElementById('scanStatus');
+  if(el)el.textContent=t;
+}
+
+function processQR(raw){
   let data;
-  try { data = JSON.parse(raw); }
-  catch(e) { SFX.error(); toast('⚠️ Нечитаемый QR‑код'); return; }
-
-  const id = data.orderId || data.id;
-  if (!id) { SFX.error(); toast('⚠️ QR не содержит данных заказа'); return; }
-
-  const exists = empOrders.find(o=>o.id===id);
-  if (!exists) {
-    const o = {
-      id, cell: data.cell, total: data.total,
-      payment: data.payment, status: 'pending',
-      items: data.items||[], scanned:[], returned:[]
-    };
-    empOrders.push(o);
+  try{data=JSON.parse(raw);}catch(e){SFX.err();toast('⚠️ Нечитаемый QR‑код');return;}
+  const id=data.orderId||data.id;
+  if(!id){SFX.err();toast('⚠️ QR не содержит данных заказа');return;}
+  if(!empOrders.find(o=>o.id===id)){
+    empOrders.push({
+      id,cell:data.cell,total:data.total,payment:data.payment,
+      status:'pending',items:data.items||[],scanned:[],returned:[]
+    });
   }
-
   SFX.scan();
-  const n = data.count || (data.items||[]).reduce((s,i)=>s+i.qty,0);
-  speak(`Ячейка ${data.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${data.payment==='delivery'?'оплата при получении':'оплачено онлайн'}.`);
+  const n=data.count||(data.items||[]).reduce((s,i)=>s+i.qty,0);
+  speak(`Ячейка ${data.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${data.payment==='delivery'?'Оплата при получении':'Оплачено онлайн'}.`);
   toast(`📦 Заказ #${id} загружен`);
   renderPage('eorders');
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    EMP ORDERS
-═══════════════════════════════════════ */
-function renderEOrders() {
-  const active = empOrders.filter(o=>o.status!=='done');
-  const done   = empOrders.filter(o=>o.status==='done');
-  if (!empOrders.length)
-    return `<div class="empty"><div class="ei">📋</div><p>Нет активных заказов.<br>Отсканируйте QR‑код клиента</p></div>`;
-
+═══════════════════════════════ */
+function eordersHTML(){
+  const active=empOrders.filter(o=>o.status!=='done');
+  const done=empOrders.filter(o=>o.status==='done');
+  if(!empOrders.length)return`<div class="empty"><div class="ei">📋</div><p>Нет заказов.<br>Отсканируйте QR‑код</p></div>`;
   let html='';
-  if(active.length){ html+=`<div class="sec">Активные · ${active.length}</div>`; html+=active.map(empCard).join(''); }
-  if(done.length)  { html+=`<div class="sec" style="margin-top:22px">Завершённые · ${done.length}</div>`; html+=done.map(o=>`<div style="opacity:.5">${empCard(o)}</div>`).join(''); }
+  if(active.length){html+=`<div class="sec-label">Активные · ${active.length}</div>`;html+=active.map(empCardHTML).join('');}
+  if(done.length){html+=`<div class="sec-label" style="margin-top:20px">Завершённые · ${done.length}</div>`;html+=done.map(o=>`<div style="opacity:0.5">${empCardHTML(o)}</div>`).join('');}
   return html;
 }
-
-function empCard(o) {
-  const sc = o.scanned||[], rt = o.returned||[];
-  const total = o.items.reduce((s,i)=>s+i.price*i.qty,0);
-  const done  = o.items.every(i=>sc.includes(i.id)||rt.includes(i.id));
-  const prog  = Math.round((sc.length+rt.length)/Math.max(o.items.length,1)*100);
-
+function empCardHTML(o){
+  const sc=o.scanned||[],rt=o.returned||[];
+  const total=o.items.reduce((s,i)=>s+i.price*i.qty,0);
+  const allDone=o.items.every(i=>sc.includes(i.id)||rt.includes(i.id));
+  const prog=Math.round((sc.length+rt.length)/Math.max(o.items.length,1)*100);
   let acts='';
-  if(o.status==='done'){
-    acts=`<div style="text-align:center;color:var(--green);font-weight:800;padding:10px">✅ Заказ завершён</div>`;
-  } else if(done){
-    acts=`<div style="display:flex;gap:8px;margin-top:12px">
-      ${rt.length===0?`<button class="btn d" onclick="openReturn(${o.id})">↩️ Возврат</button>`:''}
-      <button class="btn g grow" onclick="completeOrder(${o.id})">✅ Завершить</button>
-    </div>`;
-  } else {
-    acts=`<div style="margin-top:12px"><button class="btn d" onclick="openReturn(${o.id})">↩️ Возврат</button></div>`;
-  }
-
-  return `<div class="emp-card glass">
-    <div class="emp-hdr">
-      <div class="emp-title">Заказ #${o.id}</div>
-      <div class="ostatus ${o.status==='done'?'st-done':'st-wait'}">${o.status==='done'?'Выдан':'Активен'}</div>
+  if(o.status==='done') acts=`<div style="text-align:center;color:#34C759;font-weight:600;padding:10px">✅ Завершён</div>`;
+  else if(allDone) acts=`<div class="ec-acts"><button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button><button class="btn btn-green flex" onclick="completeOrder(${o.id})">✅ Завершить</button></div>`;
+  else acts=`<button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button>`;
+  return`<div class="emp-card glass-card">
+    <div class="ec-head">
+      <div class="ec-title">Заказ #${o.id}</div>
+      <div class="oc-status ${o.status==='done'?'st-done':'st-wait'}">${o.status==='done'?'Выдан':'Активен'}</div>
     </div>
-    <div class="info-row">
-      <div class="infobdg">📦 Ячейка ${o.cell}</div>
-      <div class="infobdg">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
-      <div class="infobdg">💰 ${FMT(total)}</div>
+    <div class="ec-meta">
+      <div class="ec-badge">📦 Ячейка ${o.cell}</div>
+      <div class="ec-badge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
+      <div class="ec-badge">💰 ${FMT(total)}</div>
     </div>
-    ${o.items.length?`
-    <div style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px">
-        <span>Прогресс</span><span>${sc.length+rt.length}/${o.items.length}</span>
-      </div>
-      <div class="prog-wrap"><div class="prog-bar" style="width:${prog}%"></div></div>
-    </div>`:''}
-    <div class="sec" style="margin-bottom:8px">Товары</div>
+    <div class="prog-wrap"><div class="prog-bar" style="width:${prog}%"></div></div>
+    <div class="sec-label" style="margin-bottom:8px">Товары ${sc.length+rt.length}/${o.items.length}</div>
     <div class="items-list">
       ${o.items.map(i=>{
-        const isS=sc.includes(i.id), isR=rt.includes(i.id);
-        const cls=isS?'item-row scanned':isR?'item-row returned':'item-row';
+        const isS=sc.includes(i.id),isR=rt.includes(i.id);
+        const cls=isS?'item-row done-s':isR?'item-row done-r':'item-row';
         const mark=isS?'✅':isR?'↩️':'';
-        const btn=(!isS&&!isR&&o.status!=='done')
-          ?`<button class="btn p" style="font-size:11px;padding:7px 11px" onclick="scanItem(${o.id},${i.id})">Выдать</button>`:'';
-        return `<div class="${cls}">
-          <div class="item-emoji">${i.emoji}</div>
-          <div class="item-info">
-            <div class="item-name">${i.name}</div>
-            <div class="item-price">${FMT(i.price)} × ${i.qty}</div>
-          </div>
+        const btn=(!isS&&!isR&&o.status!=='done')?`<button class="btn btn-blue" style="font-size:11px;padding:7px 12px" onclick="markItem(${o.id},${i.id})">Выдать</button>`:'';
+        return`<div class="${cls}">
+          <div class="item-em">${i.emoji}</div>
+          <div class="item-info"><div class="item-name">${i.name}</div><div class="item-price">${FMT(i.price)} × ${i.qty}</div></div>
           <span class="item-mark">${mark}</span>${btn}
         </div>`;
       }).join('')}
@@ -1407,100 +1478,113 @@ function empCard(o) {
     ${acts}
   </div>`;
 }
-
-function scanItem(oid, iid) {
-  const o=empOrders.find(x=>x.id===oid); if(!o) return;
-  if (!o.scanned) o.scanned=[];
-  if (o.scanned.includes(iid)) return;
-  o.scanned.push(iid);
-  SFX.scan();
+function markItem(oid,iid){
+  const o=empOrders.find(x=>x.id===oid);if(!o)return;
+  if(!o.scanned)o.scanned=[];
+  if(o.scanned.includes(iid))return;
+  o.scanned.push(iid);SFX.scan();
   const done=o.items.every(i=>o.scanned.includes(i.id)||(o.returned||[]).includes(i.id));
-  if(done){SFX.success();toast('🎉 Все товары выданы!');}
-  else toast('✅ Товар отмечен');
+  if(done){SFX.ok();toast('🎉 Все товары выданы!')}else toast('✅ Отмечено');
   renderPage('eorders');
 }
-
-function openReturn(oid) {
-  SFX.tap();
-  retOrderId=oid; retSel=new Set();
+function openReturn(oid){
+  SFX.tap();retOid=oid;retSel=new Set();
   const o=empOrders.find(x=>x.id===oid);
-  const items=o.items.filter(i=>!(o.returned||[]).includes(i.id));
-  document.getElementById('retItems').innerHTML = !items.length
-    ? '<div style="text-align:center;color:var(--text2);padding:20px">Нет товаров для возврата</div>'
-    : items.map(i=>`<div class="ret-item" id="ri${i.id}" onclick="togRet(${i.id})">
+  const list=o.items.filter(i=>!(o.returned||[]).includes(i.id));
+  document.getElementById('retList').innerHTML=!list.length
+    ?'<p style="color:rgba(255,255,255,0.4);padding:12px">Нет товаров для возврата</p>'
+    :list.map(i=>`<div class="ret-item" id="ri${i.id}" onclick="togRet(${i.id})">
         <div class="ret-cb" id="rc${i.id}"></div>
-        <div style="font-size:26px">${i.emoji}</div>
-        <div style="flex:1">
-          <div style="font-weight:800;font-size:14px">${i.name}</div>
-          <div style="color:var(--text2);font-size:12px">${FMT(i.price)} × ${i.qty}</div>
-        </div>
+        <div style="font-size:24px">${i.emoji}</div>
+        <div style="flex:1"><div style="font-weight:600;font-size:14px">${i.name}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.35)">${FMT(i.price)} × ${i.qty}</div></div>
       </div>`).join('');
-  openM('mReturn');
+  openModal('mReturn');
 }
 function togRet(id){
-  SFX.tap();
-  retSel.has(id)?retSel.delete(id):retSel.add(id);
-  document.getElementById(`ri${id}`).classList.toggle('on',retSel.has(id));
-  document.getElementById(`rc${id}`).textContent=retSel.has(id)?'✓':'';
+  SFX.tap();retSel.has(id)?retSel.delete(id):retSel.add(id);
+  document.getElementById(`ri${id}`)?.classList.toggle('on',retSel.has(id));
+  const cb=document.getElementById(`rc${id}`);if(cb)cb.textContent=retSel.has(id)?'✓':'';
 }
 function confirmReturn(){
-  if(!retSel.size){SFX.error();return toast('⚠️ Выберите товары');}
-  const o=empOrders.find(x=>x.id===retOrderId);
+  if(!retSel.size){SFX.err();return toast('⚠️ Выберите товары')}
+  const o=empOrders.find(x=>x.id===retOid);
   if(!o.returned)o.returned=[];
   retSel.forEach(id=>{
     if(!o.returned.includes(id))o.returned.push(id);
     if(o.scanned)o.scanned=o.scanned.filter(s=>s!==id);
   });
-  SFX.success(); closeM('mReturn'); toast('↩️ Возврат оформлен'); renderPage('eorders');
+  SFX.ok();closeModal('mReturn');toast('↩️ Возврат оформлен');renderPage('eorders');
 }
 function completeOrder(oid){
-  const o=empOrders.find(x=>x.id===oid); o.status='done';
-  SFX.complete(); toast('🎉 Заказ выдан!'); renderPage('eorders');
+  const o=empOrders.find(x=>x.id===oid);o.status='done';
+  SFX.done();toast('🎉 Заказ выдан!');renderPage('eorders');
 }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════
    PROFILE
-═══════════════════════════════════════ */
-function renderProfile() {
-  const isBuyer = role==='buyer';
-  const p = PROF[isBuyer?'buyer':'emp'];
-  const myList = isBuyer?orders:empOrders;
-  const spent = isBuyer?orders.reduce((s,o)=>s+o.total,0):0;
-  const compl = isBuyer?orders.filter(o=>o.status==='ready').length:empOrders.filter(o=>o.status==='done').length;
-
-  return `<div class="prof-hero glass">
-    <div class="prof-av ${isBuyer?'buyer':'emp'}">${p.av}</div>
-    <div class="prof-name">${p.name}</div>
-    <div class="prof-role">${p.detail}</div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-n">${myList.length}</div><div class="stat-l">${isBuyer?'Заказов':'Принято'}</div></div>
-      <div class="stat-box"><div class="stat-n">${compl}</div><div class="stat-l">${isBuyer?'Получено':'Выдано'}</div></div>
-      <div class="stat-box"><div class="stat-n">${isBuyer?(spent>0?Math.round(spent/1000)+'к':'0'):products.length}</div><div class="stat-l">${isBuyer?'Трат (₽)':'Товаров'}</div></div>
+═══════════════════════════════ */
+function profileHTML(){
+  const p=profiles[ROLE];
+  const myOrders=ROLE==='buyer'?orders:empOrders;
+  const spent=ROLE==='buyer'?orders.reduce((s,o)=>s+o.total,0):0;
+  const done=ROLE==='buyer'?orders.filter(o=>o.status==='ready').length:empOrders.filter(o=>o.status==='done').length;
+  return`<div class="prof-hero glass-card">
+    <div class="prof-av ${ROLE==='buyer'?'buyer':'emp'}">${p.av}</div>
+    <div class="prof-name-display" id="profNameDisplay" onclick="editName()">${p.name} ✎</div>
+    <div class="prof-name-hint">Нажмите на имя чтобы изменить</div>
+    <div class="prof-role">${p.role}</div>
+    <div class="stats">
+      <div class="stat-box"><div class="stat-n">${myOrders.length}</div><div class="stat-l">${ROLE==='buyer'?'Заказов':'Принято'}</div></div>
+      <div class="stat-box"><div class="stat-n">${done}</div><div class="stat-l">${ROLE==='buyer'?'Получено':'Выдано'}</div></div>
+      <div class="stat-box"><div class="stat-n">${ROLE==='buyer'?(spent>0?Math.round(spent/1000)+'к':'0'):products.length}</div><div class="stat-l">${ROLE==='buyer'?'Трат ₽':'Товаров'}</div></div>
     </div>
   </div>
-  <div class="info-card glass">
-    <div class="sec" style="margin-bottom:14px">Информация</div>
-    ${isBuyer?`
-      <div class="info-row-item"><span class="lbl">Статус</span><span class="val" style="color:var(--green)">VIP Клиент ⭐</span></div>
-      <div class="info-row-item"><span class="lbl">Заказов</span><span class="val">${orders.length}</span></div>
-      <div class="info-row-item"><span class="lbl">Сумма покупок</span><span class="val" style="color:var(--orange)">${FMT(spent)}</span></div>
+  <div class="info-list glass-card">
+    <div class="info-row"><span class="lbl">Роль</span><span class="val">${ROLE==='buyer'?'🛍️ Покупатель':'👷 Сотрудник'}</span></div>
+    ${ROLE==='buyer'?`
+    <div class="info-row"><span class="lbl">Статус</span><span class="val" style="color:#34C759">VIP ⭐</span></div>
+    <div class="info-row"><span class="lbl">Потрачено</span><span class="val" style="color:#FF9500">${FMT(spent)}</span></div>
     `:`
-      <div class="info-row-item"><span class="lbl">Должность</span><span class="val">Старший оператор</span></div>
-      <div class="info-row-item"><span class="lbl">Смена</span><span class="val" style="color:var(--green)">● Онлайн</span></div>
-      <div class="info-row-item"><span class="lbl">Выдано</span><span class="val">${compl} заказов</span></div>
+    <div class="info-row"><span class="lbl">Должность</span><span class="val">Старший оператор</span></div>
+    <div class="info-row"><span class="lbl">Статус смены</span><span class="val" style="color:#34C759">● Онлайн</span></div>
     `}
   </div>
-  <button class="fullbtn s" onclick="exitRole()">← Сменить роль</button>`;
+  <button class="fullbtn glass" onclick="exitRole()">← Сменить роль</button>`;
 }
 
-/* ═══════════════════════════════════════
+function editName(){
+  SFX.tap();
+  const p=profiles[ROLE];
+  const display=document.getElementById('profNameDisplay');
+  if(!display)return;
+  const input=document.createElement('input');
+  input.className='prof-name-input';
+  input.value=p.name;
+  input.maxLength=30;
+  display.replaceWith(input);
+  input.focus();
+  input.select();
+  const save=()=>{
+    const val=input.value.trim()||p.name;
+    profiles[ROLE].name=val;
+    SFX.ok();
+    renderPage('profile');
+    previewSwitch(ROLE);
+    toast('✅ Имя сохранено');
+  };
+  input.addEventListener('blur',save);
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
+}
+
+/* ═══════════════════════════════
    SPEECH
-═══════════════════════════════════════ */
+═══════════════════════════════ */
 function speak(txt){
-  if(!window.speechSynthesis) return;
+  if(!window.speechSynthesis)return;
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(txt);
-  u.lang='ru-RU'; u.rate=0.95;
+  u.lang='ru-RU';u.rate=0.95;
   speechSynthesis.speak(u);
 }
 </script>
