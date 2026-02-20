@@ -774,7 +774,10 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
     </div>
     <div class="scan-modal-foot">
       <div class="scan-status" id="scanStatus">Инициализация камеры…</div>
-      <button class="fullbtn glass" onclick="stopScan()" style="margin-top:0">Отмена</button>
+      <button class="fullbtn blue" id="snapBtn" onclick="snapDecode()" style="margin-top:0;font-size:17px;display:none">
+        🔲 Сканировать
+      </button>
+      <button class="fullbtn glass" onclick="stopScan()" style="margin-top:8px">Отмена</button>
     </div>
   </div>
 </div>
@@ -1348,6 +1351,7 @@ function startScan(){
   const ov=document.getElementById('scanOverlay');
   ov.classList.add('active');
   setStatus('Запрос доступа к камере…');
+  showSnapBtn(false);
 
   if(!_qrCanvas){
     _qrCanvas=document.createElement('canvas');
@@ -1355,23 +1359,29 @@ function startScan(){
   }
 
   navigator.mediaDevices.getUserMedia({
-    video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
+    video:{
+      facingMode:{ideal:'environment'},
+      width:{ideal:1920},height:{ideal:1080}
+    }
   })
   .then(stream=>{
     scanStream=stream;
     const vid=document.getElementById('scanVid');
     vid.srcObject=stream;
     vid.play().catch(()=>{});
-    setStatus('Наведите на QR‑код…');
 
-    // wait for video ready then start decoding
-    vid.addEventListener('playing',function onplay(){
-      vid.removeEventListener('playing',onplay);
+    vid.onloadedmetadata=()=>{
+      vid.play().catch(()=>{});
+    };
+
+    // Show snap button + start auto-scan after 1s
+    setTimeout(()=>{
+      setStatus('Наведите камеру и нажмите кнопку ниже');
+      showSnapBtn(true);
+      // Also try auto-scan every 300ms
       clearInterval(scanTimer);
-      scanTimer=setInterval(()=>decode(vid),100);
-    });
-    // fallback if event already fired
-    setTimeout(()=>{if(!scanTimer)scanTimer=setInterval(()=>decode(vid),100);},1000);
+      scanTimer=setInterval(()=>autoTryDecode(vid),300);
+    },1200);
   })
   .catch(err=>{
     setStatus('');
@@ -1383,19 +1393,70 @@ function startScan(){
   });
 }
 
-function decode(vid){
-  if(!vid.videoWidth||!vid.videoHeight||vid.paused||vid.ended)return;
-  _qrCanvas.width=vid.videoWidth;
-  _qrCanvas.height=vid.videoHeight;
-  _qrCtx.drawImage(vid,0,0);
-  let img;
-  try{img=_qrCtx.getImageData(0,0,_qrCanvas.width,_qrCanvas.height);}catch(e){return;}
-  const code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
-  if(code&&code.data){
+function showSnapBtn(show){
+  const btn=document.getElementById('snapBtn');
+  if(btn) btn.style.display=show?'block':'none';
+}
+
+// Auto-try silently (no feedback if fails)
+function autoTryDecode(vid){
+  if(!vid||!vid.videoWidth||vid.paused||vid.ended)return;
+  const result=grabAndDecode(vid);
+  if(result){
     clearInterval(scanTimer);scanTimer=null;
     stopScan();
-    processQR(code.data);
+    processQR(result);
   }
+}
+
+// Manual snap button — shows feedback
+function snapDecode(){
+  SFX.tap();
+  const vid=document.getElementById('scanVid');
+  if(!vid||!vid.videoWidth){
+    setStatus('❌ Камера ещё не готова, подождите...');
+    return;
+  }
+  setStatus('⏳ Анализирую...');
+  // Try multiple times with slight delay for focus
+  let attempts=0;
+  const tryDecode=()=>{
+    attempts++;
+    const result=grabAndDecode(vid);
+    if(result){
+      clearInterval(scanTimer);scanTimer=null;
+      stopScan();
+      processQR(result);
+      return;
+    }
+    if(attempts<4){
+      setStatus(`⏳ Попытка ${attempts}/4...`);
+      setTimeout(tryDecode,300);
+    }else{
+      setStatus('❌ QR не найден. Поднесите ближе и попробуйте снова');
+      setTimeout(()=>setStatus('Наведите камеру и нажмите кнопку ниже'),2500);
+    }
+  };
+  tryDecode();
+}
+
+function grabAndDecode(vid){
+  try{
+    _qrCanvas.width=vid.videoWidth;
+    _qrCanvas.height=vid.videoHeight;
+    _qrCtx.drawImage(vid,0,0);
+    const img=_qrCtx.getImageData(0,0,_qrCanvas.width,_qrCanvas.height);
+    // Try normal
+    let code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+    if(code&&code.data)return code.data;
+    // Try inverted
+    code=jsQR(img.data,img.width,img.height,{inversionAttempts:'onlyInvert'});
+    if(code&&code.data)return code.data;
+    // Try both
+    code=jsQR(img.data,img.width,img.height,{inversionAttempts:'attemptBoth'});
+    if(code&&code.data)return code.data;
+  }catch(e){}
+  return null;
 }
 
 function stopScan(){
@@ -1403,6 +1464,7 @@ function stopScan(){
   if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
   const vid=document.getElementById('scanVid');
   vid.srcObject=null;
+  showSnapBtn(false);
   document.getElementById('scanOverlay').classList.remove('active');
 }
 
