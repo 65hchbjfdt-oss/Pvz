@@ -1088,8 +1088,10 @@ function showQR(orderId) {
   if (!o) return;
   SFX.scan();
 
-  // ВАЖНО: эмодзи не включаем в QR — qrcode-generator не поддерживает
-  // unicode surrogate pairs (эмодзи > U+FFFF). Храним отдельно по id.
+  // Данные заказа в QR
+  // КЛЮЧЕВОЕ: кодируем через encodeURIComponent чтобы получить чистый ASCII.
+  // qrcode-generator не поддерживает кириллицу (ISO-8859-1 only).
+  // encodeURIComponent("%D0%9D...") — это 100% ASCII, работает везде.
   const payload = {
     oid: o.id,
     c: o.cell,
@@ -1102,27 +1104,11 @@ function showQR(orderId) {
       q:  i.qty
     }))
   };
-  const data = JSON.stringify(payload);
+  const data = encodeURIComponent(JSON.stringify(payload));
 
-  // Уровень L = меньше модулей = крупнее точки = легче читать камерой
   const qr = qrcode(0, 'L');
-  try {
-    qr.addData(data, 'Byte');
-    qr.make();
-  } catch(e) {
-    // Fallback: попробуем без указания типа
-    const qr2 = qrcode(0, 'L');
-    qr2.addData(data);
-    qr2.make();
-    // Перезаписываем qr → qr2 через замену ссылки невозможно,
-    // поэтому рендерим qr2 напрямую
-    document.getElementById('mQRtitle').textContent = `🔲 Заказ #${o.id}`;
-    document.getElementById('qrInfo').textContent =
-      `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
-    openModal('mQR');
-    setTimeout(() => renderQRCanvas(qr2), 80);
-    return;
-  }
+  qr.addData(data);
+  qr.make();
 
   document.getElementById('mQRtitle').textContent = `🔲 Заказ #${o.id}`;
   document.getElementById('qrInfo').textContent =
@@ -1280,7 +1266,11 @@ function processQR(raw){
   let d;
   try {
     // QrScanner может вернуть объект {data:...} или строку
-    const str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw);
+    let str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw);
+    // Поддержка encodeURIComponent-кодировки (новый формат)
+    if (str.indexOf('%') !== -1) {
+      try { str = decodeURIComponent(str); } catch(e2) { /* не закодировано — используем как есть */ }
+    }
     d = JSON.parse(str);
   } catch(e) {
     SFX.err();
@@ -1323,9 +1313,9 @@ function processQR(raw){
 
   // Голосовое озвучивание — список всех товаров
   const n = items.reduce((s, i) => s + (i.qty || 1), 0);
-  const itemsList = items.map(i => `${i.name}${i.qty > 1 ? ', ' + i.qty + ' штуки' : ''}`).join(', ');
+  const nWord = n === 1 ? 'товар' : n < 5 ? 'товара' : 'товаров';
   const payText = pay === 'delivery' ? 'оплата при получении' : 'оплачено онлайн';
-  speak(`Заказ номер ${id}. Ячейка ${cell}. ${itemsList}. Итого: ${total} рублей. ${payText}.`);
+  speak(`${cell}. ${n} ${nWord}. ${payText}.`);
 
   toast(`📦 Заказ #${id} загружен`);
   renderPage('eorders');
