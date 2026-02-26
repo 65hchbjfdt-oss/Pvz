@@ -567,6 +567,31 @@ font-size:13px;font-weight:700;transition:all 0.18s;flex-shrink:0;
 .empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.35)}
 .empty .ei{font-size:56px;margin-bottom:14px;opacity:0.5}
 .empty p{font-size:15px;line-height:1.6}
+/* ===== DONE QR OVERLAY ===== */
+#doneQROverlay{
+  display:none;position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,0.88);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:28px;
+}
+#doneQROverlay.active{display:flex}
+.done-qr-card{
+  border-radius:28px;padding:28px 24px 24px;text-align:center;
+  width:100%;max-width:340px;
+  background:rgba(52,199,89,0.12);
+  border:1px solid rgba(52,199,89,0.35);
+  box-shadow:0 0 60px rgba(52,199,89,0.2),0 20px 60px rgba(0,0,0,0.5);
+}
+.done-qr-icon{font-size:48px;margin-bottom:10px}
+.done-qr-title{font-size:22px;font-weight:700;margin-bottom:4px;color:#34C759}
+.done-qr-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5}
+#doneQRBox{
+  padding:14px;background:#fff;border-radius:14px;
+  display:inline-block;margin-bottom:18px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+#doneQRBox canvas{display:block}
 #toast{
 position:fixed;top:80px;left:50%;
 transform:translateX(-50%) translateY(-10px) scale(0.95);
@@ -729,6 +754,18 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
   <button class="fullbtn glass" onclick="closeModal('mReturn')">Отмена</button>
 </div>
 
+<!-- ══ DONE QR OVERLAY (сотрудник показывает клиенту) ══ -->
+
+<div id="doneQROverlay">
+  <div class="done-qr-card">
+    <div class="done-qr-icon">✅</div>
+    <div class="done-qr-title">Заказ выдан!</div>
+    <div class="done-qr-sub">Попросите клиента отсканировать<br>этот QR — заказ исчезнет из его списка</div>
+    <div id="doneQRBox"></div>
+    <button class="fullbtn green" style="margin-top:0" onclick="document.getElementById('doneQROverlay').classList.remove('active')">Готово</button>
+  </div>
+</div>
+
 <!-- ══ TOAST ══ -->
 
 <div id="toast"></div>
@@ -767,10 +804,12 @@ document.addEventListener('pointerdown',()=>{if(!_ac)_ac=new(window.AudioContext
 
 let ROLE = 'buyer';
 let CUR  = 'shop';
+// Генерация артикула: категория + случайные цифры
+function genSKU(id){ return 'ART-' + String(id).padStart(3,'0') + '-' + String(Math.floor(1000+id*317%9000)); }
 let products=[
-  {id:1,name:'Наушники Sony',price:3990,desc:'Беспроводные, шумоподавление',emoji:'🎧'},
-  {id:2,name:'Чехол iPhone',price:490,desc:'Силиконовый защитный чехол',emoji:'📱'},
-  {id:3,name:'Зарядка 65W',price:890,desc:'Быстрая зарядка USB-C',emoji:'🔌'},
+  {id:1,name:'Наушники Sony',price:3990,desc:'Беспроводные, шумоподавление',emoji:'🎧',sku:genSKU(1)},
+  {id:2,name:'Чехол iPhone',price:490,desc:'Силиконовый защитный чехол',emoji:'📱',sku:genSKU(2)},
+  {id:3,name:'Зарядка 65W',price:890,desc:'Быстрая зарядка USB-C',emoji:'🔌',sku:genSKU(3)},
 ];
 let cart=[];
 let orders=[];
@@ -850,6 +889,8 @@ function setRole(r){
   b.textContent=r==='buyer'?'🛍️ Покупатель':'👷 Сотрудник';
   b.className='nb-badge '+(r==='buyer'?'buyer':'emp');
   CUR=r==='buyer'?'shop':'scanner';
+  // Загружаем голоса заранее (iOS Safari)
+  if(window.speechSynthesis) speechSynthesis.getVoices();
   buildTabs();renderPage(CUR);
 }
 
@@ -931,6 +972,7 @@ function cardHTML(p){
     <div class="pcard-img">${p.emoji}</div>
     <div class="pcard-body">
       <div class="pcard-name">${p.name}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace;margin-top:1px">${p.sku||''}</div>
       <div class="pcard-desc">${p.desc}</div>
       <div class="pcard-price">${FMT(p.price)}</div>
     </div>
@@ -970,7 +1012,7 @@ function saveProduct(){
     Object.assign(products.find(x=>x.id===editId),{name,price,desc,emoji:selEmoji});
     SFX.ok();toast('✅ Обновлено');
   }else{
-    products.push({id:pid(),name,price,desc,emoji:selEmoji});
+    const newId=pid(); products.push({id:newId,name,price,desc,emoji:selEmoji,sku:genSKU(newId)});
     SFX.add();toast('✅ Товар добавлен');
   }
   closeModal('mProduct');renderPage('shop');
@@ -1062,24 +1104,35 @@ function placeOrder(){
 
 /* ===== ORDERS ===== */
 function ordersHTML(){
+  // Фильтруем выданные через localStorage
+  const issued = getIssuedOrders();
+  const visible = orders.filter(o => !issued.has(o.id));
+  const hidden  = orders.filter(o =>  issued.has(o.id));
   if(!orders.length)return`<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
-  return`<div class="sec-label">Мои заказы · ${orders.length}</div>
-  ${orders.slice().reverse().map(o=>{
-    const done=o.status==='ready';
+  if(!visible.length)return`<div class="empty"><div class="ei">✅</div><p>Все заказы получены!</p></div>`;
+  return`<div class="sec-label">Мои заказы · ${visible.length}</div>
+  ${visible.slice().reverse().map(o=>{
     return`<div class="order-card glass-card">
       <div class="oc-head">
         <div class="oc-num">Заказ #${o.id}</div>
-        <div class="oc-status ${done?'st-done':'st-wait'}">${done?'✅ Выдан':'⏳ Ожидание'}</div>
+        <div class="oc-status st-wait">⏳ Ожидание</div>
       </div>
       <div class="oc-meta">
         <div class="oc-badge">📦 Ячейка ${o.cell}</div>
         <div class="oc-badge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
         <div class="oc-badge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
       </div>
+      <div style="margin-bottom:10px">
+        ${o.items.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px">
+          <span>${i.p.emoji} ${i.p.name}</span>
+          <span style="font-family:monospace;font-size:11px;color:rgba(255,255,255,0.3)">${i.p.sku||''}</span>
+        </div>`).join('')}
+      </div>
       <div class="oc-price">${FMT(o.total)}</div>
       <button class="fullbtn blue" style="margin-top:0" onclick="showQR(${o.id})">🔲 Показать QR‑код</button>
     </div>`;
-  }).join('')}`;
+  }).join('')}
+  ${hidden.length?`<div style="margin-top:16px;text-align:center;font-size:12px;color:rgba(255,255,255,0.2)">+ ${hidden.length} выданных заказов скрыто</div>`:''}`;
 }
 
 /* ===== QR GENERATOR ===== */
@@ -1256,6 +1309,16 @@ function processQR(raw){
   try {
     const str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw).trim();
 
+    // Клиент сканирует QR "выдан" от сотрудника
+    if(str.startsWith('DONE|')){
+      const doneId = parseInt(str.split('|')[1]);
+      markOrderIssued(doneId);
+      SFX.done();
+      toast('✅ Заказ #'+doneId+' получен!');
+      renderPage('orders');
+      return;
+    }
+
     // Формат: "oid|cell|pay|qty1:price1|qty2:price2|..."
     const parts = str.split('|');
     if (parts.length < 4) { SFX.err(); toast('⚠️ Неверный формат QR'); return; }
@@ -1400,8 +1463,66 @@ function confirmReturn(){
   SFX.ok();closeModal('mReturn');toast('↩️ Возврат оформлен');renderPage('eorders');
 }
 function completeOrder(oid){
-  const o=empOrders.find(x=>x.id===oid);o.status='done';
-  SFX.done();toast('🎉 Заказ выдан!');renderPage('eorders');
+  const o=empOrders.find(x=>x.id===oid);
+  o.status='done';
+  // Записываем в localStorage — клиент увидит что заказ выдан
+  markOrderIssued(oid);
+  // Показываем сотруднику QR "выдан" — клиент может отсканировать
+  showDoneQR(oid);
+  SFX.done();
+  toast('🎉 Заказ выдан!');
+}
+
+/* ===== localStorage: выданные заказы ===== */
+function getIssuedOrders(){
+  try {
+    const raw = localStorage.getItem('pvz_issued');
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch(e){ return new Set(); }
+}
+function markOrderIssued(id){
+  try {
+    const s = getIssuedOrders();
+    s.add(id);
+    localStorage.setItem('pvz_issued', JSON.stringify([...s]));
+  } catch(e){}
+}
+function clearIssuedOrder(id){
+  try {
+    const s = getIssuedOrders();
+    s.delete(id);
+    localStorage.setItem('pvz_issued', JSON.stringify([...s]));
+  } catch(e){}
+}
+
+/* ===== QR "заказ выдан" для клиента ===== */
+let _doneOrderId = null;
+function showDoneQR(ordId){
+  _doneOrderId = ordId;
+  // Маленький QR: "DONE|<id>"
+  const data = 'DONE|' + ordId;
+  const qr = qrcode(0,'L');
+  qr.addData(data);
+  qr.make();
+  // Показываем поверх страницы
+  const overlay = document.getElementById('doneQROverlay');
+  overlay.classList.add('active');
+  setTimeout(()=>{
+    const box = document.getElementById('doneQRBox');
+    box.innerHTML='';
+    const modules = qr.getModuleCount();
+    const cell = Math.max(7, Math.floor(220/modules));
+    const sz = modules*cell;
+    const cv = document.createElement('canvas');
+    cv.width=cv.height=sz;
+    const ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,sz,sz);
+    ctx.fillStyle='#000';
+    for(let r=0;r<modules;r++) for(let col=0;col<modules;col++)
+      if(qr.isDark(r,col)) ctx.fillRect(col*cell,r*cell,cell,cell);
+    box.appendChild(cv);
+  },50);
+  renderPage('eorders');
 }
 
 /* ===== PROFILE ===== */
@@ -1458,13 +1579,44 @@ function editName(){
   input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
 }
 
-/* ===== SPEECH ===== */
+/* ===== SPEECH — выбираем лучший русский голос ===== */
+let _bestVoice = null;
+function getBestVoice(){
+  if(_bestVoice) return _bestVoice;
+  const voices = speechSynthesis.getVoices();
+  // Приоритет: Milena (Яндекс/iOS) > Yuri > любой ru-RU не-compact
+  const priority = ['milena','yuri','katya','irina','aleksandr','anna'];
+  for(const name of priority){
+    const v = voices.find(v=>v.lang.startsWith('ru') && v.name.toLowerCase().includes(name));
+    if(v){ _bestVoice=v; return v; }
+  }
+  // Любой русский
+  const ruVoice = voices.find(v=>v.lang.startsWith('ru'));
+  if(ruVoice){ _bestVoice=ruVoice; return ruVoice; }
+  return null;
+}
 function speak(txt){
-  if(!window.speechSynthesis)return;
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(txt);
-  u.lang='ru-RU';u.rate=0.95;
-  speechSynthesis.speak(u);
+  if(!window.speechSynthesis) return;
+  // iOS: голоса загружаются асинхронно
+  const doSpeak = ()=>{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = 'ru-RU';
+    u.rate = 0.88;   // чуть медленнее — разборчивее
+    u.pitch = 1.05;  // немного живее
+    u.volume = 1;
+    const voice = getBestVoice();
+    if(voice) u.voice = voice;
+    speechSynthesis.speak(u);
+  };
+  if(speechSynthesis.getVoices().length > 0){
+    doSpeak();
+  } else {
+    // Ждём загрузки голосов (iOS Safari)
+    speechSynthesis.onvoiceschanged = ()=>{ _bestVoice=null; doSpeak(); };
+    // Fallback через 300мс
+    setTimeout(doSpeak, 300);
+  }
 }
 </script>
 
