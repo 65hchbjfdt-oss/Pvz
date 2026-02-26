@@ -567,29 +567,102 @@ font-size:13px;font-weight:700;transition:all 0.18s;flex-shrink:0;
 .empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.35)}
 .empty .ei{font-size:56px;margin-bottom:14px;opacity:0.5}
 .empty p{font-size:15px;line-height:1.6}
+
+/* ===== BLE STYLES ===== */
+.ble-bar{
+display:flex;align-items:center;gap:8px;
+padding:8px 16px;margin-bottom:10px;
+border-radius:14px;font-size:13px;font-weight:600;
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(255,255,255,0.1);
+cursor:pointer;transition:all 0.2s;
+}
+.ble-bar:active{transform:scale(0.97)}
+.ble-dot{
+width:9px;height:9px;border-radius:50%;flex-shrink:0;
+transition:background 0.3s;
+}
+.ble-dot.off{background:rgba(255,255,255,0.2)}
+.ble-dot.searching{background:#FF9500;animation:blePulse 1s infinite}
+.ble-dot.connected{background:#34C759;animation:blePulse 1.5s infinite}
+.ble-dot.serving{background:#007AFF;animation:blePulse 1.5s infinite}
+@keyframes blePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 currentColor}50%{opacity:0.7;box-shadow:0 0 0 5px transparent}}
+.ble-label{flex:1;color:rgba(255,255,255,0.75)}
+.ble-icon{font-size:18px}
+.ble-msg-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;max-height:120px;overflow-y:auto}
+.ble-msg{
+padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.4;
+background:rgba(0,122,255,0.12);border:1px solid rgba(0,122,255,0.2);
+}
+.ble-msg.in{background:rgba(52,199,89,0.1);border-color:rgba(52,199,89,0.2)}
+.ble-msg .ble-ts{color:rgba(255,255,255,0.3);font-size:10px;margin-right:6px}
+
+/* ===== WebRTC OVERLAYS ===== */
+#rtcOfferOverlay,#rtcAnswerOverlay{
+display:none;position:fixed;inset:0;z-index:700;
+background:rgba(0,0,0,0.92);
+backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+flex-direction:column;align-items:center;justify-content:center;
+padding:20px;
+}
+#rtcOfferOverlay.active,#rtcAnswerOverlay.active{display:flex}
+.rtc-card{
+border-radius:28px;padding:24px 20px 20px;text-align:center;
+width:100%;max-width:360px;
+background:rgba(0,122,255,0.1);
+border:1px solid rgba(0,122,255,0.3);
+box-shadow:0 0 60px rgba(0,122,255,0.15),0 20px 60px rgba(0,0,0,0.5);
+}
+.rtc-card.answer{
+background:rgba(88,86,214,0.1);
+border-color:rgba(88,86,214,0.3);
+box-shadow:0 0 60px rgba(88,86,214,0.15),0 20px 60px rgba(0,0,0,0.5);
+}
+.rtc-icon{font-size:40px;margin-bottom:8px}
+.rtc-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.rtc-sub{font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:14px;line-height:1.5}
+.rtc-qr-box{
+padding:12px;background:#fff;border-radius:14px;
+display:inline-block;margin-bottom:14px;
+box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.rtc-qr-box canvas{display:block}
+.rtc-status{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;min-height:32px;line-height:1.4}
+.rtc-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rtc-connected-bar{
+position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));
+left:50%;transform:translateX(-50%);
+background:rgba(52,199,89,0.15);
+border:1px solid rgba(52,199,89,0.35);
+border-radius:20px;padding:6px 16px;
+font-size:12px;font-weight:600;color:#34C759;
+display:none;z-index:90;
+backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+
 /* ===== DONE QR OVERLAY ===== */
 #doneQROverlay{
-  display:none;position:fixed;inset:0;z-index:600;
-  background:rgba(0,0,0,0.88);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  flex-direction:column;align-items:center;justify-content:center;
-  padding:28px;
+display:none;position:fixed;inset:0;z-index:600;
+background:rgba(0,0,0,0.88);
+backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+flex-direction:column;align-items:center;justify-content:center;
+padding:28px;
 }
 #doneQROverlay.active{display:flex}
 .done-qr-card{
-  border-radius:28px;padding:28px 24px 24px;text-align:center;
-  width:100%;max-width:340px;
-  background:rgba(52,199,89,0.12);
-  border:1px solid rgba(52,199,89,0.35);
-  box-shadow:0 0 60px rgba(52,199,89,0.2),0 20px 60px rgba(0,0,0,0.5);
+border-radius:28px;padding:28px 24px 24px;text-align:center;
+width:100%;max-width:340px;
+background:rgba(52,199,89,0.12);
+border:1px solid rgba(52,199,89,0.35);
+box-shadow:0 0 60px rgba(52,199,89,0.2),0 20px 60px rgba(0,0,0,0.5);
 }
 .done-qr-icon{font-size:48px;margin-bottom:10px}
 .done-qr-title{font-size:22px;font-weight:700;margin-bottom:4px;color:#34C759}
 .done-qr-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5}
 #doneQRBox{
-  padding:14px;background:#fff;border-radius:14px;
-  display:inline-block;margin-bottom:18px;
-  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+padding:14px;background:#fff;border-radius:14px;
+display:inline-block;margin-bottom:18px;
+box-shadow:0 8px 32px rgba(0,0,0,0.4);
 }
 #doneQRBox canvas{display:block}
 #toast{
@@ -611,6 +684,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 #scanOverlay .scan-modal{max-width:400px}
 }
 </style>
+
 </head>
 <body>
 
@@ -667,7 +741,10 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
       <span class="nb-title">ПВЗ Pro</span>
       <span class="nb-badge buyer" id="nbBadge">Покупатель</span>
     </div>
-    <button class="nb-exit" onclick="exitRole()">Выйти</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="rtcBadge" style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);cursor:pointer" onclick="rtcTogglePanel()">○ Локально</div>
+      <button class="nb-exit" onclick="exitRole()">Выйти</button>
+    </div>
   </div>
 
   <div class="pages" id="pages">
@@ -677,6 +754,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
     <div class="page" id="pg-scanner"></div>
     <div class="page" id="pg-eorders"></div>
     <div class="page" id="pg-profile"></div>
+    <div class="page" id="pg-ble"></div>
   </div>
 
   <div class="tabbar glass" style="border-radius:0" id="tabbar"></div>
@@ -752,6 +830,37 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
   <div id="retList"></div>
   <button class="fullbtn red" onclick="confirmReturn()">Оформить возврат</button>
   <button class="fullbtn glass" onclick="closeModal('mReturn')">Отмена</button>
+</div>
+
+<!-- ══ WebRTC OFFER OVERLAY (сотрудник показывает QR) ══ -->
+
+<div id="rtcOfferOverlay">
+  <div class="rtc-card">
+    <div class="rtc-icon">📡</div>
+    <div class="rtc-title">Wi-Fi синхронизация</div>
+    <div class="rtc-sub">Шаг 1: Покупатель сканирует QR<br>Шаг 2: Вы сканируете QR-ответ</div>
+    <div class="rtc-qr-box" id="rtcOfferBox"></div>
+    <div class="rtc-status" id="rtcOfferStatus">Генерация...</div>
+    <div class="rtc-btns">
+      <button class="btn btn-glass" id="rtcChunkPrev" style="display:none">← Назад</button>
+      <button class="fullbtn blue" id="rtcChunkNext" style="margin-top:0;font-size:14px">Следующий →</button>
+    </div>
+    <button class="fullbtn glass" style="margin-top:8px" onclick="document.getElementById('rtcOfferOverlay').classList.remove('active')">Закрыть</button>
+  </div>
+</div>
+
+<!-- ══ WebRTC ANSWER OVERLAY (покупатель показывает QR-ответ) ══ -->
+
+<div id="rtcAnswerOverlay">
+  <div class="rtc-card answer">
+    <div class="rtc-icon">📲</div>
+    <div class="rtc-title">Ваш QR-ответ</div>
+    <div class="rtc-sub">Покажите этот QR сотруднику<br>для завершения соединения</div>
+    <div class="rtc-qr-box" id="rtcAnswerBox"></div>
+    <div class="rtc-status" id="rtcAnswerStatus"></div>
+    <button class="fullbtn green" id="rtcAnswerNext" style="margin-top:0;font-size:14px">Готово</button>
+    <button class="fullbtn glass" style="margin-top:8px" onclick="document.getElementById('rtcAnswerOverlay').classList.remove('active')">Закрыть</button>
+  </div>
 </div>
 
 <!-- ══ DONE QR OVERLAY (сотрудник показывает клиенту) ══ -->
@@ -906,11 +1015,13 @@ const BTABS=[
   {id:'shop',   icon:'🏪',label:'Магазин'},
   {id:'cart',   icon:'🛒',label:'Корзина',  bdg:'cart'},
   {id:'orders', icon:'📋',label:'Заказы'},
+  {id:'ble',    icon:'🔵',label:'BT'},
   {id:'profile',icon:'👤',label:'Профиль'},
 ];
 const ETABS=[
   {id:'scanner', icon:'📷',label:'Сканер'},
   {id:'eorders', icon:'📋',label:'Заказы',bdg:'emp'},
+  {id:'ble',     icon:'🔵',label:'BT'},
   {id:'profile', icon:'👤',label:'Профиль'},
 ];
 
@@ -937,7 +1048,7 @@ function navTo(id){
 function renderPage(id){
   CUR=id;
   buildTabs();
-  ['shop','cart','orders','scanner','eorders','profile'].forEach(p=>{
+  ['shop','cart','orders','scanner','eorders','profile','ble'].forEach(p=>{
     const el=document.getElementById('pg-'+p);
     if(el){el.classList.remove('active');el.innerHTML='';}
   });
@@ -949,6 +1060,7 @@ function renderPage(id){
   if(id==='scanner') pg.innerHTML=scannerHTML();
   if(id==='eorders') pg.innerHTML=eordersHTML();
   if(id==='profile') pg.innerHTML=profileHTML();
+  if(id==='ble')     pg.innerHTML=blePageHTML();
   pg.classList.add('active');
   pg.scrollTop=0;
 
@@ -1110,7 +1222,12 @@ function ordersHTML(){
   const hidden  = orders.filter(o =>  issued.has(o.id));
   if(!orders.length)return`<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
   if(!visible.length)return`<div class="empty"><div class="ei">✅</div><p>Все заказы получены!</p></div>`;
-  return`<div class="sec-label">Мои заказы · ${visible.length}</div>
+  return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="sec-label" style="margin-bottom:0">Мои заказы · \${visible.length}</div>
+      <button onclick="rtcGuestConnect()" style="font-size:11px;padding:5px 12px;border-radius:10px;border:1px solid rgba(0,122,255,0.4);background:rgba(0,122,255,0.12);color:#007AFF;font-weight:600;cursor:pointer">
+        📡 \${_rtcConnected?'Wi-Fi ✓':'Подключиться'}
+      </button>
+    </div>
   ${visible.slice().reverse().map(o=>{
     return`<div class="order-card glass-card">
       <div class="oc-head">
@@ -1309,6 +1426,12 @@ function processQR(raw){
   try {
     const str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw).trim();
 
+    // RTC: чанки offer/answer
+    if(str.startsWith('RTC:')){
+      rtcHandleScanChunk(str);
+      return;
+    }
+
     // Клиент сканирует QR "выдан" от сотрудника
     if(str.startsWith('DONE|')){
       const doneId = parseInt(str.split('|')[1]);
@@ -1370,7 +1493,19 @@ function scannerHTML(){
     <div class="scan-sub">Наведите камеру на QR‑код покупателя для загрузки заказа</div>
     <button class="fullbtn blue" style="margin-top:0" onclick="startScan()">📷 Открыть камеру</button>
   </div>
-  <div class="glass-card" style="border-radius:20px;padding:18px;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7">
+  <div class="glass-card" style="border-radius:20px;padding:18px;margin-top:12px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">📡 Wi-Fi синхронизация</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:14px;line-height:1.6">
+      Подключитесь к телефону покупателя — заказы будут исчезать автоматически после выдачи, без QR.
+    </div>
+    <button class="fullbtn blue" style="margin-top:0;font-size:14px" onclick="rtcCreateOffer()">
+      📡 Создать Wi-Fi сессию
+    </button>
+    <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,0.3);text-align:center">
+      Оба устройства должны быть в одной Wi-Fi сети
+    </div>
+  </div>
+  <div class="glass-card" style="border-radius:20px;padding:18px;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;margin-top:12px">
     <div style="font-weight:600;color:rgba(255,255,255,0.65);margin-bottom:8px">💡 Как использовать</div>
     Покупатель открывает заказ → нажимает «Показать QR‑код» → вы сканируете код.<br><br>
     Если автосканирование не срабатывает — нажмите кнопку <b>🔲 Сканировать</b>.
@@ -1467,8 +1602,17 @@ function completeOrder(oid){
   o.status='done';
   // Записываем в localStorage — клиент увидит что заказ выдан
   markOrderIssued(oid);
-  // Показываем сотруднику QR "выдан" — клиент может отсканировать
-  showDoneQR(oid);
+  // Если есть WebRTC канал — отправляем мгновенно, QR не нужен
+  if(rtcSend('ORDER_ISSUED', { orderId: oid })){
+    toast('📡 Клиент уведомлён по Wi-Fi!');
+  } else {
+    // Fallback: показываем QR "выдан"
+    showDoneQR(oid);
+  }
+  // Если BLE подключён — шлём уведомление автоматически
+  if(bleStatus === 'connected'){
+    bleSendOrderDone(oid);
+  }
   SFX.done();
   toast('🎉 Заказ выдан!');
 }
@@ -1579,6 +1723,243 @@ function editName(){
   input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   BLUETOOTH LE СИНХРОНИЗАЦИЯ
+   Схема:
+   - Сотрудник: запускает BLE GATT-сервер (peripheral/advertiser)
+   - Покупатель: сканирует и подключается (central)
+   - Сообщения: JSON через BLE characteristic (notify + write)
+   - При completeOrder → BLE уведомление → заказ исчезает у клиента
+   
+   iOS: нужен браузер Bluefy (App Store, бесплатно)
+   Android: Chrome нативно
+   ВЕБ BLUETOOTH НЕ ПОДДЕРЖИВАЕТ режим peripheral из браузера —
+   поэтому используем схему: оба как central, соединяются
+   через requestDevice + GATT характеристику обмена.
+═══════════════════════════════════════════════════════════════ */
+
+// BLE константы — фиксированные UUID для нашего "ПВЗ сервиса"
+const BLE_SERVICE_UUID      = '12345678-1234-1234-1234-123456789abc';
+const BLE_CHAR_UUID         = '12345678-1234-1234-1234-123456789abd';
+
+let bleDevice      = null;   // подключённое устройство
+let bleServer      = null;   // GATT сервер
+let bleChar        = null;   // характеристика для обмена
+let bleMessages    = [];     // история сообщений
+let bleStatus      = 'off';  // off | searching | connected | serving
+let bleRole        = null;   // 'server' | 'client'
+
+function bleStatusText(){
+  if(bleStatus==='off')        return 'Bluetooth выключен';
+  if(bleStatus==='searching')  return 'Поиск устройств...';
+  if(bleStatus==='connected')  return '🔗 Подключено: ' + (bleDevice?.name||'устройство');
+  if(bleStatus==='serving')    return '📡 Ожидание подключения...';
+  return 'Bluetooth';
+}
+
+function setBleStatus(s){ bleStatus=s; refreshBleUI(); }
+
+function refreshBleUI(){
+  // Обновляем BLE страницу если открыта
+  if(CUR==='ble'){
+    const pg = document.getElementById('pg-ble');
+    if(pg) pg.innerHTML = blePageHTML();
+  }
+  // Обновляем индикатор в navbar если есть
+  const dot = document.getElementById('bleDot');
+  if(dot){
+    dot.className = 'ble-dot ' + bleStatus;
+  }
+}
+
+// ── Отправить сообщение через BLE ──────────────────────────────
+async function bleSend(obj){
+  if(!bleChar){ toast('⚠️ BLE не подключён'); return false; }
+  try {
+    const str  = JSON.stringify(obj);
+    const enc  = new TextEncoder().encode(str);
+    await bleChar.writeValue(enc);
+    bleAddMsg('out', obj);
+    return true;
+  } catch(e){
+    toast('⚠️ BLE ошибка отправки: ' + e.message);
+    return false;
+  }
+}
+
+// ── Входящее BLE сообщение ──────────────────────────────────────
+function bleOnMessage(obj){
+  bleAddMsg('in', obj);
+  // Обрабатываем типы сообщений
+  if(obj.type === 'ORDER_DONE'){
+    // Сотрудник сообщает что заказ выдан → убираем у покупателя
+    markOrderIssued(obj.orderId);
+    SFX.done();
+    speak('Заказ выдан. Спасибо!');
+    toast('✅ Заказ #' + obj.orderId + ' выдан — получено по Bluetooth!');
+    if(ROLE==='buyer') renderPage('orders');
+  }
+  if(obj.type === 'PING'){
+    bleSend({ type:'PONG', from: profiles[ROLE].name, time: Date.now() });
+  }
+  if(obj.type === 'PONG'){
+    toast('🏓 Ответ от ' + (obj.from||'устройства'));
+  }
+  if(obj.type === 'MSG'){
+    const from = obj.from || 'Устройство';
+    toast('💬 ' + from + ': ' + obj.text);
+    SFX.scan();
+  }
+}
+
+function bleAddMsg(dir, obj){
+  const ts = new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  bleMessages.unshift({ dir, obj, ts });
+  if(bleMessages.length > 30) bleMessages.pop();
+  refreshBleUI();
+}
+
+// ── ПОДКЛЮЧИТЬСЯ (Central / Client роль) ───────────────────────
+async function bleConnect(){
+  if(!navigator.bluetooth){
+    toast('⚠️ Web Bluetooth не поддерживается. На iOS — установите Bluefy из App Store');
+    return;
+  }
+  try {
+    setBleStatus('searching');
+    toast('🔍 Поиск BLE устройств...');
+    
+    bleDevice = await navigator.bluetooth.requestDevice({
+      filters: [{ services: [BLE_SERVICE_UUID] }],
+      // Fallback: показываем все BLE устройства если сервис не найден
+      optionalServices: [BLE_SERVICE_UUID]
+    });
+    
+    bleDevice.addEventListener('gattserverdisconnected', ()=>{
+      setBleStatus('off');
+      bleChar = null;
+      bleServer = null;
+      toast('🔵 BLE отключено');
+    });
+    
+    toast('🔗 Подключаюсь...');
+    bleServer = await bleDevice.gatt.connect();
+    
+    const service = await bleServer.getPrimaryService(BLE_SERVICE_UUID);
+    bleChar = await service.getCharacteristic(BLE_CHAR_UUID);
+    
+    // Подписываемся на уведомления
+    await bleChar.startNotifications();
+    bleChar.addEventListener('characteristicvaluechanged', e => {
+      try {
+        const str = new TextDecoder().decode(e.target.value);
+        const obj = JSON.parse(str);
+        bleOnMessage(obj);
+      } catch(err){}
+    });
+    
+    bleRole = 'client';
+    setBleStatus('connected');
+    SFX.ok();
+    toast('✅ BLE подключено к ' + bleDevice.name);
+    
+    // Шлём приветствие
+    await bleSend({ type: 'PING', from: profiles[ROLE].name });
+    
+  } catch(e){
+    setBleStatus('off');
+    if(e.name === 'NotFoundError') toast('ℹ️ Устройство не выбрано');
+    else if(e.name === 'SecurityError') toast('⚠️ Нужно HTTPS для BLE');
+    else toast('⚠️ BLE: ' + e.message);
+  }
+}
+
+// ── ОТКЛЮЧИТЬСЯ ─────────────────────────────────────────────────
+function bleDisconnect(){
+  try { bleDevice?.gatt?.disconnect(); } catch(e){}
+  bleChar = null; bleServer = null; bleDevice = null;
+  setBleStatus('off');
+  toast('🔵 BLE отключено');
+}
+
+// ── Послать уведомление "заказ выдан" через BLE ─────────────────
+async function bleSendOrderDone(orderId){
+  const ok = await bleSend({ type: 'ORDER_DONE', orderId, from: profiles[ROLE].name });
+  if(ok) toast('📡 Уведомление отправлено по BLE!');
+}
+
+// ── Быстрое сообщение ───────────────────────────────────────────
+async function bleSendMsg(){
+  const inp = document.getElementById('bleMsgInput');
+  if(!inp) return;
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value='';
+  await bleSend({ type:'MSG', text, from: profiles[ROLE].name });
+}
+
+// ── Страница BLE ─────────────────────────────────────────────────
+function blePageHTML(){
+  const isConnected = bleStatus === 'connected';
+  const dot = bleStatus;
+  
+  return \`<div class="glass-card" style="border-radius:24px;padding:22px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+      <div style="font-size:36px">🔵</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">Bluetooth синхронизация</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">\${bleStatusText()}</div>
+      </div>
+      <div class="ble-dot \${dot}" id="bleDot" style="margin-left:auto;width:12px;height:12px"></div>
+    </div>
+
+    \${!isConnected ? \`
+    <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.6">
+      Подключитесь к другому устройству с открытым ПВЗ Pro.<br>
+      <span style="color:rgba(255,149,0,0.8)">⚠️ iOS: нужен браузер <b>Bluefy</b> из App Store</span>
+    </div>
+    <button class="fullbtn blue" style="margin-top:0" onclick="bleConnect()">
+      🔍 Найти и подключиться
+    </button>
+    \` : \`
+    <div style="background:rgba(52,199,89,0.1);border:1px solid rgba(52,199,89,0.25);border-radius:14px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:#34C759;margin-bottom:4px">✅ Подключено</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.45)">\${bleDevice?.name||'Устройство'}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input id="bleMsgInput" placeholder="Написать сообщение..." 
+        style="flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+        border-radius:12px;color:#fff;padding:11px 14px;font-size:14px;font-family:inherit;outline:none"
+        onkeydown="if(event.key==='Enter')bleSendMsg()">
+      <button class="btn btn-blue" onclick="bleSendMsg()" style="padding:11px 16px;font-size:16px">➤</button>
+    </div>
+    <button class="fullbtn glass" style="margin-top:0" onclick="bleDisconnect()">Отключить Bluetooth</button>
+    \`}
+  </div>
+
+  \${bleMessages.length ? \`
+  <div class="sec-label">История сообщений</div>
+  <div class="ble-msg-list">
+    \${bleMessages.map(m=>{
+      const label = m.obj.type==='MSG' ? (m.obj.from||'?')+': '+m.obj.text
+                  : m.obj.type==='ORDER_DONE' ? '📦 Заказ #'+m.obj.orderId+' выдан'
+                  : m.obj.type==='PING' ? '🏓 Ping от '+(m.obj.from||'?')
+                  : m.obj.type==='PONG' ? '🏓 Pong от '+(m.obj.from||'?')
+                  : JSON.stringify(m.obj);
+      return \`<div class="ble-msg \${m.dir==='in'?'in':''}">
+        <span class="ble-ts">\${m.ts}</span>
+        <span>\${m.dir==='in'?'←':'→'} \${label}</span>
+      </div>\`;
+    }).join('')}
+  </div>
+  \` : \`<div class="empty" style="padding:30px 20px">
+    <div class="ei" style="font-size:40px">🔵</div>
+    <p style="font-size:14px">Подключитесь чтобы<br>синхронизировать заказы</p>
+  </div>\`}
+  \`;
+}
+
 /* ===== SPEECH — выбираем лучший русский голос ===== */
 let _bestVoice = null;
 function getBestVoice(){
@@ -1618,6 +1999,309 @@ function speak(txt){
     setTimeout(doSpeak, 300);
   }
 }
+/* ═══════════════════════════════════════════════════════
+   WebRTC P2P СИНХРОНИЗАЦИЯ
+   Схема:
+   1. Сотрудник: "Создать сессию" → генерирует SDP-offer → QR
+   2. Покупатель: сканирует QR → отправляет SDP-answer → QR
+   3. Сотрудник: сканирует answer → канал открыт
+   4. Дальше всё автоматически через DataChannel
+   Работает в одной Wi-Fi сети без сервера (ICE host candidates)
+═══════════════════════════════════════════════════════ */
+
+let _rtcPeer = null;       // RTCPeerConnection
+let _rtcChannel = null;    // RTCDataChannel
+let _rtcRole = null;       // 'host' (сотрудник) | 'guest' (покупатель)
+let _rtcConnected = false;
+
+const RTC_CFG = { iceServers: [] }; // только локальная сеть — без STUN
+
+// ── Индикатор соединения в navbar ─────────────────────
+function updateRTCBadge(){
+  const el = document.getElementById('rtcBadge');
+  if(!el) return;
+  if(_rtcConnected){
+    el.textContent = '🔗 Wi-Fi';
+    el.style.background = 'rgba(52,199,89,0.2)';
+    el.style.borderColor = 'rgba(52,199,89,0.4)';
+    el.style.color = '#34C759';
+  } else {
+    el.textContent = '○ Локально';
+    el.style.background = 'rgba(255,255,255,0.06)';
+    el.style.borderColor = 'rgba(255,255,255,0.1)';
+    el.style.color = 'rgba(255,255,255,0.3)';
+  }
+}
+
+// ── Отправка сообщения по каналу ──────────────────────
+function rtcSend(type, payload){
+  if(!_rtcChannel || _rtcChannel.readyState !== 'open') return false;
+  try {
+    _rtcChannel.send(JSON.stringify({ type, payload }));
+    return true;
+  } catch(e){ return false; }
+}
+
+// ── Обработка входящих сообщений ──────────────────────
+function rtcOnMessage(raw){
+  let msg;
+  try { msg = JSON.parse(raw); } catch(e){ return; }
+
+  if(msg.type === 'ORDER_ISSUED'){
+    // Покупатель получает уведомление что заказ выдан
+    const id = msg.payload.orderId;
+    markOrderIssued(id);
+    SFX.done();
+    speak('Ваш заказ выдан. Спасибо!');
+    toast('✅ Заказ #' + id + ' выдан — исчезнет из списка');
+    if(CUR === 'orders') renderPage('orders');
+  }
+
+  if(msg.type === 'PING'){
+    rtcSend('PONG', { ts: Date.now() });
+  }
+}
+
+// ── Настройка DataChannel ──────────────────────────────
+function setupChannel(channel){
+  _rtcChannel = channel;
+  channel.onopen = () => {
+    _rtcConnected = true;
+    updateRTCBadge();
+    toast('🔗 Wi-Fi синхронизация активна!');
+    // Пингуем каждые 10 сек чтобы держать соединение
+    setInterval(()=> rtcSend('PING',{}), 10000);
+  };
+  channel.onclose = () => {
+    _rtcConnected = false;
+    updateRTCBadge();
+    toast('⚠️ Соединение разорвано');
+  };
+  channel.onmessage = (e) => rtcOnMessage(e.data);
+}
+
+// ══════════════════════════════════════════════════════
+// HOST (Сотрудник): создаёт offer
+// ══════════════════════════════════════════════════════
+async function rtcCreateOffer(){
+  try {
+    _rtcPeer = new RTCPeerConnection(RTC_CFG);
+    _rtcRole = 'host';
+
+    const channel = _rtcPeer.createDataChannel('pvz', { ordered: true });
+    setupChannel(channel);
+
+    const offer = await _rtcPeer.createOffer();
+    await _rtcPeer.setLocalDescription(offer);
+
+    // Ждём ICE candidates (локальная сеть — быстро)
+    await new Promise(resolve => {
+      if(_rtcPeer.iceGatheringState === 'complete') return resolve();
+      _rtcPeer.onicegatheringstatechange = () => {
+        if(_rtcPeer.iceGatheringState === 'complete') resolve();
+      };
+      // Таймаут 3 сек — локальная сеть собирает быстро
+      setTimeout(resolve, 3000);
+    });
+
+    const sdp = JSON.stringify(_rtcPeer.localDescription);
+    const compressed = btoa(sdp);
+    showRTCOfferQR(compressed);
+
+  } catch(e){
+    toast('⚠️ Ошибка создания сессии: ' + e.message);
+  }
+}
+
+// HOST: принимает answer от гостя
+async function rtcAcceptAnswer(b64){
+  try {
+    const sdp = JSON.parse(atob(b64));
+    await _rtcPeer.setRemoteDescription(new RTCSessionDescription(sdp));
+    toast('✅ Ответ принят, соединяемся...');
+  } catch(e){
+    SFX.err();
+    toast('⚠️ Неверный QR ответа: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// GUEST (Покупатель): получает offer, создаёт answer
+// ══════════════════════════════════════════════════════
+async function rtcCreateAnswer(b64){
+  try {
+    const sdp = JSON.parse(atob(b64));
+    _rtcPeer = new RTCPeerConnection(RTC_CFG);
+    _rtcRole = 'guest';
+
+    _rtcPeer.ondatachannel = (e) => setupChannel(e.channel);
+
+    await _rtcPeer.setRemoteDescription(new RTCSessionDescription(sdp));
+    const answer = await _rtcPeer.createAnswer();
+    await _rtcPeer.setLocalDescription(answer);
+
+    await new Promise(resolve => {
+      if(_rtcPeer.iceGatheringState === 'complete') return resolve();
+      _rtcPeer.onicegatheringstatechange = () => {
+        if(_rtcPeer.iceGatheringState === 'complete') resolve();
+      };
+      setTimeout(resolve, 3000);
+    });
+
+    const answerB64 = btoa(JSON.stringify(_rtcPeer.localDescription));
+    showRTCAnswerQR(answerB64);
+
+  } catch(e){
+    SFX.err();
+    toast('⚠️ Ошибка подключения: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// UI: показываем QR с offer/answer
+// ══════════════════════════════════════════════════════
+function showRTCOfferQR(b64){
+  // SDP слишком большой для одного QR — разбиваем на чанки
+  const CHUNK = 800;
+  const chunks = [];
+  for(let i=0; i<b64.length; i+=CHUNK) chunks.push(b64.slice(i,i+CHUNK));
+
+  const ov = document.getElementById('rtcOfferOverlay');
+  const box = document.getElementById('rtcOfferBox');
+  const status = document.getElementById('rtcOfferStatus');
+
+  ov.classList.add('active');
+  box.innerHTML = '';
+
+  if(chunks.length === 1){
+    // Умещается в один QR
+    renderRTCQR(box, 'RTC:OFFER:0:1:' + chunks[0]);
+    status.textContent = 'Покупатель сканирует этот QR';
+  } else {
+    // Несколько QR — показываем по одному с кнопками
+    let cur = 0;
+    const show = (i) => {
+      box.innerHTML = '';
+      renderRTCQR(box, `RTC:OFFER:${i}:${chunks.length}:${chunks[i]}`);
+      status.textContent = `QR ${i+1} из ${chunks.length} — покупатель сканирует все по порядку`;
+      document.getElementById('rtcChunkPrev').style.display = i>0 ? 'block':'none';
+      document.getElementById('rtcChunkNext').textContent = i<chunks.length-1 ? 'Следующий →' : 'Готово';
+      document.getElementById('rtcChunkNext').onclick = i<chunks.length-1
+        ? ()=>show(i+1)
+        : ()=>{ /* ждём answer */ status.textContent = 'Теперь сканируйте QR-ответ покупателя'; startRTCAnswerScan(); };
+    };
+    document.getElementById('rtcChunkPrev').onclick = ()=>show(--cur);
+    show(0);
+  }
+}
+
+function showRTCAnswerQR(b64){
+  const ov = document.getElementById('rtcAnswerOverlay');
+  const box = document.getElementById('rtcAnswerBox');
+  ov.classList.add('active');
+  box.innerHTML = '';
+  const CHUNK = 800;
+  const chunks = [];
+  for(let i=0; i<b64.length; i+=CHUNK) chunks.push(b64.slice(i,i+CHUNK));
+
+  if(chunks.length === 1){
+    renderRTCQR(box, 'RTC:ANSWER:0:1:' + chunks[0]);
+    document.getElementById('rtcAnswerStatus').textContent = 'Сотрудник сканирует этот QR';
+  } else {
+    let cur = 0;
+    const show = (i) => {
+      box.innerHTML='';
+      renderRTCQR(box, `RTC:ANSWER:${i}:${chunks.length}:${chunks[i]}`);
+      document.getElementById('rtcAnswerStatus').textContent = `QR ${i+1} из ${chunks.length}`;
+      document.getElementById('rtcAnswerNext').textContent = i<chunks.length-1 ? 'Следующий →':'Готово';
+      document.getElementById('rtcAnswerNext').onclick = i<chunks.length-1 ? ()=>show(i+1) : ()=>ov.classList.remove('active');
+    };
+    show(0);
+  }
+}
+
+function renderRTCQR(box, data){
+  try {
+    const qr = qrcode(0,'L');
+    qr.addData(data);
+    qr.make();
+    const modules = qr.getModuleCount();
+    const cell = Math.max(4, Math.floor(260/modules));
+    const sz = modules*cell;
+    const cv = document.createElement('canvas');
+    cv.width=cv.height=sz;
+    const ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,sz,sz);
+    ctx.fillStyle='#000';
+    for(let r=0;r<modules;r++) for(let col=0;col<modules;col++)
+      if(qr.isDark(r,col)) ctx.fillRect(col*cell,r*cell,cell,cell);
+    box.appendChild(cv);
+  } catch(e){
+    box.textContent = '⚠️ QR слишком большой. Используйте QR-метод выдачи.';
+  }
+}
+
+// ── Сбор чанков offer/answer при сканировании ─────────
+let _rtcChunks = {};
+function rtcHandleScanChunk(data){
+  // Формат: RTC:OFFER:idx:total:payload  или  RTC:ANSWER:...
+  const parts = data.split(':');
+  if(parts.length < 5 || parts[0] !== 'RTC') return false;
+  const type  = parts[1]; // OFFER | ANSWER
+  const idx   = parseInt(parts[2]);
+  const total = parseInt(parts[3]);
+  const chunk = parts.slice(4).join(':');
+
+  const key = type;
+  if(!_rtcChunks[key]) _rtcChunks[key] = { total, parts:{} };
+  _rtcChunks[key].parts[idx] = chunk;
+
+  const collected = Object.keys(_rtcChunks[key].parts).length;
+  if(collected < total){
+    setStatus(`📡 Получено ${collected}/${total} частей, наведите на следующий QR...`);
+    return true; // распознано, но ещё не полное
+  }
+
+  // Все части собраны
+  const full = Array.from({length:total},(_,i)=>_rtcChunks[key].parts[i]).join('');
+  delete _rtcChunks[key];
+
+  if(type === 'OFFER'){
+    // Покупатель получил offer → создаём answer
+    stopScan();
+    toast('📡 Offer получен, создаём ответ...');
+    rtcCreateAnswer(full);
+  } else if(type === 'ANSWER'){
+    // Сотрудник получил answer
+    stopScan();
+    rtcAcceptAnswer(full);
+  }
+  return true;
+}
+
+// ── Запуск сканера для answer (у сотрудника) ──────────
+function startRTCAnswerScan(){
+  document.getElementById('rtcOfferOverlay').classList.remove('active');
+  _rtcChunks = {};
+  startScan('rtcAnswer');
+}
+
+// ── Кнопка для покупателя: подключиться ───────────────
+function rtcGuestConnect(){
+  _rtcChunks = {};
+  startScan('rtcOffer');
+}
+
+function rtcTogglePanel(){
+  if(_rtcConnected){
+    toast('🔗 Wi-Fi активен · ' + (_rtcRole==='host'?'Сотрудник (хост)':'Покупатель (гость)'));
+  } else if(ROLE === 'emp'){
+    rtcCreateOffer();
+  } else {
+    rtcGuestConnect();
+  }
+}
+
 </script>
 
 </body>
