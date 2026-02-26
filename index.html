@@ -1,708 +1,268 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ПВЗ — QR scanner FIX</title>
+<title>ПВЗ Pro</title>
+<!-- Только qrcode-generator — jsQR грузим напрямую как base64-inline чтобы избежать CORS Script error -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<!-- nimiq/qr-scanner: работает на iOS Safari, содержит исправление RangeError -->
-<script src="https://cdn.jsdelivr.net/npm/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
-/* ===== ВСЕ СТИЛИ БЕЗ ИЗМЕНЕНИЙ (как в исходнике) ===== */
 *,::before,::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:#000}
-body{
-  font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;
-  -webkit-font-smoothing:antialiased;
-  color:#fff;
-  position:relative;
-}
-#wall{
-position:fixed;inset:0;z-index:0;
-background:radial-gradient(ellipse 120% 80% at 15% 5%, #1a0533 0%,transparent 55%),
-radial-gradient(ellipse 100% 70% at 85% 10%, #001a3d 0%,transparent 50%),
-radial-gradient(ellipse 80% 60% at 50% 95%, #001a0d 0%,transparent 50%),
-#000;
-overflow:hidden;
-}
-#wall::before{
-content:'';position:absolute;inset:0;
-background:
-radial-gradient(circle 400px at 10% 20%, rgba(120,50,255,0.35) 0%,transparent 70%),
-radial-gradient(circle 350px at 90% 15%, rgba(0,100,255,0.3) 0%,transparent 70%),
-radial-gradient(circle 300px at 60% 80%, rgba(0,180,80,0.2) 0%,transparent 70%),
-radial-gradient(circle 250px at 20% 70%, rgba(255,80,0,0.15) 0%,transparent 70%);
-animation:wallShift 20s ease-in-out infinite alternate;
-}
-@keyframes wallShift{
-0%{transform:scale(1) translate(0,0)}
-50%{transform:scale(1.05) translate(-15px,10px)}
-100%{transform:scale(1.02) translate(10px,-8px)}
-}
-.glass{
-background:rgba(255,255,255,0.07);
-backdrop-filter:blur(40px) saturate(180%) brightness(1.15);
--webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.15);
-border:1px solid rgba(255,255,255,0.18);
-box-shadow:
-inset 0 1px 0 rgba(255,255,255,0.22),
-inset 0 -1px 0 rgba(0,0,0,0.15),
-0 8px 32px rgba(0,0,0,0.4),
-0 2px 8px rgba(0,0,0,0.3);
-}
-.glass-card{
-background:rgba(255,255,255,0.06);
-backdrop-filter:blur(60px) saturate(200%) brightness(1.1);
--webkit-backdrop-filter:blur(60px) saturate(200%) brightness(1.1);
-border:1px solid rgba(255,255,255,0.15);
-box-shadow:
-inset 0 1.5px 0 rgba(255,255,255,0.2),
-inset 0 -1px 0 rgba(0,0,0,0.2),
-0 20px 60px rgba(0,0,0,0.5);
-}
-.glass-btn{
-background:rgba(255,255,255,0.1);
-backdrop-filter:blur(20px) saturate(150%);
--webkit-backdrop-filter:blur(20px) saturate(150%);
-border:1px solid rgba(255,255,255,0.2);
-box-shadow:
-inset 0 1px 0 rgba(255,255,255,0.25),
-0 4px 12px rgba(0,0,0,0.3);
-}
-#root{
-position:relative;z-index:1;
-height:100dvh;
-display:flex;flex-direction:column;
-overflow:hidden;
-}
+body{font-family:-apple-system,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;color:#fff;position:relative}
+#wall{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 120% 80% at 15% 5%,#1a0533 0%,transparent 55%),radial-gradient(ellipse 100% 70% at 85% 10%,#001a3d 0%,transparent 50%),radial-gradient(ellipse 80% 60% at 50% 95%,#001a0d 0%,transparent 50%),#000;overflow:hidden}
+#wall::before{content:'';position:absolute;inset:0;background:radial-gradient(circle 400px at 10% 20%,rgba(120,50,255,.35) 0%,transparent 70%),radial-gradient(circle 350px at 90% 15%,rgba(0,100,255,.3) 0%,transparent 70%),radial-gradient(circle 300px at 60% 80%,rgba(0,180,80,.2) 0%,transparent 70%),radial-gradient(circle 250px at 20% 70%,rgba(255,80,0,.15) 0%,transparent 70%);animation:wallShift 20s ease-in-out infinite alternate}
+@keyframes wallShift{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.05) translate(-15px,10px)}100%{transform:scale(1.02) translate(10px,-8px)}}
+.glass{background:rgba(255,255,255,.07);backdrop-filter:blur(40px) saturate(180%) brightness(1.15);-webkit-backdrop-filter:blur(40px) saturate(180%) brightness(1.15);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.15),0 8px 32px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.3)}
+.glass-card{background:rgba(255,255,255,.06);backdrop-filter:blur(60px) saturate(200%) brightness(1.1);-webkit-backdrop-filter:blur(60px) saturate(200%) brightness(1.1);border:1px solid rgba(255,255,255,.15);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.2),inset 0 -1px 0 rgba(0,0,0,.2),0 20px 60px rgba(0,0,0,.5)}
+.glass-btn{background:rgba(255,255,255,.1);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);border:1px solid rgba(255,255,255,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 4px 12px rgba(0,0,0,.3)}
+#root{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
-#roleScreen{
-align-items:center;justify-content:center;
-padding:0 24px;gap:0;
-padding-top:env(safe-area-inset-top,0);
-padding-bottom:env(safe-area-inset-bottom,0);
-}
-.rs-logo{
-width:100px;height:100px;border-radius:28px;
-background:linear-gradient(145deg,rgba(120,50,255,0.6),rgba(0,122,255,0.5));
-display:flex;align-items:center;justify-content:center;
-font-size:52px;margin-bottom:24px;
-box-shadow:
-inset 0 2px 0 rgba(255,255,255,0.3),
-0 0 60px rgba(88,0,255,0.4),
-0 20px 40px rgba(0,0,0,0.5);
-border:1px solid rgba(255,255,255,0.25);
-animation:logoPop 0.6s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes logoPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
-.rs-title{
-font-size:34px;font-weight:700;letter-spacing:-0.8px;
-margin-bottom:6px;text-align:center;
-animation:fadeUp 0.5s 0.1s both;
-}
-.rs-sub{
-font-size:15px;color:rgba(255,255,255,0.5);
-text-align:center;margin-bottom:40px;line-height:1.5;
-animation:fadeUp 0.5s 0.15s both;
-}
+#roleScreen{align-items:center;justify-content:center;padding:0 24px;gap:0;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+.rs-logo{width:100px;height:100px;border-radius:28px;background:linear-gradient(145deg,rgba(120,50,255,.6),rgba(0,122,255,.5));display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:24px;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 0 60px rgba(88,0,255,.4),0 20px 40px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.25);animation:logoPop .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes logoPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.rs-title{font-size:34px;font-weight:700;letter-spacing:-.8px;margin-bottom:6px;text-align:center;animation:fadeUp .5s .1s both}
+.rs-sub{font-size:15px;color:rgba(255,255,255,.5);text-align:center;margin-bottom:40px;line-height:1.5;animation:fadeUp .5s .15s both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.rs-profile{
-width:100%;max-width:360px;margin-bottom:28px;
-animation:fadeUp 0.5s 0.2s both;
-}
-.rs-ptabs{
-display:flex;gap:0;padding:3px;border-radius:12px;margin-bottom:12px;
-}
-.rs-ptab{
-flex:1;padding:8px;border-radius:9px;font-size:13px;font-weight:600;
-color:rgba(255,255,255,0.45);cursor:pointer;text-align:center;
-transition:all 0.2s;
-}
-.rs-ptab.on{
-background:rgba(255,255,255,0.12);
-color:#fff;
-box-shadow:inset 0 1px 0 rgba(255,255,255,0.2),0 2px 8px rgba(0,0,0,0.3);
-}
-.rs-pcard{
-border-radius:18px;padding:16px 18px;
-display:flex;align-items:center;gap:14px;
-}
-.rs-pav{
-width:52px;height:52px;border-radius:50%;
-display:flex;align-items:center;justify-content:center;font-size:26px;
-border:2px solid rgba(255,255,255,0.2);flex-shrink:0;
-}
-.rs-pav.buyer{background:linear-gradient(135deg,rgba(0,122,255,0.6),rgba(88,86,214,0.5))}
-.rs-pav.emp{background:linear-gradient(135deg,rgba(52,199,89,0.5),rgba(0,199,190,0.4))}
+.rs-profile{width:100%;max-width:360px;margin-bottom:28px;animation:fadeUp .5s .2s both}
+.rs-ptabs{display:flex;gap:0;padding:3px;border-radius:12px;margin-bottom:12px}
+.rs-ptab{flex:1;padding:8px;border-radius:9px;font-size:13px;font-weight:600;color:rgba(255,255,255,.45);cursor:pointer;text-align:center;transition:all .2s}
+.rs-ptab.on{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 2px 8px rgba(0,0,0,.3)}
+.rs-pcard{border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.rs-pav{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.2);flex-shrink:0}
+.rs-pav.buyer{background:linear-gradient(135deg,rgba(0,122,255,.6),rgba(88,86,214,.5))}
+.rs-pav.emp{background:linear-gradient(135deg,rgba(52,199,89,.5),rgba(0,199,190,.4))}
 .rs-pname{font-size:16px;font-weight:600;margin-bottom:2px}
-.rs-pdetail{font-size:12px;color:rgba(255,255,255,0.45)}
-.rs-pbadge{
-margin-left:auto;padding:4px 12px;border-radius:20px;
-font-size:11px;font-weight:600;flex-shrink:0;
-}
-.rs-pbadge.buyer{background:rgba(0,122,255,0.2);border:1px solid rgba(0,122,255,0.35);color:#007AFF}
-.rs-pbadge.emp{background:rgba(52,199,89,0.18);border:1px solid rgba(52,199,89,0.3);color:#34C759}
-.rs-btns{
-display:flex;flex-direction:column;gap:14px;
-width:100%;max-width:360px;
-animation:fadeUp 0.5s 0.25s both;
-}
-.rs-btn{
-width:100%;padding:20px 22px;border-radius:22px;border:none;cursor:pointer;
-display:flex;align-items:center;gap:18px;text-align:left;
-transition:transform 0.2s cubic-bezier(.34,1.56,.64,1),box-shadow 0.2s;
-position:relative;overflow:hidden;
-}
-.rs-btn::after{
-content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.15s;
-background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.15),transparent 70%);
-}
-.rs-btn:active{transform:scale(0.96)}
+.rs-pdetail{font-size:12px;color:rgba(255,255,255,.45)}
+.rs-pbadge{margin-left:auto;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0}
+.rs-pbadge.buyer{background:rgba(0,122,255,.2);border:1px solid rgba(0,122,255,.35);color:#007AFF}
+.rs-pbadge.emp{background:rgba(52,199,89,.18);border:1px solid rgba(52,199,89,.3);color:#34C759}
+.rs-btns{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px;animation:fadeUp .5s .25s both}
+.rs-btn{width:100%;padding:20px 22px;border-radius:22px;border:none;cursor:pointer;display:flex;align-items:center;gap:18px;text-align:left;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;position:relative;overflow:hidden}
+.rs-btn::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .15s;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.15),transparent 70%)}
+.rs-btn:active{transform:scale(.96)}
 .rs-btn:active::after{opacity:1}
-.rs-btn.buyer{
-background:linear-gradient(145deg,rgba(0,100,255,0.25),rgba(88,86,214,0.18));
-backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
-border:1px solid rgba(0,122,255,0.35);
-box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.2),0 8px 32px rgba(0,100,255,0.2),0 2px 8px rgba(0,0,0,0.4);
-}
-.rs-btn.emp{
-background:linear-gradient(145deg,rgba(52,199,89,0.2),rgba(0,199,190,0.15));
-backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
-border:1px solid rgba(52,199,89,0.3);
-box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.2),0 8px 32px rgba(52,199,89,0.15),0 2px 8px rgba(0,0,0,0.4);
-}
+.rs-btn.buyer{background:linear-gradient(145deg,rgba(0,100,255,.25),rgba(88,86,214,.18));backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(0,122,255,.35);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.2),0 8px 32px rgba(0,100,255,.2),0 2px 8px rgba(0,0,0,.4)}
+.rs-btn.emp{background:linear-gradient(145deg,rgba(52,199,89,.2),rgba(0,199,190,.15));backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(52,199,89,.3);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.2),0 8px 32px rgba(52,199,89,.15),0 2px 8px rgba(0,0,0,.4)}
 .rs-bicon{font-size:40px}
 .rs-btitle{font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
-.rs-bsub{font-size:12px;color:rgba(255,255,255,0.45)}
-#appScreen{
-padding-top:env(safe-area-inset-top,0);
-}
-.navbar{
-padding:14px 20px 12px;
-display:flex;align-items:center;justify-content:space-between;
-flex-shrink:0;
-border-bottom:1px solid rgba(255,255,255,0.08);
-background:rgba(0,0,0,0.2);
-backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
-}
+.rs-bsub{font-size:12px;color:rgba(255,255,255,.45)}
+#appScreen{padding-top:env(safe-area-inset-top,0)}
+.navbar{padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.2);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px)}
 .nb-l{display:flex;align-items:center;gap:10px}
 .nb-logo{font-size:24px}
-.nb-title{font-size:18px;font-weight:700;letter-spacing:-0.3px}
-.nb-badge{
-padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
-}
-.nb-badge.buyer{background:rgba(0,122,255,0.2);border:1px solid rgba(0,122,255,0.3);color:#007AFF}
-.nb-badge.emp{background:rgba(52,199,89,0.18);border:1px solid rgba(52,199,89,0.25);color:#34C759}
-.nb-exit{
-background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
-color:rgba(255,255,255,0.5);padding:6px 14px;border-radius:10px;
-font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
-transition:all 0.15s;
-}
-.nb-exit:active{transform:scale(0.94);background:rgba(255,255,255,0.13)}
-.tabbar{
-display:flex;
-padding:8px 10px calc(8px + env(safe-area-inset-bottom,16px));
-gap:4px;
-flex-shrink:0;
-border-top:1px solid rgba(255,255,255,0.08);
-background:rgba(0,0,0,0.35);
-backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
-}
-.tb-item{
-flex:1;display:flex;flex-direction:column;align-items:center;
-gap:3px;padding:6px 4px;border-radius:12px;cursor:pointer;
-transition:all 0.2s;position:relative;
-}
-.tb-item:active{transform:scale(0.9)}
-.tb-item.on{background:rgba(255,255,255,0.08)}
+.nb-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.nb-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.nb-badge.buyer{background:rgba(0,122,255,.2);border:1px solid rgba(0,122,255,.3);color:#007AFF}
+.nb-badge.emp{background:rgba(52,199,89,.18);border:1px solid rgba(52,199,89,.25);color:#34C759}
+.nb-exit{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);padding:6px 14px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.nb-exit:active{transform:scale(.94);background:rgba(255,255,255,.13)}
+.tabbar{display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom,16px));gap:4px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.35);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px)}
+.tb-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border-radius:12px;cursor:pointer;transition:all .2s;position:relative}
+.tb-item:active{transform:scale(.9)}
+.tb-item.on{background:rgba(255,255,255,.08)}
 .tb-icon{font-size:22px;line-height:1}
-.tb-label{font-size:10px;font-weight:500;color:rgba(255,255,255,0.35);letter-spacing:0.1px}
-.tb-item.on .tb-label{color:rgba(255,255,255,0.85);font-weight:600}
-.tb-badge{
-position:absolute;top:2px;right:calc(50% - 18px);
-background:#FF3B30;color:#fff;font-size:9px;font-weight:700;
-min-width:15px;height:15px;border-radius:8px;padding:0 3px;
-display:flex;align-items:center;justify-content:center;
-}
+.tb-label{font-size:10px;font-weight:500;color:rgba(255,255,255,.35);letter-spacing:.1px}
+.tb-item.on .tb-label{color:rgba(255,255,255,.85);font-weight:600}
+.tb-badge{position:absolute;top:2px;right:calc(50% - 18px);background:#FF3B30;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;border-radius:8px;padding:0 3px;display:flex;align-items:center;justify-content:center}
 .pages{flex:1;overflow:hidden;position:relative}
-.page{
-position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
-padding:16px 16px 20px;
-display:none;
--webkit-overflow-scrolling:touch;
-}
-.page.active{display:block;animation:pgIn 0.22s ease}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:16px 16px 20px;display:none;-webkit-overflow-scrolling:touch}
+.page.active{display:block;animation:pgIn .22s ease}
 @keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .page::-webkit-scrollbar{display:none}
-.sec-label{
-font-size:13px;font-weight:600;color:rgba(255,255,255,0.35);
-letter-spacing:0.5px;text-transform:uppercase;
-margin-bottom:12px;padding-left:4px;
-}
-.pgrid{
-display:grid;grid-template-columns:1fr 1fr;gap:12px;
-}
+.sec-label{font-size:13px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;padding-left:4px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(min-width:500px){.pgrid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:700px){.pgrid{grid-template-columns:repeat(4,1fr)}}
-.pcard{
-border-radius:22px;overflow:hidden;
-display:flex;flex-direction:column;
-transition:transform 0.2s cubic-bezier(.34,1.56,.64,1);
-}
-.pcard:active{transform:scale(0.97)}
-.pcard-img{
-background:rgba(255,255,255,0.04);
-height:90px;display:flex;align-items:center;justify-content:center;
-font-size:44px;
-border-bottom:1px solid rgba(255,255,255,0.07);
-}
+.pcard{border-radius:22px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.pcard:active{transform:scale(.97)}
+.pcard-img{background:rgba(255,255,255,.04);height:90px;display:flex;align-items:center;justify-content:center;font-size:44px;border-bottom:1px solid rgba(255,255,255,.07)}
 .pcard-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:4px}
 .pcard-name{font-size:13px;font-weight:600;line-height:1.3}
-.pcard-desc{font-size:11px;color:rgba(255,255,255,0.4);flex:1;line-height:1.4}
+.pcard-desc{font-size:11px;color:rgba(255,255,255,.4);flex:1;line-height:1.4}
 .pcard-price{font-size:15px;font-weight:700;color:#FF9500;margin-top:4px}
-.pcard-acts{
-display:flex;gap:6px;padding:9px 10px;
-border-top:1px solid rgba(255,255,255,0.07);
-}
-.btn{
-padding:8px 10px;border-radius:12px;font-size:12px;font-weight:600;
-border:none;cursor:pointer;font-family:inherit;
-transition:transform 0.15s,opacity 0.15s;
-display:flex;align-items:center;justify-content:center;gap:4px;
-}
-.btn:active{transform:scale(0.9);opacity:0.8}
+.pcard-acts{display:flex;gap:6px;padding:9px 10px;border-top:1px solid rgba(255,255,255,.07)}
+.btn{padding:8px 10px;border-radius:12px;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:transform .15s,opacity .15s;display:flex;align-items:center;justify-content:center;gap:4px}
+.btn:active{transform:scale(.9);opacity:.8}
 .btn.flex{flex:1}
-.btn-blue{
-background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff;
-box-shadow:0 4px 12px rgba(0,122,255,0.35);
-}
-.btn-red{
-background:linear-gradient(135deg,#FF3B30,#FF6B6B);color:#fff;
-box-shadow:0 4px 12px rgba(255,59,48,0.3);
-}
-.btn-green{
-background:linear-gradient(135deg,#34C759,#30D158);color:#fff;
-box-shadow:0 4px 12px rgba(52,199,89,0.3);
-}
-.btn-glass{
-background:rgba(255,255,255,0.09);
-border:1px solid rgba(255,255,255,0.14);
-color:rgba(255,255,255,0.7);
-}
-.btn-glass:active{background:rgba(255,255,255,0.15)}
-.fullbtn{
-width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:600;
-border:none;cursor:pointer;font-family:inherit;margin-top:10px;
-transition:transform 0.15s,box-shadow 0.15s;
-}
-.fullbtn:active{transform:scale(0.97)}
-.fullbtn.blue{
-background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff;
-box-shadow:0 8px 24px rgba(0,122,255,0.4);
-}
+.btn-blue{background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff;box-shadow:0 4px 12px rgba(0,122,255,.35)}
+.btn-red{background:linear-gradient(135deg,#FF3B30,#FF6B6B);color:#fff;box-shadow:0 4px 12px rgba(255,59,48,.3)}
+.btn-green{background:linear-gradient(135deg,#34C759,#30D158);color:#fff;box-shadow:0 4px 12px rgba(52,199,89,.3)}
+.btn-glass{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.7)}
+.btn-glass:active{background:rgba(255,255,255,.15)}
+.fullbtn{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:600;border:none;cursor:pointer;font-family:inherit;margin-top:10px;transition:transform .15s,box-shadow .15s}
+.fullbtn:active{transform:scale(.97)}
+.fullbtn.blue{background:linear-gradient(135deg,#007AFF,#5856D6);color:#fff;box-shadow:0 8px 24px rgba(0,122,255,.4)}
 .fullbtn.red{background:linear-gradient(135deg,#FF3B30,#FF6B6B);color:#fff}
-.fullbtn.green{
-background:linear-gradient(135deg,#34C759,#30D158);color:#fff;
-box-shadow:0 8px 20px rgba(52,199,89,0.35);
-}
-.fullbtn.glass{
-background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);
-}
-.fab{
-position:fixed;bottom:calc(90px + env(safe-area-inset-bottom,16px));right:20px;
-width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;
-background:linear-gradient(145deg,#007AFF,#5856D6);color:#fff;
-font-size:28px;display:flex;align-items:center;justify-content:center;
-box-shadow:0 8px 28px rgba(0,122,255,0.5),inset 0 1px 0 rgba(255,255,255,0.3);
-z-index:100;transition:transform 0.25s cubic-bezier(.34,1.56,.64,1);
-}
-.fab:active{transform:scale(0.88)}
-.cart-item{
-border-radius:18px;padding:14px 16px;
-display:flex;align-items:center;gap:14px;margin-bottom:10px;
-}
+.fullbtn.green{background:linear-gradient(135deg,#34C759,#30D158);color:#fff;box-shadow:0 8px 20px rgba(52,199,89,.35)}
+.fullbtn.glass{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.6)}
+.fab{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom,16px));right:20px;width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(145deg,#007AFF,#5856D6);color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(0,122,255,.5),inset 0 1px 0 rgba(255,255,255,.3);z-index:100;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.fab:active{transform:scale(.88)}
+.cart-item{border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
 .ci-em{font-size:36px}
 .ci-info{flex:1}
 .ci-name{font-size:14px;font-weight:600}
-.ci-price{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px}
+.ci-price{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px}
 .qty-row{display:flex;align-items:center;gap:10px;margin-top:8px}
-.qbtn{
-width:28px;height:28px;border-radius:50%;border:none;
-background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
-color:#fff;font-size:17px;cursor:pointer;font-family:inherit;
-display:flex;align-items:center;justify-content:center;
-transition:all 0.15s;
-}
-.qbtn:active{background:rgba(0,122,255,0.4);transform:scale(0.85)}
+.qbtn{width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:17px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.qbtn:active{background:rgba(0,122,255,.4);transform:scale(.85)}
 .qnum{font-size:16px;font-weight:700;min-width:24px;text-align:center}
 .ci-total{font-size:15px;font-weight:700;color:#FF9500;white-space:nowrap}
 .cart-summary{border-radius:18px;padding:18px;margin-top:14px}
 .cs-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14px}
-.cs-row .l{color:rgba(255,255,255,0.45)}
+.cs-row .l{color:rgba(255,255,255,.45)}
 .cs-total{font-size:22px;font-weight:700;color:#FF9500}
 .pay-opts{display:flex;gap:10px;margin-top:14px}
-.pay-opt{
-flex:1;padding:13px 10px;border-radius:14px;border:2px solid rgba(255,255,255,0.1);
-background:rgba(255,255,255,0.04);text-align:center;font-size:12px;font-weight:600;
-cursor:pointer;transition:all 0.2s;color:rgba(255,255,255,0.45);font-family:inherit;
-}
-.pay-opt.on{
-border-color:#007AFF;background:rgba(0,122,255,0.15);color:#fff;
-box-shadow:0 0 0 1px rgba(0,122,255,0.3) inset;
-}
+.pay-opt{flex:1;padding:13px 10px;border-radius:14px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);text-align:center;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.45);font-family:inherit}
+.pay-opt.on{border-color:#007AFF;background:rgba(0,122,255,.15);color:#fff;box-shadow:0 0 0 1px rgba(0,122,255,.3) inset}
 .pay-opt .pi{font-size:24px;display:block;margin-bottom:5px}
 .order-card{border-radius:20px;padding:18px;margin-bottom:12px}
 .oc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .oc-num{font-size:16px;font-weight:700}
 .oc-status{font-size:11px;padding:4px 11px;border-radius:20px;font-weight:600}
-.st-wait{background:rgba(255,149,0,0.18);color:#FF9500;border:1px solid rgba(255,149,0,0.28)}
-.st-done{background:rgba(52,199,89,0.18);color:#34C759;border:1px solid rgba(52,199,89,0.28)}
+.st-wait{background:rgba(255,149,0,.18);color:#FF9500;border:1px solid rgba(255,149,0,.28)}
+.st-done{background:rgba(52,199,89,.18);color:#34C759;border:1px solid rgba(52,199,89,.28)}
 .oc-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
-.oc-badge{
-font-size:12px;color:rgba(255,255,255,0.5);
-background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-border-radius:8px;padding:4px 10px;
-}
+.oc-badge{font-size:12px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:4px 10px}
 .oc-price{font-size:20px;font-weight:700;color:#FF9500;margin-bottom:14px}
 .qr-center{display:flex;flex-direction:column;align-items:center;text-align:center}
-#qrBox{
-padding:16px;background:#fff;border-radius:16px;
-display:inline-block;margin:16px 0;
-box-shadow:0 8px 40px rgba(0,0,0,0.5);
-}
+#qrBox{padding:16px;background:#fff;border-radius:16px;display:inline-block;margin:16px 0;box-shadow:0 8px 40px rgba(0,0,0,.5)}
 #qrBox canvas{display:block}
-.qr-info{color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:6px}
-.scan-hero{
-border-radius:26px;padding:32px 24px;text-align:center;margin-bottom:16px;
-}
+.qr-info{color:rgba(255,255,255,.45);font-size:13px;margin-bottom:6px}
+.scan-hero{border-radius:26px;padding:32px 24px;text-align:center;margin-bottom:16px}
 .scan-icon{font-size:64px;margin-bottom:16px}
 .scan-title{font-size:22px;font-weight:700;margin-bottom:8px}
-.scan-sub{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:24px}
-#scanOverlay{
-display:none;position:fixed;inset:0;z-index:500;
-background:rgba(0,0,0,0.85);
-backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-flex-direction:column;align-items:center;justify-content:center;
-padding:24px;
-}
+.scan-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:24px}
+#scanOverlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);flex-direction:column;align-items:center;justify-content:center;padding:24px}
 #scanOverlay.active{display:flex}
-.scan-modal{
-width:100%;max-width:420px;border-radius:28px;padding:0;overflow:hidden;
-}
-.scan-modal-head{
-padding:20px 22px 16px;
-border-bottom:1px solid rgba(255,255,255,0.08);
-}
+.scan-modal{width:100%;max-width:420px;border-radius:28px;padding:0;overflow:hidden}
+.scan-modal-head{padding:20px 22px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .scan-modal-title{font-size:18px;font-weight:700;margin-bottom:2px}
-.scan-modal-sub{font-size:13px;color:rgba(255,255,255,0.4)}
-.vid-container{
-position:relative;background:#000;
-aspect-ratio:1;width:100%;max-height:50dvh;overflow:hidden;
-}
+.scan-modal-sub{font-size:13px;color:rgba(255,255,255,.4)}
+.vid-container{position:relative;background:#000;aspect-ratio:1;width:100%;max-height:50dvh;overflow:hidden}
 #scanVid{width:100%;height:100%;object-fit:cover;display:block}
-.vid-dim{
-position:absolute;inset:0;pointer-events:none;
-background:rgba(0,0,0,0.5);
--webkit-mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);
-mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);
-}
-.vid-frame{
-position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%);
-width:58%;height:58%;pointer-events:none;
-}
-.vid-frame::before,.vid-frame::after,
-.vf-inner::before,.vf-inner::after{
-content:'';position:absolute;
-width:26px;height:26px;
-border-color:#fff;border-style:solid;
-}
+.vid-dim{position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,.5);-webkit-mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%)}
+.vid-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58%;height:58%;pointer-events:none}
+.vid-frame::before,.vid-frame::after,.vf-inner::before,.vf-inner::after{content:'';position:absolute;width:26px;height:26px;border-color:#fff;border-style:solid}
 .vid-frame::before{top:0;left:0;border-width:3px 0 0 3px;border-radius:6px 0 0 0}
 .vid-frame::after{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 6px 0 0}
 .vf-inner::before{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 6px}
 .vf-inner::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 6px 0}
-.vid-beam{
-position:absolute;left:21%;right:21%;height:2px;
-background:linear-gradient(90deg,transparent,rgba(255,255,255,0.9) 40%,#007AFF 50%,rgba(255,255,255,0.9) 60%,transparent);
-box-shadow:0 0 12px rgba(0,122,255,0.8);
-animation:beam 2.2s ease-in-out infinite;
-}
-@keyframes beam{
-0%{top:21%;opacity:1}
-48%{opacity:1}
-50%{top:79%;opacity:0}
-52%{opacity:0}
-54%{opacity:1}
-100%{top:21%;opacity:1}
-}
+.vid-beam{position:absolute;left:21%;right:21%;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9) 40%,#007AFF 50%,rgba(255,255,255,.9) 60%,transparent);box-shadow:0 0 12px rgba(0,122,255,.8);animation:beam 2.2s ease-in-out infinite}
+@keyframes beam{0%{top:21%;opacity:1}48%{opacity:1}50%{top:79%;opacity:0}52%{opacity:0}54%{opacity:1}100%{top:21%;opacity:1}}
 .scan-modal-foot{padding:16px 22px 20px}
-.scan-status{
-text-align:center;font-size:13px;color:rgba(255,255,255,0.45);
-margin-bottom:14px;min-height:20px;
-}
+.scan-status{text-align:center;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:14px;min-height:20px}
 .emp-card{border-radius:22px;padding:18px;margin-bottom:14px}
 .ec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .ec-title{font-size:17px;font-weight:700}
 .ec-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.ec-badge{
-background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
-border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;
-}
-.prog-wrap{background:rgba(255,255,255,0.1);border-radius:6px;height:4px;overflow:hidden;margin-bottom:14px}
+.ec-badge{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500}
+.prog-wrap{background:rgba(255,255,255,.1);border-radius:6px;height:4px;overflow:hidden;margin-bottom:14px}
 .prog-bar{height:100%;border-radius:6px;background:linear-gradient(90deg,#007AFF,#5856D6);transition:width .4s}
 .items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.item-row{
-display:flex;align-items:center;gap:12px;
-background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
-border-radius:14px;padding:12px;transition:all 0.3s;
-}
-.item-row.done-s{opacity:0.45;background:rgba(52,199,89,0.07);border-color:rgba(52,199,89,0.18)}
-.item-row.done-r{opacity:0.45;background:rgba(255,59,48,0.07);border-color:rgba(255,59,48,0.18)}
+.item-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;transition:all .3s}
+.item-row.done-s{opacity:.45;background:rgba(52,199,89,.07);border-color:rgba(52,199,89,.18)}
+.item-row.done-r{opacity:.45;background:rgba(255,59,48,.07);border-color:rgba(255,59,48,.18)}
 .item-em{font-size:26px}
 .item-info{flex:1}
 .item-name{font-size:13px;font-weight:600}
-.item-price{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
+.item-price{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
 .item-mark{font-size:20px}
 .ec-acts{display:flex;gap:8px}
 .prof-hero{border-radius:24px;padding:28px;text-align:center;margin-bottom:14px}
-.prof-av{
-width:84px;height:84px;border-radius:50%;font-size:44px;
-display:flex;align-items:center;justify-content:center;
-margin:0 auto 14px;border:2.5px solid rgba(255,255,255,0.2);
-}
-.prof-av.buyer{
-background:linear-gradient(135deg,rgba(0,122,255,0.5),rgba(88,86,214,0.45));
-box-shadow:0 8px 32px rgba(0,122,255,0.3);
-}
-.prof-av.emp{
-background:linear-gradient(135deg,rgba(52,199,89,0.45),rgba(0,199,190,0.38));
-box-shadow:0 8px 32px rgba(52,199,89,0.25);
-}
+.prof-av{width:84px;height:84px;border-radius:50%;font-size:44px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;border:2.5px solid rgba(255,255,255,.2)}
+.prof-av.buyer{background:linear-gradient(135deg,rgba(0,122,255,.5),rgba(88,86,214,.45));box-shadow:0 8px 32px rgba(0,122,255,.3)}
+.prof-av.emp{background:linear-gradient(135deg,rgba(52,199,89,.45),rgba(0,199,190,.38));box-shadow:0 8px 32px rgba(52,199,89,.25)}
 .prof-name-display{font-size:24px;font-weight:700;margin-bottom:4px;cursor:pointer}
-.prof-name-display:hover{opacity:0.75}
-.prof-name-input{
-font-size:22px;font-weight:700;background:rgba(255,255,255,0.08);
-border:1px solid rgba(0,122,255,0.5);border-radius:10px;
-color:#fff;text-align:center;padding:6px 14px;font-family:inherit;
-outline:none;width:100%;max-width:240px;margin:0 auto 4px;display:block;
-}
-.prof-role{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:4px}
-.prof-name-hint{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px}
+.prof-name-display:hover{opacity:.75}
+.prof-name-input{font-size:22px;font-weight:700;background:rgba(255,255,255,.08);border:1px solid rgba(0,122,255,.5);border-radius:10px;color:#fff;text-align:center;padding:6px 14px;font-family:inherit;outline:none;width:100%;max-width:240px;margin:0 auto 4px;display:block}
+.prof-role{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.prof-name-hint{font-size:11px;color:rgba(255,255,255,.3);margin-bottom:14px}
 .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px}
-.stat-box{
-background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
-border-radius:14px;padding:14px 10px;text-align:center;
-}
+.stat-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 10px;text-align:center}
 .stat-n{font-size:22px;font-weight:700;color:#FF9500}
-.stat-l{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;text-transform:uppercase;letter-spacing:0.3px}
+.stat-l{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;text-transform:uppercase;letter-spacing:.3px}
 .info-list{border-radius:20px;overflow:hidden;margin-bottom:14px}
-.info-row{
-display:flex;justify-content:space-between;align-items:center;
-padding:13px 18px;font-size:14px;
-border-bottom:1px solid rgba(255,255,255,0.07);
-}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;font-size:14px;border-bottom:1px solid rgba(255,255,255,.07)}
 .info-row:last-child{border:none}
-.info-row .lbl{color:rgba(255,255,255,0.4)}
+.info-row .lbl{color:rgba(255,255,255,.4)}
 .info-row .val{font-weight:600}
-#modalBg{
-display:none;position:fixed;inset:0;z-index:300;
-background:rgba(0,0,0,0.6);
-backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-}
+#modalBg{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 #modalBg.active{display:block}
-.bottom-sheet{
-display:none;position:fixed;bottom:0;left:0;right:0;z-index:301;
-border-radius:28px 28px 0 0;
-padding:6px 22px calc(28px + env(safe-area-inset-bottom,0px));
-max-height:92dvh;overflow-y:auto;
-background:rgba(16,16,24,0.88);
-backdrop-filter:blur(60px) saturate(200%);
--webkit-backdrop-filter:blur(60px) saturate(200%);
-border-top:1px solid rgba(255,255,255,0.12);
-border-left:1px solid rgba(255,255,255,0.06);
-border-right:1px solid rgba(255,255,255,0.06);
-box-shadow:0 -20px 80px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.15);
-}
-.bottom-sheet.active{display:block;animation:sheetUp 0.38s cubic-bezier(.32,0.72,0,.95)}
+.bottom-sheet{display:none;position:fixed;bottom:0;left:0;right:0;z-index:301;border-radius:28px 28px 0 0;padding:6px 22px calc(28px + env(safe-area-inset-bottom,0px));max-height:92dvh;overflow-y:auto;background:rgba(16,16,24,.88);backdrop-filter:blur(60px) saturate(200%);-webkit-backdrop-filter:blur(60px) saturate(200%);border-top:1px solid rgba(255,255,255,.12);border-left:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.06);box-shadow:0 -20px 80px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.15)}
+.bottom-sheet.active{display:block;animation:sheetUp .38s cubic-bezier(.32,0.72,0,.95)}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.bs-handle{width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:12px auto 20px}
+.bs-handle{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:12px auto 20px}
 .bs-title{font-size:20px;font-weight:700;margin-bottom:20px}
 .fg{margin-bottom:16px}
-.fg label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);
-text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:8px}
-.fg input,.fg textarea{
-width:100%;background:rgba(255,255,255,0.07);
-border:1px solid rgba(255,255,255,0.12);border-radius:13px;
-color:#fff;padding:13px 15px;font-size:15px;font-family:inherit;
-outline:none;resize:vertical;transition:all 0.2s;
-}
-.fg input:focus,.fg textarea:focus{
-border-color:rgba(0,122,255,0.6);background:rgba(0,122,255,0.08);
-}
+.fg label{font-size:11px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:8px}
+.fg input,.fg textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:13px;color:#fff;padding:13px 15px;font-size:15px;font-family:inherit;outline:none;resize:vertical;transition:all .2s}
+.fg input:focus,.fg textarea:focus{border-color:rgba(0,122,255,.6);background:rgba(0,122,255,.08)}
 .fg textarea{min-height:75px}
-input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.2)}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.2)}
 .egrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:12px}
-.eo{
-font-size:26px;text-align:center;padding:5px;border-radius:9px;cursor:pointer;
-border:2px solid transparent;transition:all 0.14s;
-}
-.eo.on{border-color:#007AFF;background:rgba(0,122,255,0.18)}
-.ret-item{
-display:flex;align-items:center;gap:12px;padding:13px;
-background:rgba(255,255,255,0.05);border:2px solid transparent;
-border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all 0.18s;
-}
-.ret-item.on{border-color:#FF3B30;background:rgba(255,59,48,0.1)}
-.ret-cb{
-width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,0.18);
-background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;
-font-size:13px;font-weight:700;transition:all 0.18s;flex-shrink:0;
-}
+.eo{font-size:26px;text-align:center;padding:5px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:all .14s}
+.eo.on{border-color:#007AFF;background:rgba(0,122,255,.18)}
+.ret-item{display:flex;align-items:center;gap:12px;padding:13px;background:rgba(255,255,255,.05);border:2px solid transparent;border-radius:14px;margin-bottom:8px;cursor:pointer;transition:all .18s}
+.ret-item.on{border-color:#FF3B30;background:rgba(255,59,48,.1)}
+.ret-cb{width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:all .18s;flex-shrink:0}
 .ret-item.on .ret-cb{background:#FF3B30;border-color:#FF3B30;color:#fff}
-.empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.35)}
-.empty .ei{font-size:56px;margin-bottom:14px;opacity:0.5}
+.empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,.35)}
+.empty .ei{font-size:56px;margin-bottom:14px;opacity:.5}
 .empty p{font-size:15px;line-height:1.6}
-
-/* ===== BLE STYLES ===== */
-.ble-bar{
-display:flex;align-items:center;gap:8px;
-padding:8px 16px;margin-bottom:10px;
-border-radius:14px;font-size:13px;font-weight:600;
-background:rgba(255,255,255,0.06);
-border:1px solid rgba(255,255,255,0.1);
-cursor:pointer;transition:all 0.2s;
-}
-.ble-bar:active{transform:scale(0.97)}
-.ble-dot{
-width:9px;height:9px;border-radius:50%;flex-shrink:0;
-transition:background 0.3s;
-}
-.ble-dot.off{background:rgba(255,255,255,0.2)}
+.ble-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;margin-bottom:10px;border-radius:14px;font-size:13px;font-weight:600;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:all .2s}
+.ble-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.ble-dot.off{background:rgba(255,255,255,.2)}
 .ble-dot.searching{background:#FF9500;animation:blePulse 1s infinite}
 .ble-dot.connected{background:#34C759;animation:blePulse 1.5s infinite}
-.ble-dot.serving{background:#007AFF;animation:blePulse 1.5s infinite}
-@keyframes blePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 currentColor}50%{opacity:0.7;box-shadow:0 0 0 5px transparent}}
-.ble-label{flex:1;color:rgba(255,255,255,0.75)}
-.ble-icon{font-size:18px}
+@keyframes blePulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ble-label{flex:1;color:rgba(255,255,255,.75)}
 .ble-msg-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;max-height:120px;overflow-y:auto}
-.ble-msg{
-padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.4;
-background:rgba(0,122,255,0.12);border:1px solid rgba(0,122,255,0.2);
-}
-.ble-msg.in{background:rgba(52,199,89,0.1);border-color:rgba(52,199,89,0.2)}
-.ble-msg .ble-ts{color:rgba(255,255,255,0.3);font-size:10px;margin-right:6px}
-
-/* ===== WebRTC OVERLAYS ===== */
-#rtcOfferOverlay,#rtcAnswerOverlay{
-display:none;position:fixed;inset:0;z-index:700;
-background:rgba(0,0,0,0.92);
-backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-flex-direction:column;align-items:center;justify-content:center;
-padding:20px;
-}
+.ble-msg{padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.4;background:rgba(0,122,255,.12);border:1px solid rgba(0,122,255,.2)}
+.ble-msg.in{background:rgba(52,199,89,.1);border-color:rgba(52,199,89,.2)}
+.ble-msg .ble-ts{color:rgba(255,255,255,.3);font-size:10px;margin-right:6px}
+#rtcOfferOverlay,#rtcAnswerOverlay{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;padding:20px}
 #rtcOfferOverlay.active,#rtcAnswerOverlay.active{display:flex}
-.rtc-card{
-border-radius:28px;padding:24px 20px 20px;text-align:center;
-width:100%;max-width:360px;
-background:rgba(0,122,255,0.1);
-border:1px solid rgba(0,122,255,0.3);
-box-shadow:0 0 60px rgba(0,122,255,0.15),0 20px 60px rgba(0,0,0,0.5);
-}
-.rtc-card.answer{
-background:rgba(88,86,214,0.1);
-border-color:rgba(88,86,214,0.3);
-box-shadow:0 0 60px rgba(88,86,214,0.15),0 20px 60px rgba(0,0,0,0.5);
-}
+.rtc-card{border-radius:28px;padding:24px 20px 20px;text-align:center;width:100%;max-width:360px;background:rgba(0,122,255,.1);border:1px solid rgba(0,122,255,.3);box-shadow:0 0 60px rgba(0,122,255,.15),0 20px 60px rgba(0,0,0,.5)}
+.rtc-card.answer{background:rgba(88,86,214,.1);border-color:rgba(88,86,214,.3)}
 .rtc-icon{font-size:40px;margin-bottom:8px}
 .rtc-title{font-size:20px;font-weight:700;margin-bottom:4px}
-.rtc-sub{font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:14px;line-height:1.5}
-.rtc-qr-box{
-padding:12px;background:#fff;border-radius:14px;
-display:inline-block;margin-bottom:14px;
-box-shadow:0 8px 32px rgba(0,0,0,0.4);
-}
+.rtc-sub{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.5}
+.rtc-qr-box{padding:12px;background:#fff;border-radius:14px;display:inline-block;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .rtc-qr-box canvas{display:block}
-.rtc-status{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:12px;min-height:32px;line-height:1.4}
+.rtc-status{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px;min-height:32px;line-height:1.4}
 .rtc-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.rtc-connected-bar{
-position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));
-left:50%;transform:translateX(-50%);
-background:rgba(52,199,89,0.15);
-border:1px solid rgba(52,199,89,0.35);
-border-radius:20px;padding:6px 16px;
-font-size:12px;font-weight:600;color:#34C759;
-display:none;z-index:90;
-backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-}
-
-/* ===== DONE QR OVERLAY ===== */
-#doneQROverlay{
-display:none;position:fixed;inset:0;z-index:600;
-background:rgba(0,0,0,0.88);
-backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-flex-direction:column;align-items:center;justify-content:center;
-padding:28px;
-}
+#doneQROverlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);flex-direction:column;align-items:center;justify-content:center;padding:28px}
 #doneQROverlay.active{display:flex}
-.done-qr-card{
-border-radius:28px;padding:28px 24px 24px;text-align:center;
-width:100%;max-width:340px;
-background:rgba(52,199,89,0.12);
-border:1px solid rgba(52,199,89,0.35);
-box-shadow:0 0 60px rgba(52,199,89,0.2),0 20px 60px rgba(0,0,0,0.5);
-}
+.done-qr-card{border-radius:28px;padding:28px 24px 24px;text-align:center;width:100%;max-width:340px;background:rgba(52,199,89,.12);border:1px solid rgba(52,199,89,.35);box-shadow:0 0 60px rgba(52,199,89,.2),0 20px 60px rgba(0,0,0,.5)}
 .done-qr-icon{font-size:48px;margin-bottom:10px}
 .done-qr-title{font-size:22px;font-weight:700;margin-bottom:4px;color:#34C759}
-.done-qr-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5}
-#doneQRBox{
-padding:14px;background:#fff;border-radius:14px;
-display:inline-block;margin-bottom:18px;
-box-shadow:0 8px 32px rgba(0,0,0,0.4);
-}
+.done-qr-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:16px;line-height:1.5}
+#doneQRBox{padding:14px;background:#fff;border-radius:14px;display:inline-block;margin-bottom:18px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 #doneQRBox canvas{display:block}
-#toast{
-position:fixed;top:80px;left:50%;
-transform:translateX(-50%) translateY(-10px) scale(0.95);
-background:rgba(18,18,28,0.92);
-backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
-border:1px solid rgba(255,255,255,0.14);border-radius:14px;
-padding:12px 22px;font-size:14px;font-weight:600;z-index:999;
-opacity:0;transition:all 0.28s cubic-bezier(.34,1.3,.64,1);
-pointer-events:none;white-space:nowrap;
-box-shadow:0 8px 36px rgba(0,0,0,0.5);
-}
+#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px) scale(.95);background:rgba(18,18,28,.92);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px 22px;font-size:14px;font-weight:600;z-index:999;opacity:0;transition:all .28s cubic-bezier(.34,1.3,.64,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 36px rgba(0,0,0,.5)}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
 @media(min-width:600px){
-.bottom-sheet{max-width:520px;left:50%;transform:translateX(-50%);border-radius:28px 28px 0 0}
-.bottom-sheet.active{animation:sheetUpPC 0.38s cubic-bezier(.32,.72,0,.95)}
-@keyframes sheetUpPC{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
-#scanOverlay .scan-modal{max-width:400px}
+  .bottom-sheet{max-width:520px;left:50%;transform:translateX(-50%);border-radius:28px 28px 0 0}
+  .bottom-sheet.active{animation:sheetUpPC .38s cubic-bezier(.32,.72,0,.95)}
+  @keyframes sheetUpPC{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
 }
 </style>
-
 </head>
 <body>
-
 <div id="wall"></div>
-
 <div id="root">
 
-<!-- ══ ROLE SCREEN ══ -->
-
+<!-- ROLE SCREEN -->
 <div class="screen active" id="roleScreen">
   <div class="rs-logo">📦</div>
   <div class="rs-title">ПВЗ Pro</div>
   <div class="rs-sub">Симулятор пункта выдачи<br>Выберите ваш профиль</div>
-
   <div class="rs-profile">
     <div class="rs-ptabs glass" style="border-radius:12px;display:flex">
       <div class="rs-ptab on" onclick="previewSwitch('buyer')">🛍️ Покупатель</div>
-      <div class="rs-ptab"    onclick="previewSwitch('emp')">👷 Сотрудник</div>
+      <div class="rs-ptab" onclick="previewSwitch('emp')">👷 Сотрудник</div>
     </div>
     <div class="rs-pcard glass-card" style="border-radius:18px">
       <div class="rs-pav buyer" id="pvAv">🛍️</div>
@@ -713,27 +273,19 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
       <div class="rs-pbadge buyer" id="pvBadge">Покупатель</div>
     </div>
   </div>
-
   <div class="rs-btns">
     <button class="rs-btn buyer" onclick="setRole('buyer')">
       <span class="rs-bicon">🛍️</span>
-      <div>
-        <div class="rs-btitle">Войти как покупатель</div>
-        <div class="rs-bsub">Магазин, корзина, QR‑коды заказов</div>
-      </div>
+      <div><div class="rs-btitle">Войти как покупатель</div><div class="rs-bsub">Магазин, корзина, QR‑коды заказов</div></div>
     </button>
     <button class="rs-btn emp" onclick="setRole('emp')">
       <span class="rs-bicon">👷</span>
-      <div>
-        <div class="rs-btitle">Войти как сотрудник</div>
-        <div class="rs-bsub">Сканировать QR, выдавать заказы</div>
-      </div>
+      <div><div class="rs-btitle">Войти как сотрудник</div><div class="rs-bsub">Сканировать QR, выдавать заказы</div></div>
     </button>
   </div>
 </div>
 
-<!-- ══ APP SCREEN ══ -->
-
+<!-- APP SCREEN -->
 <div class="screen" id="appScreen">
   <div class="navbar glass" style="border-radius:0">
     <div class="nb-l">
@@ -742,11 +294,10 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
       <span class="nb-badge buyer" id="nbBadge">Покупатель</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <div id="rtcBadge" style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);cursor:pointer" onclick="rtcTogglePanel()">○ Локально</div>
+      <div id="rtcBadge" style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:pointer" onclick="rtcTogglePanel()">○ Локально</div>
       <button class="nb-exit" onclick="exitRole()">Выйти</button>
     </div>
   </div>
-
   <div class="pages" id="pages">
     <div class="page active" id="pg-shop"></div>
     <div class="page" id="pg-cart"></div>
@@ -756,14 +307,12 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
     <div class="page" id="pg-profile"></div>
     <div class="page" id="pg-ble"></div>
   </div>
-
   <div class="tabbar glass" style="border-radius:0" id="tabbar"></div>
 </div>
 
 </div><!-- #root -->
 
-<!-- ══ SCANNER OVERLAY ══ -->
-
+<!-- SCANNER OVERLAY -->
 <div id="scanOverlay">
   <div class="scan-modal glass-card">
     <div class="scan-modal-head">
@@ -772,26 +321,23 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
     </div>
     <div class="vid-container">
       <video id="scanVid" autoplay playsinline muted></video>
+      <canvas id="scanCanvas" style="display:none"></canvas>
       <div class="vid-dim"></div>
       <div class="vid-frame"><div class="vf-inner"></div></div>
       <div class="vid-beam"></div>
     </div>
     <div class="scan-modal-foot">
       <div class="scan-status" id="scanStatus">Инициализация камеры…</div>
-      <button class="fullbtn blue" id="snapBtn" onclick="snapDecode()" style="margin-top:0;font-size:17px;display:none">
-        🔲 Сканировать
-      </button>
+      <button class="fullbtn blue" id="snapBtn" onclick="snapDecode()" style="margin-top:0;font-size:17px;display:none">🔲 Сканировать кадр</button>
       <button class="fullbtn glass" onclick="stopScan()" style="margin-top:8px">Отмена</button>
     </div>
   </div>
 </div>
 
-<!-- ══ MODAL BG ══ -->
-
+<!-- MODAL BG -->
 <div id="modalBg" onclick="closeAllModals()"></div>
 
-<!-- ══ MODALS ══ -->
-
+<!-- MODALS -->
 <div class="bottom-sheet" id="mProduct">
   <div class="bs-handle"></div>
   <div class="bs-title" id="mProductTitle">Новый товар</div>
@@ -818,7 +364,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
   <div class="qr-center">
     <div id="qrBox"></div>
     <div class="qr-info" id="qrInfo"></div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:18px">Покажите код сотруднику ПВЗ</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.3);margin-bottom:18px">Покажите код сотруднику ПВЗ</div>
   </div>
   <button class="fullbtn glass" onclick="closeModal('mQR')">Закрыть</button>
 </div>
@@ -826,14 +372,13 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 <div class="bottom-sheet" id="mReturn">
   <div class="bs-handle"></div>
   <div class="bs-title">Возврат товаров</div>
-  <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px">Отметьте товары для возврата</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:16px">Отметьте товары для возврата</div>
   <div id="retList"></div>
   <button class="fullbtn red" onclick="confirmReturn()">Оформить возврат</button>
   <button class="fullbtn glass" onclick="closeModal('mReturn')">Отмена</button>
 </div>
 
-<!-- ══ WebRTC OFFER OVERLAY (сотрудник показывает QR) ══ -->
-
+<!-- WebRTC OFFER OVERLAY -->
 <div id="rtcOfferOverlay">
   <div class="rtc-card">
     <div class="rtc-icon">📡</div>
@@ -849,8 +394,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
   </div>
 </div>
 
-<!-- ══ WebRTC ANSWER OVERLAY (покупатель показывает QR-ответ) ══ -->
-
+<!-- WebRTC ANSWER OVERLAY -->
 <div id="rtcAnswerOverlay">
   <div class="rtc-card answer">
     <div class="rtc-icon">📲</div>
@@ -863,8 +407,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
   </div>
 </div>
 
-<!-- ══ DONE QR OVERLAY (сотрудник показывает клиенту) ══ -->
-
+<!-- DONE QR OVERLAY -->
 <div id="doneQROverlay">
   <div class="done-qr-card">
     <div class="done-qr-icon">✅</div>
@@ -875,46 +418,35 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
   </div>
 </div>
 
-<!-- ══ TOAST ══ -->
-
 <div id="toast"></div>
 
 <script>
-/* ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (AUDIO, MODALS, STATE) ===== */
-let _ac = null;
-function ac(){
-  if(!_ac) _ac = new (window.AudioContext||window.webkitAudioContext)();
-  if(_ac.state==='suspended') _ac.resume();
-  return _ac;
-}
-function beep(freq,type,dur,vol,delay=0){
-  try{
-    const c=ac(),o=c.createOscillator(),g=c.createGain();
-    o.connect(g);g.connect(c.destination);
-    o.type=type;o.frequency.value=freq;
-    const t=c.currentTime+delay;
-    g.gain.setValueAtTime(0,t);
-    g.gain.linearRampToValueAtTime(vol,t+0.01);
-    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
-    o.start(t);o.stop(t+dur);
-  }catch(e){}
-}
+/* ===== AUDIO ===== */
+let _ac=null;
+function ac(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==='suspended')_ac.resume();return _ac;}
+function beep(freq,type,dur,vol,delay=0){try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.value=freq;const t=c.currentTime+delay;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.01);g.gain.exponentialRampToValueAtTime(0.001,t+dur);o.start(t);o.stop(t+dur);}catch(e){}}
 const SFX={
-  tap:     ()=>beep(440,'sine',0.06,0.08),
-  add:     ()=>{beep(523,'sine',0.08,0.1);beep(659,'sine',0.08,0.1,0.08)},
-  del:     ()=>beep(300,'sine',0.1,0.09),
-  ok:      ()=>{[523,659,784].forEach((f,i)=>beep(f,'sine',0.12,0.11,i*0.08))},
-  err:     ()=>beep(160,'sawtooth',0.15,0.11),
-  scan:    ()=>{beep(800,'sine',0.06,0.12);beep(1046,'sine',0.1,0.12,0.07)},
-  pay:     ()=>{[523,659,784,1047].forEach((f,i)=>beep(f,'sine',0.11,0.1,i*0.06))},
-  done:    ()=>{[523,784,1047,880,1319].forEach((f,i)=>beep(f,'triangle',0.13,0.11,i*0.05))}
+  tap:  ()=>beep(440,'sine',.06,.08),
+  add:  ()=>{beep(523,'sine',.08,.1);beep(659,'sine',.08,.1,.08)},
+  del:  ()=>beep(300,'sine',.1,.09),
+  ok:   ()=>{[523,659,784].forEach((f,i)=>beep(f,'sine',.12,.11,i*.08))},
+  err:  ()=>beep(160,'sawtooth',.15,.11),
+  scan: ()=>{beep(800,'sine',.06,.12);beep(1046,'sine',.1,.12,.07)},
+  pay:  ()=>{[523,659,784,1047].forEach((f,i)=>beep(f,'sine',.11,.1,i*.06))},
+  done: ()=>{[523,784,1047,880,1319].forEach((f,i)=>beep(f,'triangle',.13,.11,i*.05))}
 };
 document.addEventListener('pointerdown',()=>{if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)()},{once:true});
 
-let ROLE = 'buyer';
-let CUR  = 'shop';
-// Генерация артикула: категория + случайные цифры
-function genSKU(id){ return 'ART-' + String(id).padStart(3,'0') + '-' + String(Math.floor(1000+id*317%9000)); }
+/* ===== STATE ===== */
+let ROLE='buyer',CUR='shop';
+
+function genSKU(id){return 'ART-'+String(id).padStart(3,'0')+'-'+String(Math.floor(1000+id*317%9000));}
+
+// Уникальный ID заказа: timestamp + random, никогда не совпадёт
+function genOrderId(){
+  return parseInt(String(Date.now()).slice(-7) + String(Math.floor(Math.random()*9+1)));
+}
+
 let products=[
   {id:1,name:'Наушники Sony',price:3990,desc:'Беспроводные, шумоподавление',emoji:'🎧',sku:genSKU(1)},
   {id:2,name:'Чехол iPhone',price:490,desc:'Силиконовый защитный чехол',emoji:'📱',sku:genSKU(2)},
@@ -929,57 +461,32 @@ let selPay='delivery';
 let retOid=null;
 let retSel=new Set();
 let scanStream=null;
-let scanTimer=null;
-let scanActive=false;   // ← флаг активного сканирования
-let pidC=20,oidC=100;
-function pid(){return ++pidC}
-function oid(){return ++oidC}
+let scanActive=false;
+let scanRafId=null;
+let pidC=20;
+function pid(){return ++pidC;}
 
-const profiles={
-  buyer:{name:'Имя покупателя',role:'Покупатель',av:'🛍️'},
-  emp:  {name:'Имя сотрудника',role:'Сотрудник ПВЗ',av:'👷'}
-};
-
+const profiles={buyer:{name:'Покупатель',role:'Покупатель',av:'🛍️'},emp:{name:'Сотрудник',role:'Сотрудник ПВЗ',av:'👷'}};
 const FMT=n=>n.toLocaleString('ru-RU')+' ₽';
-const CC =()=>cart.reduce((s,i)=>s+i.qty,0);
-const CT =()=>cart.reduce((s,i)=>s+i.p.price*i.qty,0);
+const CC=()=>cart.reduce((s,i)=>s+i.qty,0);
+const CT=()=>cart.reduce((s,i)=>s+i.p.price*i.qty,0);
 const EMOJIS=['📦','🎧','📱','👟','👜','🎮','💻','⌚','🔌','📷','🎁','🧴','👗','🕹️','📚','🍕','🧸','💡','🖥️','🎵','🎒','🛍️','🖱️','🎸','🏋️'];
 
 /* ===== TOAST ===== */
 let _tt=null;
-function toast(msg,dur=2600){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('on');
-  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),dur);
-}
+function toast(msg,dur=2600){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),dur);}
 
 /* ===== MODAL ===== */
 let _openModal=null;
-function openModal(id){
-  closeAllModals();
-  const el=document.getElementById(id);
-  document.getElementById('modalBg').classList.add('active');
-  el.classList.add('active');
-  _openModal=id;
-  SFX.tap();
-}
-function closeModal(id){
-  document.getElementById(id)?.classList.remove('active');
-  document.getElementById('modalBg').classList.remove('active');
-  _openModal=null;
-}
-function closeAllModals(){
-  ['mProduct','mCheckout','mQR','mReturn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
-  document.getElementById('modalBg').classList.remove('active');
-  _openModal=null;
-}
+function openModal(id){closeAllModals();const el=document.getElementById(id);document.getElementById('modalBg').classList.add('active');el.classList.add('active');_openModal=id;SFX.tap();}
+function closeModal(id){document.getElementById(id)?.classList.remove('active');document.getElementById('modalBg').classList.remove('active');_openModal=null;}
+function closeAllModals(){['mProduct','mCheckout','mQR','mReturn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));document.getElementById('modalBg').classList.remove('active');_openModal=null;}
 
-/* ===== ROLE / PREVIEW ===== */
+/* ===== ROLE ===== */
 function previewSwitch(r){
   SFX.tap();
   const tabs=document.querySelectorAll('.rs-ptab');
-  tabs[0].classList.toggle('on',r==='buyer');
-  tabs[1].classList.toggle('on',r==='emp');
+  tabs[0].classList.toggle('on',r==='buyer');tabs[1].classList.toggle('on',r==='emp');
   const p=profiles[r];
   document.getElementById('pvAv').textContent=p.av;
   document.getElementById('pvAv').className='rs-pav '+(r==='buyer'?'buyer':'emp');
@@ -990,525 +497,318 @@ function previewSwitch(r){
 previewSwitch('buyer');
 
 function setRole(r){
-  SFX.ok();
-  ROLE=r;
+  SFX.ok();ROLE=r;
   document.getElementById('roleScreen').classList.remove('active');
   document.getElementById('appScreen').classList.add('active');
   const b=document.getElementById('nbBadge');
   b.textContent=r==='buyer'?'🛍️ Покупатель':'👷 Сотрудник';
   b.className='nb-badge '+(r==='buyer'?'buyer':'emp');
   CUR=r==='buyer'?'shop':'scanner';
-  // Загружаем голоса заранее (iOS Safari)
-  if(window.speechSynthesis) speechSynthesis.getVoices();
+  if(window.speechSynthesis)speechSynthesis.getVoices();
   buildTabs();renderPage(CUR);
 }
 
-function exitRole(){
-  SFX.tap();
-  stopScan();
-  document.getElementById('appScreen').classList.remove('active');
-  document.getElementById('roleScreen').classList.add('active');
-}
+function exitRole(){SFX.tap();stopScan();document.getElementById('appScreen').classList.remove('active');document.getElementById('roleScreen').classList.add('active');}
 
 /* ===== TABS ===== */
-const BTABS=[
-  {id:'shop',   icon:'🏪',label:'Магазин'},
-  {id:'cart',   icon:'🛒',label:'Корзина',  bdg:'cart'},
-  {id:'orders', icon:'📋',label:'Заказы'},
-  {id:'ble',    icon:'🔵',label:'BT'},
-  {id:'profile',icon:'👤',label:'Профиль'},
-];
-const ETABS=[
-  {id:'scanner', icon:'📷',label:'Сканер'},
-  {id:'eorders', icon:'📋',label:'Заказы',bdg:'emp'},
-  {id:'ble',     icon:'🔵',label:'BT'},
-  {id:'profile', icon:'👤',label:'Профиль'},
-];
+const BTABS=[{id:'shop',icon:'🏪',label:'Магазин'},{id:'cart',icon:'🛒',label:'Корзина',bdg:'cart'},{id:'orders',icon:'📋',label:'Заказы'},{id:'ble',icon:'🔵',label:'BT'},{id:'profile',icon:'👤',label:'Профиль'}];
+const ETABS=[{id:'scanner',icon:'📷',label:'Сканер'},{id:'eorders',icon:'📋',label:'Заказы',bdg:'emp'},{id:'ble',icon:'🔵',label:'BT'},{id:'profile',icon:'👤',label:'Профиль'}];
 
 function buildTabs(){
   const tabs=ROLE==='buyer'?BTABS:ETABS;
   document.getElementById('tabbar').innerHTML=tabs.map(t=>{
     let bdg='';
-    if(t.bdg==='cart'&&CC()>0) bdg=`<div class="tb-badge">${CC()}</div>`;
+    if(t.bdg==='cart'&&CC()>0)bdg=`<div class="tb-badge">${CC()}</div>`;
     if(t.bdg==='emp'){const n=empOrders.filter(o=>o.status!=='done').length;if(n)bdg=`<div class="tb-badge">${n}</div>`;}
-    return `<div class="tb-item${CUR===t.id?' on':''}" onclick="navTo('${t.id}')">
-      <span class="tb-icon">${t.icon}</span>
-      <span class="tb-label">${t.label}</span>
-      ${bdg}
-    </div>`;
+    return`<div class="tb-item${CUR===t.id?' on':''}" onclick="navTo('${t.id}')"><span class="tb-icon">${t.icon}</span><span class="tb-label">${t.label}</span>${bdg}</div>`;
   }).join('');
 }
 
-function navTo(id){
-  SFX.tap();
-  renderPage(id);
-}
+function navTo(id){SFX.tap();renderPage(id);}
 
 /* ===== PAGE RENDER ===== */
 function renderPage(id){
-  CUR=id;
-  buildTabs();
-  ['shop','cart','orders','scanner','eorders','profile','ble'].forEach(p=>{
-    const el=document.getElementById('pg-'+p);
-    if(el){el.classList.remove('active');el.innerHTML='';}
-  });
-  const pg=document.getElementById('pg-'+id);
-  if(!pg)return;
-  if(id==='shop')    pg.innerHTML=shopHTML();
-  if(id==='cart')    pg.innerHTML=cartHTML();
-  if(id==='orders')  pg.innerHTML=ordersHTML();
-  if(id==='scanner') pg.innerHTML=scannerHTML();
-  if(id==='eorders') pg.innerHTML=eordersHTML();
-  if(id==='profile') pg.innerHTML=profileHTML();
-  if(id==='ble')     pg.innerHTML=blePageHTML();
-  pg.classList.add('active');
-  pg.scrollTop=0;
-
+  CUR=id;buildTabs();
+  ['shop','cart','orders','scanner','eorders','profile','ble'].forEach(p=>{const el=document.getElementById('pg-'+p);if(el){el.classList.remove('active');el.innerHTML='';}});
+  const pg=document.getElementById('pg-'+id);if(!pg)return;
+  if(id==='shop')pg.innerHTML=shopHTML();
+  if(id==='cart')pg.innerHTML=cartHTML();
+  if(id==='orders')pg.innerHTML=ordersHTML();
+  if(id==='scanner')pg.innerHTML=scannerHTML();
+  if(id==='eorders')pg.innerHTML=eordersHTML();
+  if(id==='profile')pg.innerHTML=profileHTML();
+  if(id==='ble')pg.innerHTML=blePageHTML();
+  pg.classList.add('active');pg.scrollTop=0;
   document.getElementById('_fab')?.remove();
-  if(id==='shop'){
-    const f=document.createElement('button');
-    f.className='fab';f.id='_fab';f.innerHTML='+';
-    f.onclick=()=>{SFX.tap();openProductModal(null)};
-    document.body.appendChild(f);
-  }
+  if(id==='shop'){const f=document.createElement('button');f.className='fab';f.id='_fab';f.innerHTML='+';f.onclick=()=>{SFX.tap();openProductModal(null)};document.body.appendChild(f);}
 }
 
 /* ===== SHOP ===== */
 function shopHTML(){
-  if(!products.length) return`<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
-  return`<div class="sec-label">Товары · ${products.length}</div>
-  <div class="pgrid">${products.map(cardHTML).join('')}</div>`;
+  if(!products.length)return`<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
+  return`<div class="sec-label">Товары · ${products.length}</div><div class="pgrid">${products.map(cardHTML).join('')}</div>`;
 }
 function cardHTML(p){
-  return`<div class="pcard glass-card">
-    <div class="pcard-img">${p.emoji}</div>
-    <div class="pcard-body">
-      <div class="pcard-name">${p.name}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.3);font-family:monospace;margin-top:1px">${p.sku||''}</div>
-      <div class="pcard-desc">${p.desc}</div>
-      <div class="pcard-price">${FMT(p.price)}</div>
-    </div>
-    <div class="pcard-acts">
-      <button class="btn btn-glass" onclick="openProductModal(${p.id})">✏️</button>
-      <button class="btn btn-red"   onclick="delProduct(${p.id})">🗑️</button>
-      <button class="btn btn-blue flex" onclick="addCart(${p.id})">+ Корзина</button>
-    </div>
-  </div>`;
+  return`<div class="pcard glass-card"><div class="pcard-img">${p.emoji}</div><div class="pcard-body"><div class="pcard-name">${p.name}</div><div style="font-size:10px;color:rgba(255,255,255,.3);font-family:monospace;margin-top:1px">${p.sku||''}</div><div class="pcard-desc">${p.desc}</div><div class="pcard-price">${FMT(p.price)}</div></div><div class="pcard-acts"><button class="btn btn-glass" onclick="openProductModal(${p.id})">✏️</button><button class="btn btn-red" onclick="delProduct(${p.id})">🗑️</button><button class="btn btn-blue flex" onclick="addCart(${p.id})">+ Корзина</button></div></div>`;
 }
 
-/* ===== PRODUCT MODAL ===== */
 function openProductModal(id){
-  editId=id;
-  const p=id?products.find(x=>x.id===id):null;
+  editId=id;const p=id?products.find(x=>x.id===id):null;
   document.getElementById('mProductTitle').textContent=id?'✏️ Редактировать':'✨ Новый товар';
   document.getElementById('pName').value=p?p.name:'';
   document.getElementById('pPrice').value=p?p.price:'';
   document.getElementById('pDesc').value=p?p.desc:'';
-  selEmoji=p?p.emoji:'📦';
-  buildEGrid();
-  openModal('mProduct');
+  selEmoji=p?p.emoji:'📦';buildEGrid();openModal('mProduct');
 }
-function buildEGrid(){
-  document.getElementById('egrid').innerHTML=EMOJIS.map(e=>
-    `<div class="eo${e===selEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`
-  ).join('');
-}
-function pickEmoji(e){SFX.tap();selEmoji=e;buildEGrid()}
+function buildEGrid(){document.getElementById('egrid').innerHTML=EMOJIS.map(e=>`<div class="eo${e===selEmoji?' on':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');}
+function pickEmoji(e){SFX.tap();selEmoji=e;buildEGrid();}
 function saveProduct(){
   const name=document.getElementById('pName').value.trim();
   const price=parseInt(document.getElementById('pPrice').value);
   const desc=document.getElementById('pDesc').value.trim();
-  if(!name){SFX.err();return toast('⚠️ Введите название')}
-  if(!price||price<100){SFX.err();return toast('⚠️ Цена от 100 ₽')}
-  if(editId){
-    Object.assign(products.find(x=>x.id===editId),{name,price,desc,emoji:selEmoji});
-    SFX.ok();toast('✅ Обновлено');
-  }else{
-    const newId=pid(); products.push({id:newId,name,price,desc,emoji:selEmoji,sku:genSKU(newId)});
-    SFX.add();toast('✅ Товар добавлен');
-  }
+  if(!name){SFX.err();return toast('⚠️ Введите название');}
+  if(!price||price<100){SFX.err();return toast('⚠️ Цена от 100 ₽');}
+  if(editId){Object.assign(products.find(x=>x.id===editId),{name,price,desc,emoji:selEmoji});SFX.ok();toast('✅ Обновлено');}
+  else{const newId=pid();products.push({id:newId,name,price,desc,emoji:selEmoji,sku:genSKU(newId)});SFX.add();toast('✅ Товар добавлен');}
   closeModal('mProduct');renderPage('shop');
 }
 function delProduct(id){
   if(!confirm('Удалить товар?'))return;
-  SFX.del();
-  products=products.filter(p=>p.id!==id);
-  cart=cart.filter(i=>i.p.id!==id);
-  renderPage('shop');toast('🗑️ Удалено');
+  SFX.del();products=products.filter(p=>p.id!==id);cart=cart.filter(i=>i.p.id!==id);renderPage('shop');toast('🗑️ Удалено');
 }
 
 /* ===== CART ===== */
 function addCart(id){
-  const p=products.find(x=>x.id===id);
-  const e=cart.find(i=>i.p.id===id);
-  if(e)e.qty++;else cart.push({p,qty:1});
-  SFX.add();toast(`🛒 ${p.name}`);buildTabs();
+  const p=products.find(x=>x.id===id);const e=cart.find(i=>i.p.id===id);
+  if(e)e.qty++;else cart.push({p,qty:1});SFX.add();toast(`🛒 ${p.name}`);buildTabs();
 }
 function cartHTML(){
   if(!cart.length)return`<div class="empty"><div class="ei">🛒</div><p>Корзина пуста</p></div>`;
   return`<div class="sec-label">Корзина · ${CC()} поз.</div>
-  ${cart.map(i=>`<div class="cart-item glass-card">
-    <div class="ci-em">${i.p.emoji}</div>
-    <div class="ci-info">
-      <div class="ci-name">${i.p.name}</div>
-      <div class="ci-price">${FMT(i.p.price)} за шт.</div>
-      <div class="qty-row">
-        <button class="qbtn" onclick="chQty(${i.p.id},-1)">−</button>
-        <span class="qnum">${i.qty}</span>
-        <button class="qbtn" onclick="chQty(${i.p.id},1)">+</button>
-        <button class="qbtn" onclick="remCart(${i.p.id})" style="font-size:13px">🗑️</button>
-      </div>
-    </div>
-    <div class="ci-total">${FMT(i.p.price*i.qty)}</div>
-  </div>`).join('')}
+  ${cart.map(i=>`<div class="cart-item glass-card"><div class="ci-em">${i.p.emoji}</div><div class="ci-info"><div class="ci-name">${i.p.name}</div><div class="ci-price">${FMT(i.p.price)} за шт.</div><div class="qty-row"><button class="qbtn" onclick="chQty(${i.p.id},-1)">−</button><span class="qnum">${i.qty}</span><button class="qbtn" onclick="chQty(${i.p.id},1)">+</button><button class="qbtn" onclick="remCart(${i.p.id})" style="font-size:13px">🗑️</button></div></div><div class="ci-total">${FMT(i.p.price*i.qty)}</div></div>`).join('')}
   <div class="cart-summary glass-card">
     <div class="cs-row"><span class="l">Позиций:</span><span style="font-weight:700">${CC()}</span></div>
-    <div style="height:1px;background:rgba(255,255,255,0.07);margin:8px 0"></div>
+    <div style="height:1px;background:rgba(255,255,255,.07);margin:8px 0"></div>
     <div class="cs-row"><span class="l">Итого:</span><span class="cs-total">${FMT(CT())}</span></div>
-    <div style="margin-top:16px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Способ оплаты</div>
+    <div style="margin-top:16px;font-size:11px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Способ оплаты</div>
     <div class="pay-opts">
-      <button class="pay-opt${selPay==='delivery'?' on':''}" onclick="setPay('delivery')">
-        <span class="pi">💵</span>При получении
-      </button>
-      <button class="pay-opt${selPay==='online'?' on':''}" onclick="setPay('online')">
-        <span class="pi">💳</span>Онлайн
-      </button>
+      <button class="pay-opt${selPay==='delivery'?' on':''}" onclick="setPay('delivery')"><span class="pi">💵</span>При получении</button>
+      <button class="pay-opt${selPay==='online'?' on':''}" onclick="setPay('online')"><span class="pi">💳</span>Онлайн</button>
     </div>
     <button class="fullbtn blue" onclick="openCheckout()">🚀 Оформить заказ</button>
   </div>`;
 }
-function chQty(id,d){
-  SFX.tap();
-  const i=cart.find(x=>x.p.id===id);if(!i)return;
-  i.qty+=d;
-  if(i.qty<=0){cart=cart.filter(x=>x.p.id!==id);SFX.del();}
-  renderPage('cart');
-}
-function remCart(id){SFX.del();cart=cart.filter(i=>i.p.id!==id);renderPage('cart')}
-function setPay(p){SFX.tap();selPay=p;renderPage('cart')}
+function chQty(id,d){SFX.tap();const i=cart.find(x=>x.p.id===id);if(!i)return;i.qty+=d;if(i.qty<=0){cart=cart.filter(x=>x.p.id!==id);SFX.del();}renderPage('cart');}
+function remCart(id){SFX.del();cart=cart.filter(i=>i.p.id!==id);renderPage('cart');}
+function setPay(p){SFX.tap();selPay=p;renderPage('cart');}
 function openCheckout(){
   if(!cart.length)return;
-  document.getElementById('coItems').innerHTML=cart.map(i=>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:14px">
-      <span>${i.p.emoji} ${i.p.name} <span style="color:rgba(255,255,255,0.35)">×${i.qty}</span></span>
-      <span style="font-weight:700;color:#FF9500">${FMT(i.p.price*i.qty)}</span>
-    </div>`).join('');
-  document.getElementById('coSum').innerHTML=
-    `<div style="background:rgba(0,122,255,0.08);border:1px solid rgba(0,122,255,0.2);border-radius:14px;padding:16px;margin-top:14px">
-      <div class="cs-row"><span class="l">Позиций:</span><span style="font-weight:700">${CC()}</span></div>
-      <div class="cs-row"><span class="l">Оплата:</span><span style="font-weight:700">${selPay==='delivery'?'💵 При получении':'💳 Онлайн'}</span></div>
-      <div style="height:1px;background:rgba(255,255,255,0.08);margin:8px 0"></div>
-      <div class="cs-row"><span class="l">Итого:</span><span class="cs-total">${FMT(CT())}</span></div>
-    </div>`;
+  document.getElementById('coItems').innerHTML=cart.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px"><span>${i.p.emoji} ${i.p.name} <span style="color:rgba(255,255,255,.35)">×${i.qty}</span></span><span style="font-weight:700;color:#FF9500">${FMT(i.p.price*i.qty)}</span></div>`).join('');
+  document.getElementById('coSum').innerHTML=`<div style="background:rgba(0,122,255,.08);border:1px solid rgba(0,122,255,.2);border-radius:14px;padding:16px;margin-top:14px"><div class="cs-row"><span class="l">Позиций:</span><span style="font-weight:700">${CC()}</span></div><div class="cs-row"><span class="l">Оплата:</span><span style="font-weight:700">${selPay==='delivery'?'💵 При получении':'💳 Онлайн'}</span></div><div style="height:1px;background:rgba(255,255,255,.08);margin:8px 0"></div><div class="cs-row"><span class="l">Итого:</span><span class="cs-total">${FMT(CT())}</span></div></div>`;
   openModal('mCheckout');
 }
 function placeOrder(){
   SFX.pay();
   const cell=String(Math.floor(Math.random()*89+10));
-  orders.push({
-    id:oid(),items:cart.map(i=>({...i})),
-    total:CT(),payment:selPay,status:'pending',
-    cell,scanned:[],returned:[]
-  });
+  const orderId=genOrderId(); // уникальный ID через timestamp+random
+  orders.push({id:orderId,items:cart.map(i=>({...i})),total:CT(),payment:selPay,status:'pending',cell,scanned:[],returned:[]});
   cart=[];closeModal('mCheckout');
-  toast('🎉 Заказ оформлен!');renderPage('orders');
+  toast('🎉 Заказ #'+orderId+' оформлен!');renderPage('orders');
 }
 
 /* ===== ORDERS ===== */
 function ordersHTML(){
-  // Фильтруем выданные через localStorage
-  const issued = getIssuedOrders();
-  const visible = orders.filter(o => !issued.has(o.id));
-  const hidden  = orders.filter(o =>  issued.has(o.id));
+  const issued=getIssuedOrders();
+  const visible=orders.filter(o=>!issued.has(o.id));
   if(!orders.length)return`<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
   if(!visible.length)return`<div class="empty"><div class="ei">✅</div><p>Все заказы получены!</p></div>`;
+  const hidden=orders.filter(o=>issued.has(o.id));
   return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div class="sec-label" style="margin-bottom:0">Мои заказы · \${visible.length}</div>
-      <button onclick="rtcGuestConnect()" style="font-size:11px;padding:5px 12px;border-radius:10px;border:1px solid rgba(0,122,255,0.4);background:rgba(0,122,255,0.12);color:#007AFF;font-weight:600;cursor:pointer">
-        📡 \${_rtcConnected?'Wi-Fi ✓':'Подключиться'}
-      </button>
+    <div class="sec-label" style="margin-bottom:0">Мои заказы · ${visible.length}</div>
+    <button onclick="rtcGuestConnect()" style="font-size:11px;padding:5px 12px;border-radius:10px;border:1px solid rgba(0,122,255,.4);background:rgba(0,122,255,.12);color:#007AFF;font-weight:600;cursor:pointer">📡 ${_rtcConnected?'Wi-Fi ✓':'Подключиться'}</button>
+  </div>
+  ${visible.slice().reverse().map(o=>`<div class="order-card glass-card">
+    <div class="oc-head"><div class="oc-num">Заказ #${o.id}</div><div class="oc-status st-wait">⏳ Ожидание</div></div>
+    <div class="oc-meta">
+      <div class="oc-badge">📦 Ячейка ${o.cell}</div>
+      <div class="oc-badge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
+      <div class="oc-badge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
     </div>
-  ${visible.slice().reverse().map(o=>{
-    return`<div class="order-card glass-card">
-      <div class="oc-head">
-        <div class="oc-num">Заказ #${o.id}</div>
-        <div class="oc-status st-wait">⏳ Ожидание</div>
-      </div>
-      <div class="oc-meta">
-        <div class="oc-badge">📦 Ячейка ${o.cell}</div>
-        <div class="oc-badge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
-        <div class="oc-badge">${o.items.reduce((s,i)=>s+i.qty,0)} поз.</div>
-      </div>
-      <div style="margin-bottom:10px">
-        ${o.items.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px">
-          <span>${i.p.emoji} ${i.p.name}</span>
-          <span style="font-family:monospace;font-size:11px;color:rgba(255,255,255,0.3)">${i.p.sku||''}</span>
-        </div>`).join('')}
-      </div>
-      <div class="oc-price">${FMT(o.total)}</div>
-      <button class="fullbtn blue" style="margin-top:0" onclick="showQR(${o.id})">🔲 Показать QR‑код</button>
-    </div>`;
-  }).join('')}
-  ${hidden.length?`<div style="margin-top:16px;text-align:center;font-size:12px;color:rgba(255,255,255,0.2)">+ ${hidden.length} выданных заказов скрыто</div>`:''}`;
+    <div style="margin-bottom:10px">
+      ${o.items.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px"><span>${i.p.emoji} ${i.p.name}${i.qty>1?' ×'+i.qty:''}</span><span style="font-family:monospace;font-size:11px;color:rgba(255,255,255,.3)">${i.p.sku||''}</span></div>`).join('')}
+    </div>
+    <div class="oc-price">${FMT(o.total)}</div>
+    <button class="fullbtn blue" style="margin-top:0" onclick="showQR(${o.id})">🔲 Показать QR‑код</button>
+  </div>`).join('')}
+  ${hidden.length?`<div style="margin-top:16px;text-align:center;font-size:12px;color:rgba(255,255,255,.2)">+ ${hidden.length} выданных заказов скрыто</div>`:''}`;
 }
 
 /* ===== QR GENERATOR ===== */
-function showQR(orderId) {
-  const o = orders.find(x => x.id === orderId);
-  if (!o) return;
-  SFX.scan();
-
-  // В QR — ТОЛЬКО цифры: id заказа, ячейка, тип оплаты, кол-во и цена каждого товара
-  // Формат: "oid|cell|pay|qty1:price1|qty2:price2|..."
-  // Пример: "101|42|0|1:3990|2:490|1:890"
-  // Никакой кириллицы, никаких эмодзи — чистые цифры и ASCII
-  const itemsPart = o.items.map(i => `${i.qty}:${i.p.price}`).join('|');
-  const payCode   = o.payment === 'delivery' ? 0 : 1;
-  const data      = `${o.id}|${o.cell}|${payCode}|${itemsPart}`;
-
-  const qr = qrcode(0, 'L');
-  qr.addData(data);
-  qr.make();
-
-  document.getElementById('mQRtitle').textContent = `🔲 Заказ #${o.id}`;
-  document.getElementById('qrInfo').textContent =
-    `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
-
+function showQR(orderId){
+  const o=orders.find(x=>x.id===orderId);if(!o)return;SFX.scan();
+  // Формат: "oid|cell|pay|qty1:price1:emoji1:name1|qty2:price2:emoji2:name2|..."
+  // emoji заменяем на пустую строку если не ASCII-safe (jsQR лучше с latin)
+  // Передаём только цифры и базовый ASCII чтобы QR был компактным
+  const itemsPart=o.items.map(i=>`${i.qty}:${i.p.price}`).join('|');
+  const payCode=o.payment==='delivery'?0:1;
+  const data=`${o.id}|${o.cell}|${payCode}|${itemsPart}`;
+  const qr=qrcode(0,'L');qr.addData(data);qr.make();
+  document.getElementById('mQRtitle').textContent=`🔲 Заказ #${o.id}`;
+  document.getElementById('qrInfo').textContent=`${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
   openModal('mQR');
-  setTimeout(() => renderQRCanvas(qr), 80);
+  setTimeout(()=>renderQRCanvas(qr,'qrBox'),80);
 }
 
-function renderQRCanvas(qr) {
-  const box = document.getElementById('qrBox');
-  if (!box) return;
-  box.innerHTML = '';
-  const modules = qr.getModuleCount();
-  // Минимальный размер модуля 8px для надёжного считывания камерой
-  const cellSize = Math.max(8, Math.floor(280 / modules));
-  const size = modules * cellSize;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  // Белый фон
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
-  // Тёмные модули
-  ctx.fillStyle = '#000000';
-  for (let row = 0; row < modules; row++) {
-    for (let col = 0; col < modules; col++) {
-      if (qr.isDark(row, col)) {
-        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-      }
-    }
-  }
+function renderQRCanvas(qr,boxId){
+  const box=document.getElementById(boxId);if(!box)return;
+  box.innerHTML='';
+  const modules=qr.getModuleCount();
+  const cellSize=Math.max(8,Math.floor(280/modules));
+  const size=modules*cellSize;
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,size,size);
+  ctx.fillStyle='#000000';
+  for(let row=0;row<modules;row++)for(let col=0;col<modules;col++)if(qr.isDark(row,col))ctx.fillRect(col*cellSize,row*cellSize,cellSize,cellSize);
   box.appendChild(canvas);
 }
 
 /* ═══════════════════════════════════════════════
-   QR SCANNER — nimiq/qr-scanner (работает на iOS)
-   Заменили jsQR на QrScanner от nimiq:
-   - Содержит fix для RangeError в Safari/WebKit
-   - Использует WebWorker, не блокирует UI
-   - В 2-3 раза лучше распознаёт QR
+   СКАНЕР — jsQR + getUserMedia + requestAnimationFrame
+   Без внешних воркеров, без CORS-проблем
 ═══════════════════════════════════════════════ */
+let _scanVidEl=null;
+let _scanCtx=null;
+let _scanWidth=0,_scanHeight=0;
 
-let _qrScanner = null; // экземпляр QrScanner
+function startScan(){
+  SFX.tap();scanActive=true;
+  const ov=document.getElementById('scanOverlay');ov.classList.add('active');
+  setStatus('Запрос доступа к камере…');showSnapBtn(false);
+  _scanVidEl=document.getElementById('scanVid');
+  const canvas=document.getElementById('scanCanvas');
 
-function scanLoop(vid) {
-  // Не используется — QrScanner сам управляет циклом
-}
-
-function startScan() {
-  SFX.tap();
-  scanActive = true;
-  const ov = document.getElementById('scanOverlay');
-  ov.classList.add('active');
-  setStatus('Запрос доступа к камере…');
-  showSnapBtn(false);
-
-  if (typeof QrScanner === 'undefined') {
-    ov.classList.remove('active');
-    scanActive = false;
-    SFX.err();
-    toast('⚠️ Библиотека сканера не загружена');
-    return;
-  }
-
-  const vid = document.getElementById('scanVid');
-
-  // Уничтожаем предыдущий сканер если был
-  if (_qrScanner) {
-    try { _qrScanner.destroy(); } catch(e) {}
-    _qrScanner = null;
-  }
-
-  _qrScanner = new QrScanner(
-    vid,
-    result => {
-      // Успешное сканирование
-      if (!scanActive) return;
-      scanActive = false;
-      stopScan();
-      processQR(result.data);
-    },
-    {
-      preferredCamera: 'environment',
-      highlightScanRegion: false,
-      highlightCodeOutline: false,
-      // Отдаём максимум ресурсов на декодирование
-      maxScansPerSecond: 10,
-      returnDetailedScanResult: true,
-    }
-  );
-
-  _qrScanner.start()
-    .then(() => {
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}})
+  .then(stream=>{
+    scanStream=stream;
+    _scanVidEl.srcObject=stream;
+    _scanVidEl.play();
+    _scanVidEl.onloadedmetadata=()=>{
+      _scanWidth=_scanVidEl.videoWidth||640;
+      _scanHeight=_scanVidEl.videoHeight||480;
+      canvas.width=_scanWidth;canvas.height=_scanHeight;
+      _scanCtx=canvas.getContext('2d',{willReadFrequently:true});
       setStatus('📷 Наведите камеру на QR-код…');
       showSnapBtn(true);
-    })
-    .catch(err => {
-      scanActive = false;
-      ov.classList.remove('active');
-      SFX.err();
-      const msg = String(err);
-      if (msg.includes('NotAllowed') || msg.includes('Permission'))
-        toast('⚠️ Разрешите доступ к камере в настройках браузера');
-      else if (msg.includes('NotFound'))
-        toast('⚠️ Камера не найдена');
-      else
-        toast('⚠️ Ошибка: ' + msg);
-    });
+      scanLoopRun();
+    };
+  })
+  .catch(err=>{
+    scanActive=false;ov.classList.remove('active');SFX.err();
+    const msg=String(err);
+    if(msg.includes('NotAllowed')||msg.includes('Permission'))toast('⚠️ Разрешите доступ к камере');
+    else if(msg.includes('NotFound'))toast('⚠️ Камера не найдена');
+    else toast('⚠️ Ошибка камеры: '+msg);
+  });
 }
 
-function showSnapBtn(show) {
-  const btn = document.getElementById('snapBtn');
-  if (btn) btn.style.display = show ? 'block' : 'none';
+function scanLoopRun(){
+  if(!scanActive)return;
+  if(!_scanCtx||!_scanVidEl||_scanVidEl.readyState<2){scanRafId=requestAnimationFrame(scanLoopRun);return;}
+  try{
+    _scanCtx.drawImage(_scanVidEl,0,0,_scanWidth,_scanHeight);
+    const imgData=_scanCtx.getImageData(0,0,_scanWidth,_scanHeight);
+    const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
+    if(code&&code.data){
+      scanActive=false;stopScan();processQR(code.data);return;
+    }
+  }catch(e){}
+  scanRafId=requestAnimationFrame(scanLoopRun);
 }
 
-// Кнопка ручного сканирования — принудительно захватываем кадр
-function snapDecode() {
+// Ручное сканирование — немедленно пробуем декодировать текущий кадр
+function snapDecode(){
   SFX.tap();
-  if (!_qrScanner) {
-    setStatus('❌ Камера не запущена');
-    return;
-  }
-  setStatus('⏳ Анализирую кадр...');
-  // QrScanner сканирует автоматически — просто показываем что работаем
-  setTimeout(() => {
-    if (scanActive) setStatus('📷 Наведите камеру на QR-код…');
-  }, 1500);
+  if(!_scanCtx||!_scanVidEl||_scanVidEl.readyState<2){setStatus('❌ Камера не готова');return;}
+  try{
+    _scanCtx.drawImage(_scanVidEl,0,0,_scanWidth,_scanHeight);
+    const imgData=_scanCtx.getImageData(0,0,_scanWidth,_scanHeight);
+    // Пробуем с инверсией тоже
+    const code=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'attemptBoth'});
+    if(code&&code.data){scanActive=false;stopScan();processQR(code.data);return;}
+    setStatus('🔍 QR не найден, продолжаем сканирование…');
+    setTimeout(()=>{if(scanActive)setStatus('📷 Наведите камеру на QR-код…');},1500);
+  }catch(e){setStatus('⚠️ Ошибка анализа кадра');}
 }
 
-function stopScan() {
-  scanActive = false;
-
-  if (_qrScanner) {
-    try { _qrScanner.stop(); } catch(e) {}
-    try { _qrScanner.destroy(); } catch(e) {}
-    _qrScanner = null;
-  }
-
-  if (scanStream) {
-    scanStream.getTracks().forEach(t => t.stop());
-    scanStream = null;
-  }
-
+function stopScan(){
+  scanActive=false;
+  if(scanRafId){cancelAnimationFrame(scanRafId);scanRafId=null;}
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
   showSnapBtn(false);
   document.getElementById('scanOverlay').classList.remove('active');
 }
 
-function setStatus(t) {
-  const el = document.getElementById('scanStatus');
-  if (el) el.textContent = t;
-}
+function showSnapBtn(show){const btn=document.getElementById('snapBtn');if(btn)btn.style.display=show?'block':'none';}
+function setStatus(t){const el=document.getElementById('scanStatus');if(el)el.textContent=t;}
 
+/* ===== PROCESS QR ===== */
 function processQR(raw){
-  try {
-    const str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw).trim();
-
-    // RTC: чанки offer/answer
-    if(str.startsWith('RTC:')){
-      rtcHandleScanChunk(str);
-      return;
-    }
-
-    // Клиент сканирует QR "выдан" от сотрудника
+  try{
+    const str=String(raw).trim();
+    if(str.startsWith('RTC:')){rtcHandleScanChunk(str);return;}
     if(str.startsWith('DONE|')){
-      const doneId = parseInt(str.split('|')[1]);
-      markOrderIssued(doneId);
-      SFX.done();
-      toast('✅ Заказ #'+doneId+' получен!');
-      renderPage('orders');
-      return;
+      const doneId=parseInt(str.split('|')[1]);
+      markOrderIssued(doneId);SFX.done();
+      toast('✅ Заказ #'+doneId+' получен!');renderPage('orders');return;
     }
-
     // Формат: "oid|cell|pay|qty1:price1|qty2:price2|..."
-    const parts = str.split('|');
-    if (parts.length < 4) { SFX.err(); toast('⚠️ Неверный формат QR'); return; }
+    const parts=str.split('|');
+    if(parts.length<4){SFX.err();toast('⚠️ Неверный формат QR');return;}
+    const id=parseInt(parts[0]);
+    const cell=parts[1];
+    const pay=parts[2]==='0'?'delivery':'online';
 
-    const id   = parseInt(parts[0]);
-    const cell = parts[1];
-    const pay  = parts[2] === '0' ? 'delivery' : 'online';
-
-    // Генерируем карточки товаров на стороне сотрудника
-    // Название не передаётся — просто "Товар 1", "Товар 2"...
-    const items = parts.slice(3).map((p, idx) => {
-      const [qty, price] = p.split(':').map(Number);
-      return { id: idx + 1, name: `Товар ${idx + 1}`, price, qty, emoji: '📦' };
+    // ← ИСПРАВЛЕНИЕ: разворачиваем qty в отдельные строки товаров
+    // Если qty=3, создаём 3 отдельные позиции с уникальными id
+    const items=[];
+    let itemIdCounter=1;
+    parts.slice(3).forEach((p,posIdx)=>{
+      const[qty,price]=p.split(':').map(Number);
+      if(!qty||!price)return;
+      for(let q=0;q<qty;q++){
+        items.push({id:itemIdCounter++,name:`Товар ${posIdx+1}`,price,qty:1,emoji:'📦'});
+      }
     });
 
-    const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-
-    if (!id || !cell || items.length === 0) {
-      SFX.err(); toast('⚠️ QR не содержит данных заказа'); return;
+    const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+    if(!id||!cell||items.length===0){SFX.err();toast('⚠️ QR не содержит данных заказа');return;}
+    if(!empOrders.find(o=>o.id===id)){
+      empOrders.push({id,cell,total,payment:pay,status:'pending',items,scanned:[],returned:[]});
     }
-
-    if (!empOrders.find(o => o.id === id)) {
-      empOrders.push({ id, cell, total, payment: pay, status: 'pending', items, scanned: [], returned: [] });
-    }
-
     SFX.scan();
 
-    // Озвучка: ячейка, кол-во товаров, тип оплаты
-    const n = items.reduce((s, i) => s + i.qty, 0);
-    const nWord   = n === 1 ? 'товар' : n < 5 ? 'товара' : 'товаров';
-    const payText = pay === 'delivery' ? 'оплата при получении' : 'оплачено онлайн';
-    speak(`${cell}. ${n} ${nWord}. ${payText}.`);
+    // Озвучка
+    const n=items.length;
+    const nWord=n===1?'товар':n<5?'товара':'товаров';
+    const payText=pay==='delivery'?'оплата при получении':'оплачено онлайн';
+    speak(`Ячейка ${cell}. ${n} ${nWord}. ${payText}.`);
 
-    toast(`📦 Заказ #${id} загружен`);
-    renderPage('eorders');
-
-  } catch(e) {
-    SFX.err();
-    toast('⚠️ Нечитаемый QR‑код');
-    console.error('processQR error:', e, 'raw:', raw);
-  }
+    toast(`📦 Заказ #${id} — ${n} позиций`);renderPage('eorders');
+  }catch(e){SFX.err();toast('⚠️ Нечитаемый QR‑код');console.error('processQR:',e);}
 }
 
-/* ===== SCANNER PAGE HTML ===== */
+/* ===== SCANNER PAGE ===== */
 function scannerHTML(){
-  return`<div class="scan-hero glass-card">
-    <div class="scan-icon">📷</div>
-    <div class="scan-title">Сканер QR‑кодов</div>
-    <div class="scan-sub">Наведите камеру на QR‑код покупателя для загрузки заказа</div>
-    <button class="fullbtn blue" style="margin-top:0" onclick="startScan()">📷 Открыть камеру</button>
-  </div>
+  return`<div class="scan-hero glass-card"><div class="scan-icon">📷</div><div class="scan-title">Сканер QR‑кодов</div><div class="scan-sub">Наведите камеру на QR‑код покупателя для загрузки заказа</div><button class="fullbtn blue" style="margin-top:0" onclick="startScan()">📷 Открыть камеру</button></div>
   <div class="glass-card" style="border-radius:20px;padding:18px;margin-top:12px">
     <div style="font-size:13px;font-weight:700;margin-bottom:10px">📡 Wi-Fi синхронизация</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:14px;line-height:1.6">
-      Подключитесь к телефону покупателя — заказы будут исчезать автоматически после выдачи, без QR.
-    </div>
-    <button class="fullbtn blue" style="margin-top:0;font-size:14px" onclick="rtcCreateOffer()">
-      📡 Создать Wi-Fi сессию
-    </button>
-    <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,0.3);text-align:center">
-      Оба устройства должны быть в одной Wi-Fi сети
-    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6">Подключитесь к телефону покупателя — заказы будут исчезать автоматически.</div>
+    <button class="fullbtn blue" style="margin-top:0;font-size:14px" onclick="rtcCreateOffer()">📡 Создать Wi-Fi сессию</button>
   </div>
-  <div class="glass-card" style="border-radius:20px;padding:18px;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7;margin-top:12px">
-    <div style="font-weight:600;color:rgba(255,255,255,0.65);margin-bottom:8px">💡 Как использовать</div>
-    Покупатель открывает заказ → нажимает «Показать QR‑код» → вы сканируете код.<br><br>
-    Если автосканирование не срабатывает — нажмите кнопку <b>🔲 Сканировать</b>.
+  <div class="glass-card" style="border-radius:20px;padding:18px;font-size:13px;color:rgba(255,255,255,.4);line-height:1.7;margin-top:12px">
+    <div style="font-weight:600;color:rgba(255,255,255,.65);margin-bottom:8px">💡 Как использовать</div>
+    Покупатель открывает заказ → нажимает «Показать QR» → вы сканируете.<br><br>Если автосканирование не срабатывает — нажмите <b>🔲 Сканировать кадр</b>.
   </div>`;
 }
 
@@ -1519,7 +819,7 @@ function eordersHTML(){
   if(!empOrders.length)return`<div class="empty"><div class="ei">📋</div><p>Нет заказов.<br>Отсканируйте QR‑код</p></div>`;
   let html='';
   if(active.length){html+=`<div class="sec-label">Активные · ${active.length}</div>`;html+=active.map(empCardHTML).join('');}
-  if(done.length){html+=`<div class="sec-label" style="margin-top:20px">Завершённые · ${done.length}</div>`;html+=done.map(o=>`<div style="opacity:0.5">${empCardHTML(o)}</div>`).join('');}
+  if(done.length){html+=`<div class="sec-label" style="margin-top:20px">Завершённые · ${done.length}</div>`;html+=done.map(o=>`<div style="opacity:.5">${empCardHTML(o)}</div>`).join('');}
   return html;
 }
 function empCardHTML(o){
@@ -1528,18 +828,16 @@ function empCardHTML(o){
   const allDone=o.items.every(i=>sc.includes(i.id)||rt.includes(i.id));
   const prog=Math.round((sc.length+rt.length)/Math.max(o.items.length,1)*100);
   let acts='';
-  if(o.status==='done') acts=`<div style="text-align:center;color:#34C759;font-weight:600;padding:10px">✅ Завершён</div>`;
-  else if(allDone) acts=`<div class="ec-acts"><button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button><button class="btn btn-green flex" onclick="completeOrder(${o.id})">✅ Завершить</button></div>`;
+  if(o.status==='done')acts=`<div style="text-align:center;color:#34C759;font-weight:600;padding:10px">✅ Завершён</div>`;
+  else if(allDone)acts=`<div class="ec-acts"><button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button><button class="btn btn-green flex" onclick="completeOrder(${o.id})">✅ Завершить</button></div>`;
   else acts=`<button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button>`;
   return`<div class="emp-card glass-card" data-order-id="${o.id}">
-    <div class="ec-head">
-      <div class="ec-title">Заказ #${o.id}</div>
-      <div class="oc-status ${o.status==='done'?'st-done':'st-wait'}">${o.status==='done'?'Выдан':'Активен'}</div>
-    </div>
+    <div class="ec-head"><div class="ec-title">Заказ #${o.id}</div><div class="oc-status ${o.status==='done'?'st-done':'st-wait'}">${o.status==='done'?'Выдан':'Активен'}</div></div>
     <div class="ec-meta">
       <div class="ec-badge">📦 Ячейка ${o.cell}</div>
       <div class="ec-badge">${o.payment==='delivery'?'💵 При получении':'💳 Оплачено'}</div>
       <div class="ec-badge">💰 ${FMT(total)}</div>
+      <div class="ec-badge">📦 ${o.items.length} позиций</div>
     </div>
     <div class="prog-wrap"><div class="prog-bar" style="width:${prog}%"></div></div>
     <div class="sec-label" style="margin-bottom:8px">Товары ${sc.length+rt.length}/${o.items.length}</div>
@@ -1549,11 +847,7 @@ function empCardHTML(o){
         const cls=isS?'item-row done-s':isR?'item-row done-r':'item-row';
         const mark=isS?'✅':isR?'↩️':'';
         const btn=(!isS&&!isR&&o.status!=='done')?`<button class="btn btn-blue" style="font-size:11px;padding:7px 12px" onclick="markItem(${o.id},${i.id})">Выдать</button>`:'';
-        return`<div class="${cls}">
-          <div class="item-em">${i.emoji}</div>
-          <div class="item-info"><div class="item-name">${i.name}</div><div class="item-price">${FMT(i.price)} × ${i.qty}</div></div>
-          <span class="item-mark">${mark}</span>${btn}
-        </div>`;
+        return`<div class="${cls}"><div class="item-em">${i.emoji}</div><div class="item-info"><div class="item-name">${i.name}</div><div class="item-price">${FMT(i.price)}</div></div><span class="item-mark">${mark}</span>${btn}</div>`;
       }).join('')}
     </div>
     ${acts}
@@ -1561,109 +855,50 @@ function empCardHTML(o){
 }
 function markItem(oid,iid){
   const o=empOrders.find(x=>x.id===oid);if(!o)return;
-  if(!o.scanned)o.scanned=[];
-  if(o.scanned.includes(iid))return;
+  if(!o.scanned)o.scanned=[];if(o.scanned.includes(iid))return;
   o.scanned.push(iid);SFX.scan();
   const done=o.items.every(i=>o.scanned.includes(i.id)||(o.returned||[]).includes(i.id));
-  if(done){SFX.ok();toast('🎉 Все товары выданы!')}else toast('✅ Отмечено');
+  if(done){SFX.ok();toast('🎉 Все товары выданы!');}else toast('✅ Отмечено');
   renderPage('eorders');
 }
 function openReturn(oid){
   SFX.tap();retOid=oid;retSel=new Set();
   const o=empOrders.find(x=>x.id===oid);
   const list=o.items.filter(i=>!(o.returned||[]).includes(i.id));
-  document.getElementById('retList').innerHTML=!list.length
-    ?'<p style="color:rgba(255,255,255,0.4);padding:12px">Нет товаров для возврата</p>'
-    :list.map(i=>`<div class="ret-item" id="ri${i.id}" onclick="togRet(${i.id})">
-        <div class="ret-cb" id="rc${i.id}"></div>
-        <div style="font-size:24px">${i.emoji}</div>
-        <div style="flex:1"><div style="font-weight:600;font-size:14px">${i.name}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.35)">${FMT(i.price)} × ${i.qty}</div></div>
-      </div>`).join('');
+  document.getElementById('retList').innerHTML=!list.length?'<p style="color:rgba(255,255,255,.4);padding:12px">Нет товаров для возврата</p>':list.map(i=>`<div class="ret-item" id="ri${i.id}" onclick="togRet(${i.id})"><div class="ret-cb" id="rc${i.id}"></div><div style="font-size:24px">${i.emoji}</div><div style="flex:1"><div style="font-weight:600;font-size:14px">${i.name}</div><div style="font-size:12px;color:rgba(255,255,255,.35)">${FMT(i.price)}</div></div></div>`).join('');
   openModal('mReturn');
 }
-function togRet(id){
-  SFX.tap();retSel.has(id)?retSel.delete(id):retSel.add(id);
-  document.getElementById(`ri${id}`)?.classList.toggle('on',retSel.has(id));
-  const cb=document.getElementById(`rc${id}`);if(cb)cb.textContent=retSel.has(id)?'✓':'';
-}
+function togRet(id){SFX.tap();retSel.has(id)?retSel.delete(id):retSel.add(id);document.getElementById('ri'+id)?.classList.toggle('on',retSel.has(id));const cb=document.getElementById('rc'+id);if(cb)cb.textContent=retSel.has(id)?'✓':'';}
 function confirmReturn(){
-  if(!retSel.size){SFX.err();return toast('⚠️ Выберите товары')}
-  const o=empOrders.find(x=>x.id===retOid);
-  if(!o.returned)o.returned=[];
-  retSel.forEach(id=>{
-    if(!o.returned.includes(id))o.returned.push(id);
-    if(o.scanned)o.scanned=o.scanned.filter(s=>s!==id);
-  });
+  if(!retSel.size){SFX.err();return toast('⚠️ Выберите товары');}
+  const o=empOrders.find(x=>x.id===retOid);if(!o.returned)o.returned=[];
+  retSel.forEach(id=>{if(!o.returned.includes(id))o.returned.push(id);if(o.scanned)o.scanned=o.scanned.filter(s=>s!==id);});
   SFX.ok();closeModal('mReturn');toast('↩️ Возврат оформлен');renderPage('eorders');
 }
 function completeOrder(oid){
-  const o=empOrders.find(x=>x.id===oid);
-  o.status='done';
-  // Записываем в localStorage — клиент увидит что заказ выдан
+  const o=empOrders.find(x=>x.id===oid);o.status='done';
   markOrderIssued(oid);
-  // Если есть WebRTC канал — отправляем мгновенно, QR не нужен
-  if(rtcSend('ORDER_ISSUED', { orderId: oid })){
-    toast('📡 Клиент уведомлён по Wi-Fi!');
-  } else {
-    // Fallback: показываем QR "выдан"
-    showDoneQR(oid);
-  }
-  // Если BLE подключён — шлём уведомление автоматически
-  if(bleStatus === 'connected'){
-    bleSendOrderDone(oid);
-  }
-  SFX.done();
-  toast('🎉 Заказ выдан!');
+  if(rtcSend('ORDER_ISSUED',{orderId:oid})){toast('📡 Клиент уведомлён по Wi-Fi!');}
+  else showDoneQR(oid);
+  if(bleStatus==='connected')bleSendOrderDone(oid);
+  SFX.done();toast('🎉 Заказ выдан!');
 }
 
-/* ===== localStorage: выданные заказы ===== */
-function getIssuedOrders(){
-  try {
-    const raw = localStorage.getItem('pvz_issued');
-    return new Set(raw ? JSON.parse(raw) : []);
-  } catch(e){ return new Set(); }
-}
-function markOrderIssued(id){
-  try {
-    const s = getIssuedOrders();
-    s.add(id);
-    localStorage.setItem('pvz_issued', JSON.stringify([...s]));
-  } catch(e){}
-}
-function clearIssuedOrder(id){
-  try {
-    const s = getIssuedOrders();
-    s.delete(id);
-    localStorage.setItem('pvz_issued', JSON.stringify([...s]));
-  } catch(e){}
-}
+/* ===== localStorage ===== */
+function getIssuedOrders(){try{const raw=localStorage.getItem('pvz_issued');return new Set(raw?JSON.parse(raw):[]);}catch(e){return new Set();}}
+function markOrderIssued(id){try{const s=getIssuedOrders();s.add(id);localStorage.setItem('pvz_issued',JSON.stringify([...s]));}catch(e){}}
 
-/* ===== QR "заказ выдан" для клиента ===== */
-let _doneOrderId = null;
+/* ===== DONE QR ===== */
 function showDoneQR(ordId){
-  _doneOrderId = ordId;
-  // Маленький QR: "DONE|<id>"
-  const data = 'DONE|' + ordId;
-  const qr = qrcode(0,'L');
-  qr.addData(data);
-  qr.make();
-  // Показываем поверх страницы
-  const overlay = document.getElementById('doneQROverlay');
-  overlay.classList.add('active');
+  const data='DONE|'+ordId;
+  const qr=qrcode(0,'L');qr.addData(data);qr.make();
+  document.getElementById('doneQROverlay').classList.add('active');
   setTimeout(()=>{
-    const box = document.getElementById('doneQRBox');
-    box.innerHTML='';
-    const modules = qr.getModuleCount();
-    const cell = Math.max(7, Math.floor(220/modules));
-    const sz = modules*cell;
-    const cv = document.createElement('canvas');
-    cv.width=cv.height=sz;
-    const ctx=cv.getContext('2d');
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,sz,sz);
-    ctx.fillStyle='#000';
-    for(let r=0;r<modules;r++) for(let col=0;col<modules;col++)
-      if(qr.isDark(r,col)) ctx.fillRect(col*cell,r*cell,cell,cell);
+    const box=document.getElementById('doneQRBox');box.innerHTML='';
+    const modules=qr.getModuleCount();const cell=Math.max(7,Math.floor(220/modules));const sz=modules*cell;
+    const cv=document.createElement('canvas');cv.width=cv.height=sz;
+    const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);ctx.fillStyle='#000';
+    for(let r=0;r<modules;r++)for(let col=0;col<modules;col++)if(qr.isDark(r,col))ctx.fillRect(col*cell,r*cell,cell,cell);
     box.appendChild(cv);
   },50);
   renderPage('eorders');
@@ -1688,621 +923,169 @@ function profileHTML(){
   </div>
   <div class="info-list glass-card">
     <div class="info-row"><span class="lbl">Роль</span><span class="val">${ROLE==='buyer'?'🛍️ Покупатель':'👷 Сотрудник'}</span></div>
-    ${ROLE==='buyer'?`
-    <div class="info-row"><span class="lbl">Статус</span><span class="val" style="color:#34C759">VIP ⭐</span></div>
-    <div class="info-row"><span class="lbl">Потрачено</span><span class="val" style="color:#FF9500">${FMT(spent)}</span></div>
-    `:`
-    <div class="info-row"><span class="lbl">Должность</span><span class="val">Старший оператор</span></div>
-    <div class="info-row"><span class="lbl">Статус смены</span><span class="val" style="color:#34C759">● Онлайн</span></div>
-    `}
+    ${ROLE==='buyer'?`<div class="info-row"><span class="lbl">Статус</span><span class="val" style="color:#34C759">VIP ⭐</span></div><div class="info-row"><span class="lbl">Потрачено</span><span class="val" style="color:#FF9500">${FMT(spent)}</span></div>`:`<div class="info-row"><span class="lbl">Должность</span><span class="val">Старший оператор</span></div><div class="info-row"><span class="lbl">Статус смены</span><span class="val" style="color:#34C759">● Онлайн</span></div>`}
   </div>
   <button class="fullbtn glass" onclick="exitRole()">← Сменить роль</button>`;
 }
-
 function editName(){
-  SFX.tap();
-  const p=profiles[ROLE];
-  const display=document.getElementById('profNameDisplay');
-  if(!display)return;
-  const input=document.createElement('input');
-  input.className='prof-name-input';
-  input.value=p.name;
-  input.maxLength=30;
-  display.replaceWith(input);
-  input.focus();
-  input.select();
-  const save=()=>{
-    const val=input.value.trim()||p.name;
-    profiles[ROLE].name=val;
-    SFX.ok();
-    renderPage('profile');
-    previewSwitch(ROLE);
-    toast('✅ Имя сохранено');
-  };
-  input.addEventListener('blur',save);
-  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
+  SFX.tap();const p=profiles[ROLE];const display=document.getElementById('profNameDisplay');if(!display)return;
+  const input=document.createElement('input');input.className='prof-name-input';input.value=p.name;input.maxLength=30;
+  display.replaceWith(input);input.focus();input.select();
+  const save=()=>{const val=input.value.trim()||p.name;profiles[ROLE].name=val;SFX.ok();renderPage('profile');previewSwitch(ROLE);toast('✅ Имя сохранено');};
+  input.addEventListener('blur',save);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
 }
 
-
-/* ═══════════════════════════════════════════════════════════════
-   BLUETOOTH LE СИНХРОНИЗАЦИЯ
-   Схема:
-   - Сотрудник: запускает BLE GATT-сервер (peripheral/advertiser)
-   - Покупатель: сканирует и подключается (central)
-   - Сообщения: JSON через BLE characteristic (notify + write)
-   - При completeOrder → BLE уведомление → заказ исчезает у клиента
-   
-   iOS: нужен браузер Bluefy (App Store, бесплатно)
-   Android: Chrome нативно
-   ВЕБ BLUETOOTH НЕ ПОДДЕРЖИВАЕТ режим peripheral из браузера —
-   поэтому используем схему: оба как central, соединяются
-   через requestDevice + GATT характеристику обмена.
-═══════════════════════════════════════════════════════════════ */
-
-// BLE константы — фиксированные UUID для нашего "ПВЗ сервиса"
-const BLE_SERVICE_UUID      = '12345678-1234-1234-1234-123456789abc';
-const BLE_CHAR_UUID         = '12345678-1234-1234-1234-123456789abd';
-
-let bleDevice      = null;   // подключённое устройство
-let bleServer      = null;   // GATT сервер
-let bleChar        = null;   // характеристика для обмена
-let bleMessages    = [];     // история сообщений
-let bleStatus      = 'off';  // off | searching | connected | serving
-let bleRole        = null;   // 'server' | 'client'
-
-function bleStatusText(){
-  if(bleStatus==='off')        return 'Bluetooth выключен';
-  if(bleStatus==='searching')  return 'Поиск устройств...';
-  if(bleStatus==='connected')  return '🔗 Подключено: ' + (bleDevice?.name||'устройство');
-  if(bleStatus==='serving')    return '📡 Ожидание подключения...';
-  return 'Bluetooth';
-}
-
-function setBleStatus(s){ bleStatus=s; refreshBleUI(); }
-
-function refreshBleUI(){
-  // Обновляем BLE страницу если открыта
-  if(CUR==='ble'){
-    const pg = document.getElementById('pg-ble');
-    if(pg) pg.innerHTML = blePageHTML();
-  }
-  // Обновляем индикатор в navbar если есть
-  const dot = document.getElementById('bleDot');
-  if(dot){
-    dot.className = 'ble-dot ' + bleStatus;
-  }
-}
-
-// ── Отправить сообщение через BLE ──────────────────────────────
-async function bleSend(obj){
-  if(!bleChar){ toast('⚠️ BLE не подключён'); return false; }
-  try {
-    const str  = JSON.stringify(obj);
-    const enc  = new TextEncoder().encode(str);
-    await bleChar.writeValue(enc);
-    bleAddMsg('out', obj);
-    return true;
-  } catch(e){
-    toast('⚠️ BLE ошибка отправки: ' + e.message);
-    return false;
-  }
-}
-
-// ── Входящее BLE сообщение ──────────────────────────────────────
-function bleOnMessage(obj){
-  bleAddMsg('in', obj);
-  // Обрабатываем типы сообщений
-  if(obj.type === 'ORDER_DONE'){
-    // Сотрудник сообщает что заказ выдан → убираем у покупателя
-    markOrderIssued(obj.orderId);
-    SFX.done();
-    speak('Заказ выдан. Спасибо!');
-    toast('✅ Заказ #' + obj.orderId + ' выдан — получено по Bluetooth!');
-    if(ROLE==='buyer') renderPage('orders');
-  }
-  if(obj.type === 'PING'){
-    bleSend({ type:'PONG', from: profiles[ROLE].name, time: Date.now() });
-  }
-  if(obj.type === 'PONG'){
-    toast('🏓 Ответ от ' + (obj.from||'устройства'));
-  }
-  if(obj.type === 'MSG'){
-    const from = obj.from || 'Устройство';
-    toast('💬 ' + from + ': ' + obj.text);
-    SFX.scan();
-  }
-}
-
-function bleAddMsg(dir, obj){
-  const ts = new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  bleMessages.unshift({ dir, obj, ts });
-  if(bleMessages.length > 30) bleMessages.pop();
-  refreshBleUI();
-}
-
-// ── ПОДКЛЮЧИТЬСЯ (Central / Client роль) ───────────────────────
-async function bleConnect(){
-  if(!navigator.bluetooth){
-    toast('⚠️ Web Bluetooth не поддерживается. На iOS — установите Bluefy из App Store');
-    return;
-  }
-  try {
-    setBleStatus('searching');
-    toast('🔍 Поиск BLE устройств...');
-    
-    bleDevice = await navigator.bluetooth.requestDevice({
-      filters: [{ services: [BLE_SERVICE_UUID] }],
-      // Fallback: показываем все BLE устройства если сервис не найден
-      optionalServices: [BLE_SERVICE_UUID]
-    });
-    
-    bleDevice.addEventListener('gattserverdisconnected', ()=>{
-      setBleStatus('off');
-      bleChar = null;
-      bleServer = null;
-      toast('🔵 BLE отключено');
-    });
-    
-    toast('🔗 Подключаюсь...');
-    bleServer = await bleDevice.gatt.connect();
-    
-    const service = await bleServer.getPrimaryService(BLE_SERVICE_UUID);
-    bleChar = await service.getCharacteristic(BLE_CHAR_UUID);
-    
-    // Подписываемся на уведомления
-    await bleChar.startNotifications();
-    bleChar.addEventListener('characteristicvaluechanged', e => {
-      try {
-        const str = new TextDecoder().decode(e.target.value);
-        const obj = JSON.parse(str);
-        bleOnMessage(obj);
-      } catch(err){}
-    });
-    
-    bleRole = 'client';
-    setBleStatus('connected');
-    SFX.ok();
-    toast('✅ BLE подключено к ' + bleDevice.name);
-    
-    // Шлём приветствие
-    await bleSend({ type: 'PING', from: profiles[ROLE].name });
-    
-  } catch(e){
-    setBleStatus('off');
-    if(e.name === 'NotFoundError') toast('ℹ️ Устройство не выбрано');
-    else if(e.name === 'SecurityError') toast('⚠️ Нужно HTTPS для BLE');
-    else toast('⚠️ BLE: ' + e.message);
-  }
-}
-
-// ── ОТКЛЮЧИТЬСЯ ─────────────────────────────────────────────────
-function bleDisconnect(){
-  try { bleDevice?.gatt?.disconnect(); } catch(e){}
-  bleChar = null; bleServer = null; bleDevice = null;
-  setBleStatus('off');
-  toast('🔵 BLE отключено');
-}
-
-// ── Послать уведомление "заказ выдан" через BLE ─────────────────
-async function bleSendOrderDone(orderId){
-  const ok = await bleSend({ type: 'ORDER_DONE', orderId, from: profiles[ROLE].name });
-  if(ok) toast('📡 Уведомление отправлено по BLE!');
-}
-
-// ── Быстрое сообщение ───────────────────────────────────────────
-async function bleSendMsg(){
-  const inp = document.getElementById('bleMsgInput');
-  if(!inp) return;
-  const text = inp.value.trim();
-  if(!text) return;
-  inp.value='';
-  await bleSend({ type:'MSG', text, from: profiles[ROLE].name });
-}
-
-// ── Страница BLE ─────────────────────────────────────────────────
-function blePageHTML(){
-  const isConnected = bleStatus === 'connected';
-  const dot = bleStatus;
-  
-  return \`<div class="glass-card" style="border-radius:24px;padding:22px;margin-bottom:14px">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-      <div style="font-size:36px">🔵</div>
-      <div>
-        <div style="font-size:18px;font-weight:700">Bluetooth синхронизация</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px">\${bleStatusText()}</div>
-      </div>
-      <div class="ble-dot \${dot}" id="bleDot" style="margin-left:auto;width:12px;height:12px"></div>
-    </div>
-
-    \${!isConnected ? \`
-    <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.6">
-      Подключитесь к другому устройству с открытым ПВЗ Pro.<br>
-      <span style="color:rgba(255,149,0,0.8)">⚠️ iOS: нужен браузер <b>Bluefy</b> из App Store</span>
-    </div>
-    <button class="fullbtn blue" style="margin-top:0" onclick="bleConnect()">
-      🔍 Найти и подключиться
-    </button>
-    \` : \`
-    <div style="background:rgba(52,199,89,0.1);border:1px solid rgba(52,199,89,0.25);border-radius:14px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;font-weight:600;color:#34C759;margin-bottom:4px">✅ Подключено</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.45)">\${bleDevice?.name||'Устройство'}</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <input id="bleMsgInput" placeholder="Написать сообщение..." 
-        style="flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
-        border-radius:12px;color:#fff;padding:11px 14px;font-size:14px;font-family:inherit;outline:none"
-        onkeydown="if(event.key==='Enter')bleSendMsg()">
-      <button class="btn btn-blue" onclick="bleSendMsg()" style="padding:11px 16px;font-size:16px">➤</button>
-    </div>
-    <button class="fullbtn glass" style="margin-top:0" onclick="bleDisconnect()">Отключить Bluetooth</button>
-    \`}
-  </div>
-
-  \${bleMessages.length ? \`
-  <div class="sec-label">История сообщений</div>
-  <div class="ble-msg-list">
-    \${bleMessages.map(m=>{
-      const label = m.obj.type==='MSG' ? (m.obj.from||'?')+': '+m.obj.text
-                  : m.obj.type==='ORDER_DONE' ? '📦 Заказ #'+m.obj.orderId+' выдан'
-                  : m.obj.type==='PING' ? '🏓 Ping от '+(m.obj.from||'?')
-                  : m.obj.type==='PONG' ? '🏓 Pong от '+(m.obj.from||'?')
-                  : JSON.stringify(m.obj);
-      return \`<div class="ble-msg \${m.dir==='in'?'in':''}">
-        <span class="ble-ts">\${m.ts}</span>
-        <span>\${m.dir==='in'?'←':'→'} \${label}</span>
-      </div>\`;
-    }).join('')}
-  </div>
-  \` : \`<div class="empty" style="padding:30px 20px">
-    <div class="ei" style="font-size:40px">🔵</div>
-    <p style="font-size:14px">Подключитесь чтобы<br>синхронизировать заказы</p>
-  </div>\`}
-  \`;
-}
-
-/* ===== SPEECH — выбираем лучший русский голос ===== */
-let _bestVoice = null;
+/* ===== SPEECH ===== */
+let _bestVoice=null;
 function getBestVoice(){
-  if(_bestVoice) return _bestVoice;
-  const voices = speechSynthesis.getVoices();
-  // Приоритет: Milena (Яндекс/iOS) > Yuri > любой ru-RU не-compact
-  const priority = ['milena','yuri','katya','irina','aleksandr','anna'];
-  for(const name of priority){
-    const v = voices.find(v=>v.lang.startsWith('ru') && v.name.toLowerCase().includes(name));
-    if(v){ _bestVoice=v; return v; }
-  }
-  // Любой русский
-  const ruVoice = voices.find(v=>v.lang.startsWith('ru'));
-  if(ruVoice){ _bestVoice=ruVoice; return ruVoice; }
+  if(_bestVoice)return _bestVoice;
+  const voices=speechSynthesis.getVoices();
+  const priority=['milena','yuri','katya','irina','aleksandr','anna'];
+  for(const name of priority){const v=voices.find(v=>v.lang.startsWith('ru')&&v.name.toLowerCase().includes(name));if(v){_bestVoice=v;return v;}}
+  const ruVoice=voices.find(v=>v.lang.startsWith('ru'));
+  if(ruVoice){_bestVoice=ruVoice;return ruVoice;}
   return null;
 }
 function speak(txt){
-  if(!window.speechSynthesis) return;
-  // iOS: голоса загружаются асинхронно
-  const doSpeak = ()=>{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(txt);
-    u.lang = 'ru-RU';
-    u.rate = 0.88;   // чуть медленнее — разборчивее
-    u.pitch = 1.05;  // немного живее
-    u.volume = 1;
-    const voice = getBestVoice();
-    if(voice) u.voice = voice;
-    speechSynthesis.speak(u);
+  if(!window.speechSynthesis)return;
+  const doSpeak=()=>{
+    try{
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(txt);
+      u.lang='ru-RU';u.rate=0.88;u.pitch=1.05;u.volume=1;
+      const voice=getBestVoice();if(voice)u.voice=voice;
+      speechSynthesis.speak(u);
+    }catch(e){console.warn('speak error:',e);}
   };
-  if(speechSynthesis.getVoices().length > 0){
-    doSpeak();
-  } else {
-    // Ждём загрузки голосов (iOS Safari)
-    speechSynthesis.onvoiceschanged = ()=>{ _bestVoice=null; doSpeak(); };
-    // Fallback через 300мс
-    setTimeout(doSpeak, 300);
-  }
-}
-/* ═══════════════════════════════════════════════════════
-   WebRTC P2P СИНХРОНИЗАЦИЯ
-   Схема:
-   1. Сотрудник: "Создать сессию" → генерирует SDP-offer → QR
-   2. Покупатель: сканирует QR → отправляет SDP-answer → QR
-   3. Сотрудник: сканирует answer → канал открыт
-   4. Дальше всё автоматически через DataChannel
-   Работает в одной Wi-Fi сети без сервера (ICE host candidates)
-═══════════════════════════════════════════════════════ */
-
-let _rtcPeer = null;       // RTCPeerConnection
-let _rtcChannel = null;    // RTCDataChannel
-let _rtcRole = null;       // 'host' (сотрудник) | 'guest' (покупатель)
-let _rtcConnected = false;
-
-const RTC_CFG = { iceServers: [] }; // только локальная сеть — без STUN
-
-// ── Индикатор соединения в navbar ─────────────────────
-function updateRTCBadge(){
-  const el = document.getElementById('rtcBadge');
-  if(!el) return;
-  if(_rtcConnected){
-    el.textContent = '🔗 Wi-Fi';
-    el.style.background = 'rgba(52,199,89,0.2)';
-    el.style.borderColor = 'rgba(52,199,89,0.4)';
-    el.style.color = '#34C759';
-  } else {
-    el.textContent = '○ Локально';
-    el.style.background = 'rgba(255,255,255,0.06)';
-    el.style.borderColor = 'rgba(255,255,255,0.1)';
-    el.style.color = 'rgba(255,255,255,0.3)';
-  }
+  if(speechSynthesis.getVoices().length>0){doSpeak();}
+  else{speechSynthesis.onvoiceschanged=()=>{_bestVoice=null;speechSynthesis.onvoiceschanged=null;doSpeak();};setTimeout(doSpeak,400);}
 }
 
-// ── Отправка сообщения по каналу ──────────────────────
-function rtcSend(type, payload){
-  if(!_rtcChannel || _rtcChannel.readyState !== 'open') return false;
-  try {
-    _rtcChannel.send(JSON.stringify({ type, payload }));
-    return true;
-  } catch(e){ return false; }
+/* ===== BLE ===== */
+const BLE_SERVICE_UUID='12345678-1234-1234-1234-123456789abc';
+const BLE_CHAR_UUID='12345678-1234-1234-1234-123456789abd';
+let bleDevice=null,bleServer=null,bleChar=null,bleMessages=[],bleStatus='off',bleRole=null;
+function bleStatusText(){if(bleStatus==='off')return 'Bluetooth выключен';if(bleStatus==='searching')return 'Поиск устройств...';if(bleStatus==='connected')return '🔗 Подключено: '+(bleDevice?.name||'устройство');return 'Bluetooth';}
+function setBleStatus(s){bleStatus=s;refreshBleUI();}
+function refreshBleUI(){if(CUR==='ble'){const pg=document.getElementById('pg-ble');if(pg)pg.innerHTML=blePageHTML();}const dot=document.getElementById('bleDot');if(dot)dot.className='ble-dot '+bleStatus;}
+async function bleSend(obj){
+  if(!bleChar){toast('⚠️ BLE не подключён');return false;}
+  try{const str=JSON.stringify(obj);const enc=new TextEncoder().encode(str);await bleChar.writeValue(enc);bleAddMsg('out',obj);return true;}
+  catch(e){toast('⚠️ BLE: '+e.message);return false;}
+}
+function bleOnMessage(obj){
+  bleAddMsg('in',obj);
+  if(obj.type==='ORDER_DONE'){markOrderIssued(obj.orderId);SFX.done();speak('Заказ выдан. Спасибо!');toast('✅ Заказ #'+obj.orderId+' получен по Bluetooth!');if(ROLE==='buyer')renderPage('orders');}
+  if(obj.type==='PING')bleSend({type:'PONG',from:profiles[ROLE].name,time:Date.now()});
+  if(obj.type==='PONG')toast('🏓 Ответ от '+(obj.from||'устройства'));
+  if(obj.type==='MSG'){toast('💬 '+(obj.from||'?')+': '+obj.text);SFX.scan();}
+}
+function bleAddMsg(dir,obj){const ts=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit',second:'2-digit'});bleMessages.unshift({dir,obj,ts});if(bleMessages.length>30)bleMessages.pop();refreshBleUI();}
+async function bleConnect(){
+  if(!navigator.bluetooth){toast('⚠️ Web Bluetooth не поддерживается. iOS: установите Bluefy из App Store');return;}
+  try{
+    setBleStatus('searching');toast('🔍 Поиск BLE устройств...');
+    bleDevice=await navigator.bluetooth.requestDevice({filters:[{services:[BLE_SERVICE_UUID]}],optionalServices:[BLE_SERVICE_UUID]});
+    bleDevice.addEventListener('gattserverdisconnected',()=>{setBleStatus('off');bleChar=null;bleServer=null;toast('🔵 BLE отключено');});
+    toast('🔗 Подключаюсь...');bleServer=await bleDevice.gatt.connect();
+    const service=await bleServer.getPrimaryService(BLE_SERVICE_UUID);bleChar=await service.getCharacteristic(BLE_CHAR_UUID);
+    await bleChar.startNotifications();bleChar.addEventListener('characteristicvaluechanged',e=>{try{bleOnMessage(JSON.parse(new TextDecoder().decode(e.target.value)));}catch(err){}});
+    bleRole='client';setBleStatus('connected');SFX.ok();toast('✅ BLE подключено к '+bleDevice.name);
+    await bleSend({type:'PING',from:profiles[ROLE].name});
+  }catch(e){setBleStatus('off');if(e.name==='NotFoundError')toast('ℹ️ Устройство не выбрано');else if(e.name==='SecurityError')toast('⚠️ Нужен HTTPS для BLE');else toast('⚠️ BLE: '+e.message);}
+}
+function bleDisconnect(){try{bleDevice?.gatt?.disconnect();}catch(e){}bleChar=null;bleServer=null;bleDevice=null;setBleStatus('off');toast('🔵 BLE отключено');}
+async function bleSendOrderDone(orderId){const ok=await bleSend({type:'ORDER_DONE',orderId,from:profiles[ROLE].name});if(ok)toast('📡 BLE уведомление отправлено!');}
+async function bleSendMsg(){const inp=document.getElementById('bleMsgInput');if(!inp)return;const text=inp.value.trim();if(!text)return;inp.value='';await bleSend({type:'MSG',text,from:profiles[ROLE].name});}
+
+function blePageHTML(){
+  const isConnected=bleStatus==='connected';const dot=bleStatus;
+  return `<div class="glass-card" style="border-radius:24px;padding:22px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+      <div style="font-size:36px">🔵</div>
+      <div><div style="font-size:18px;font-weight:700">Bluetooth синхронизация</div><div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:2px">${bleStatusText()}</div></div>
+      <div class="ble-dot ${dot}" id="bleDot" style="margin-left:auto;width:12px;height:12px"></div>
+    </div>
+    ${!isConnected?`
+    <div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:16px;line-height:1.6">Подключитесь к другому устройству с открытым ПВЗ Pro.<br><span style="color:rgba(255,149,0,.8)">⚠️ iOS: нужен браузер <b>Bluefy</b></span></div>
+    <button class="fullbtn blue" style="margin-top:0" onclick="bleConnect()">🔍 Найти и подключиться</button>
+    `:`
+    <div style="background:rgba(52,199,89,.1);border:1px solid rgba(52,199,89,.25);border-radius:14px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:#34C759;margin-bottom:4px">✅ Подключено</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.45)">${bleDevice?.name||'Устройство'}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input id="bleMsgInput" placeholder="Написать сообщение..." style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;color:#fff;padding:11px 14px;font-size:14px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')bleSendMsg()">
+      <button class="btn btn-blue" onclick="bleSendMsg()" style="padding:11px 16px;font-size:16px">➤</button>
+    </div>
+    <button class="fullbtn glass" style="margin-top:0" onclick="bleDisconnect()">Отключить Bluetooth</button>
+    `}
+  </div>
+  ${bleMessages.length?`<div class="sec-label">История сообщений</div><div class="ble-msg-list">${bleMessages.map(m=>{const label=m.obj.type==='MSG'?(m.obj.from||'?')+': '+m.obj.text:m.obj.type==='ORDER_DONE'?'📦 Заказ #'+m.obj.orderId+' выдан':m.obj.type==='PING'?'🏓 Ping от '+(m.obj.from||'?'):m.obj.type==='PONG'?'🏓 Pong от '+(m.obj.from||'?'):JSON.stringify(m.obj);return`<div class="ble-msg ${m.dir==='in'?'in':''}"><span class="ble-ts">${m.ts}</span><span>${m.dir==='in'?'←':'→'} ${label}</span></div>`;}).join('')}</div>`:`<div class="empty" style="padding:30px 20px"><div class="ei" style="font-size:40px">🔵</div><p style="font-size:14px">Подключитесь чтобы<br>синхронизировать заказы</p></div>`}`;
 }
 
-// ── Обработка входящих сообщений ──────────────────────
-function rtcOnMessage(raw){
-  let msg;
-  try { msg = JSON.parse(raw); } catch(e){ return; }
-
-  if(msg.type === 'ORDER_ISSUED'){
-    // Покупатель получает уведомление что заказ выдан
-    const id = msg.payload.orderId;
-    markOrderIssued(id);
-    SFX.done();
-    speak('Ваш заказ выдан. Спасибо!');
-    toast('✅ Заказ #' + id + ' выдан — исчезнет из списка');
-    if(CUR === 'orders') renderPage('orders');
-  }
-
-  if(msg.type === 'PING'){
-    rtcSend('PONG', { ts: Date.now() });
-  }
-}
-
-// ── Настройка DataChannel ──────────────────────────────
-function setupChannel(channel){
-  _rtcChannel = channel;
-  channel.onopen = () => {
-    _rtcConnected = true;
-    updateRTCBadge();
-    toast('🔗 Wi-Fi синхронизация активна!');
-    // Пингуем каждые 10 сек чтобы держать соединение
-    setInterval(()=> rtcSend('PING',{}), 10000);
-  };
-  channel.onclose = () => {
-    _rtcConnected = false;
-    updateRTCBadge();
-    toast('⚠️ Соединение разорвано');
-  };
-  channel.onmessage = (e) => rtcOnMessage(e.data);
-}
-
-// ══════════════════════════════════════════════════════
-// HOST (Сотрудник): создаёт offer
-// ══════════════════════════════════════════════════════
+/* ===== WebRTC ===== */
+let _rtcPeer=null,_rtcChannel=null,_rtcRole=null,_rtcConnected=false;
+const RTC_CFG={iceServers:[]};
+function updateRTCBadge(){const el=document.getElementById('rtcBadge');if(!el)return;if(_rtcConnected){el.textContent='🔗 Wi-Fi';el.style.background='rgba(52,199,89,.2)';el.style.borderColor='rgba(52,199,89,.4)';el.style.color='#34C759';}else{el.textContent='○ Локально';el.style.background='rgba(255,255,255,.06)';el.style.borderColor='rgba(255,255,255,.1)';el.style.color='rgba(255,255,255,.3)';}}
+function rtcSend(type,payload){if(!_rtcChannel||_rtcChannel.readyState!=='open')return false;try{_rtcChannel.send(JSON.stringify({type,payload}));return true;}catch(e){return false;}}
+function rtcOnMessage(raw){let msg;try{msg=JSON.parse(raw);}catch(e){return;}if(msg.type==='ORDER_ISSUED'){const id=msg.payload.orderId;markOrderIssued(id);SFX.done();speak('Ваш заказ выдан. Спасибо!');toast('✅ Заказ #'+id+' выдан!');if(CUR==='orders')renderPage('orders');}if(msg.type==='PING')rtcSend('PONG',{ts:Date.now()});}
+function setupChannel(channel){_rtcChannel=channel;channel.onopen=()=>{_rtcConnected=true;updateRTCBadge();toast('🔗 Wi-Fi синхронизация активна!');setInterval(()=>rtcSend('PING',{}),10000);};channel.onclose=()=>{_rtcConnected=false;updateRTCBadge();toast('⚠️ Wi-Fi соединение разорвано');};channel.onmessage=(e)=>rtcOnMessage(e.data);}
 async function rtcCreateOffer(){
-  try {
-    _rtcPeer = new RTCPeerConnection(RTC_CFG);
-    _rtcRole = 'host';
-
-    const channel = _rtcPeer.createDataChannel('pvz', { ordered: true });
-    setupChannel(channel);
-
-    const offer = await _rtcPeer.createOffer();
-    await _rtcPeer.setLocalDescription(offer);
-
-    // Ждём ICE candidates (локальная сеть — быстро)
-    await new Promise(resolve => {
-      if(_rtcPeer.iceGatheringState === 'complete') return resolve();
-      _rtcPeer.onicegatheringstatechange = () => {
-        if(_rtcPeer.iceGatheringState === 'complete') resolve();
-      };
-      // Таймаут 3 сек — локальная сеть собирает быстро
-      setTimeout(resolve, 3000);
-    });
-
-    const sdp = JSON.stringify(_rtcPeer.localDescription);
-    const compressed = btoa(sdp);
-    showRTCOfferQR(compressed);
-
-  } catch(e){
-    toast('⚠️ Ошибка создания сессии: ' + e.message);
-  }
+  try{
+    _rtcPeer=new RTCPeerConnection(RTC_CFG);_rtcRole='host';
+    const channel=_rtcPeer.createDataChannel('pvz',{ordered:true});setupChannel(channel);
+    const offer=await _rtcPeer.createOffer();await _rtcPeer.setLocalDescription(offer);
+    await new Promise(resolve=>{if(_rtcPeer.iceGatheringState==='complete')return resolve();_rtcPeer.onicegatheringstatechange=()=>{if(_rtcPeer.iceGatheringState==='complete')resolve();};setTimeout(resolve,3000);});
+    showRTCOfferQR(btoa(JSON.stringify(_rtcPeer.localDescription)));
+  }catch(e){toast('⚠️ Ошибка сессии: '+e.message);}
 }
-
-// HOST: принимает answer от гостя
-async function rtcAcceptAnswer(b64){
-  try {
-    const sdp = JSON.parse(atob(b64));
-    await _rtcPeer.setRemoteDescription(new RTCSessionDescription(sdp));
-    toast('✅ Ответ принят, соединяемся...');
-  } catch(e){
-    SFX.err();
-    toast('⚠️ Неверный QR ответа: ' + e.message);
-  }
-}
-
-// ══════════════════════════════════════════════════════
-// GUEST (Покупатель): получает offer, создаёт answer
-// ══════════════════════════════════════════════════════
+async function rtcAcceptAnswer(b64){try{await _rtcPeer.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(b64))));toast('✅ Ответ принят, соединяемся...');}catch(e){SFX.err();toast('⚠️ Неверный QR ответа: '+e.message);}}
 async function rtcCreateAnswer(b64){
-  try {
-    const sdp = JSON.parse(atob(b64));
-    _rtcPeer = new RTCPeerConnection(RTC_CFG);
-    _rtcRole = 'guest';
-
-    _rtcPeer.ondatachannel = (e) => setupChannel(e.channel);
-
-    await _rtcPeer.setRemoteDescription(new RTCSessionDescription(sdp));
-    const answer = await _rtcPeer.createAnswer();
-    await _rtcPeer.setLocalDescription(answer);
-
-    await new Promise(resolve => {
-      if(_rtcPeer.iceGatheringState === 'complete') return resolve();
-      _rtcPeer.onicegatheringstatechange = () => {
-        if(_rtcPeer.iceGatheringState === 'complete') resolve();
-      };
-      setTimeout(resolve, 3000);
-    });
-
-    const answerB64 = btoa(JSON.stringify(_rtcPeer.localDescription));
-    showRTCAnswerQR(answerB64);
-
-  } catch(e){
-    SFX.err();
-    toast('⚠️ Ошибка подключения: ' + e.message);
-  }
+  try{
+    _rtcPeer=new RTCPeerConnection(RTC_CFG);_rtcRole='guest';
+    _rtcPeer.ondatachannel=(e)=>setupChannel(e.channel);
+    await _rtcPeer.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(b64))));
+    const answer=await _rtcPeer.createAnswer();await _rtcPeer.setLocalDescription(answer);
+    await new Promise(resolve=>{if(_rtcPeer.iceGatheringState==='complete')return resolve();_rtcPeer.onicegatheringstatechange=()=>{if(_rtcPeer.iceGatheringState==='complete')resolve();};setTimeout(resolve,3000);});
+    showRTCAnswerQR(btoa(JSON.stringify(_rtcPeer.localDescription)));
+  }catch(e){SFX.err();toast('⚠️ Ошибка подключения: '+e.message);}
 }
 
-// ══════════════════════════════════════════════════════
-// UI: показываем QR с offer/answer
-// ══════════════════════════════════════════════════════
 function showRTCOfferQR(b64){
-  // SDP слишком большой для одного QR — разбиваем на чанки
-  const CHUNK = 800;
-  const chunks = [];
-  for(let i=0; i<b64.length; i+=CHUNK) chunks.push(b64.slice(i,i+CHUNK));
-
-  const ov = document.getElementById('rtcOfferOverlay');
-  const box = document.getElementById('rtcOfferBox');
-  const status = document.getElementById('rtcOfferStatus');
-
-  ov.classList.add('active');
-  box.innerHTML = '';
-
-  if(chunks.length === 1){
-    // Умещается в один QR
-    renderRTCQR(box, 'RTC:OFFER:0:1:' + chunks[0]);
-    status.textContent = 'Покупатель сканирует этот QR';
-  } else {
-    // Несколько QR — показываем по одному с кнопками
-    let cur = 0;
-    const show = (i) => {
-      box.innerHTML = '';
-      renderRTCQR(box, `RTC:OFFER:${i}:${chunks.length}:${chunks[i]}`);
-      status.textContent = `QR ${i+1} из ${chunks.length} — покупатель сканирует все по порядку`;
-      document.getElementById('rtcChunkPrev').style.display = i>0 ? 'block':'none';
-      document.getElementById('rtcChunkNext').textContent = i<chunks.length-1 ? 'Следующий →' : 'Готово';
-      document.getElementById('rtcChunkNext').onclick = i<chunks.length-1
-        ? ()=>show(i+1)
-        : ()=>{ /* ждём answer */ status.textContent = 'Теперь сканируйте QR-ответ покупателя'; startRTCAnswerScan(); };
-    };
-    document.getElementById('rtcChunkPrev').onclick = ()=>show(--cur);
-    show(0);
-  }
+  const CHUNK=800;const chunks=[];for(let i=0;i<b64.length;i+=CHUNK)chunks.push(b64.slice(i,i+CHUNK));
+  const ov=document.getElementById('rtcOfferOverlay');const box=document.getElementById('rtcOfferBox');const status=document.getElementById('rtcOfferStatus');
+  ov.classList.add('active');box.innerHTML='';
+  if(chunks.length===1){renderRTCQR(box,'RTC:OFFER:0:1:'+chunks[0]);status.textContent='Покупатель сканирует этот QR';}
+  else{let cur=0;const show=(i)=>{box.innerHTML='';renderRTCQR(box,`RTC:OFFER:${i}:${chunks.length}:${chunks[i]}`);status.textContent=`QR ${i+1} из ${chunks.length}`;document.getElementById('rtcChunkPrev').style.display=i>0?'block':'none';document.getElementById('rtcChunkNext').textContent=i<chunks.length-1?'Следующий →':'Готово';document.getElementById('rtcChunkNext').onclick=i<chunks.length-1?()=>show(i+1):()=>{status.textContent='Теперь сканируйте QR-ответ покупателя';startRTCAnswerScan();};};document.getElementById('rtcChunkPrev').onclick=()=>show(--cur);show(0);}
 }
-
 function showRTCAnswerQR(b64){
-  const ov = document.getElementById('rtcAnswerOverlay');
-  const box = document.getElementById('rtcAnswerBox');
-  ov.classList.add('active');
-  box.innerHTML = '';
-  const CHUNK = 800;
-  const chunks = [];
-  for(let i=0; i<b64.length; i+=CHUNK) chunks.push(b64.slice(i,i+CHUNK));
-
-  if(chunks.length === 1){
-    renderRTCQR(box, 'RTC:ANSWER:0:1:' + chunks[0]);
-    document.getElementById('rtcAnswerStatus').textContent = 'Сотрудник сканирует этот QR';
-  } else {
-    let cur = 0;
-    const show = (i) => {
-      box.innerHTML='';
-      renderRTCQR(box, `RTC:ANSWER:${i}:${chunks.length}:${chunks[i]}`);
-      document.getElementById('rtcAnswerStatus').textContent = `QR ${i+1} из ${chunks.length}`;
-      document.getElementById('rtcAnswerNext').textContent = i<chunks.length-1 ? 'Следующий →':'Готово';
-      document.getElementById('rtcAnswerNext').onclick = i<chunks.length-1 ? ()=>show(i+1) : ()=>ov.classList.remove('active');
-    };
-    show(0);
-  }
+  const ov=document.getElementById('rtcAnswerOverlay');const box=document.getElementById('rtcAnswerBox');ov.classList.add('active');box.innerHTML='';
+  const CHUNK=800;const chunks=[];for(let i=0;i<b64.length;i+=CHUNK)chunks.push(b64.slice(i,i+CHUNK));
+  if(chunks.length===1){renderRTCQR(box,'RTC:ANSWER:0:1:'+chunks[0]);document.getElementById('rtcAnswerStatus').textContent='Сотрудник сканирует этот QR';}
+  else{let cur=0;const show=(i)=>{box.innerHTML='';renderRTCQR(box,`RTC:ANSWER:${i}:${chunks.length}:${chunks[i]}`);document.getElementById('rtcAnswerStatus').textContent=`QR ${i+1} из ${chunks.length}`;document.getElementById('rtcAnswerNext').textContent=i<chunks.length-1?'Следующий →':'Готово';document.getElementById('rtcAnswerNext').onclick=i<chunks.length-1?()=>show(i+1):()=>ov.classList.remove('active');};show(0);}
+}
+function renderRTCQR(box,data){
+  try{const qr=qrcode(0,'L');qr.addData(data);qr.make();const modules=qr.getModuleCount();const cell=Math.max(4,Math.floor(260/modules));const sz=modules*cell;const cv=document.createElement('canvas');cv.width=cv.height=sz;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);ctx.fillStyle='#000';for(let r=0;r<modules;r++)for(let col=0;col<modules;col++)if(qr.isDark(r,col))ctx.fillRect(col*cell,r*cell,cell,cell);box.appendChild(cv);}
+  catch(e){box.textContent='⚠️ QR слишком большой';}
 }
 
-function renderRTCQR(box, data){
-  try {
-    const qr = qrcode(0,'L');
-    qr.addData(data);
-    qr.make();
-    const modules = qr.getModuleCount();
-    const cell = Math.max(4, Math.floor(260/modules));
-    const sz = modules*cell;
-    const cv = document.createElement('canvas');
-    cv.width=cv.height=sz;
-    const ctx=cv.getContext('2d');
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,sz,sz);
-    ctx.fillStyle='#000';
-    for(let r=0;r<modules;r++) for(let col=0;col<modules;col++)
-      if(qr.isDark(r,col)) ctx.fillRect(col*cell,r*cell,cell,cell);
-    box.appendChild(cv);
-  } catch(e){
-    box.textContent = '⚠️ QR слишком большой. Используйте QR-метод выдачи.';
-  }
-}
-
-// ── Сбор чанков offer/answer при сканировании ─────────
-let _rtcChunks = {};
+let _rtcChunks={};
 function rtcHandleScanChunk(data){
-  // Формат: RTC:OFFER:idx:total:payload  или  RTC:ANSWER:...
-  const parts = data.split(':');
-  if(parts.length < 5 || parts[0] !== 'RTC') return false;
-  const type  = parts[1]; // OFFER | ANSWER
-  const idx   = parseInt(parts[2]);
-  const total = parseInt(parts[3]);
-  const chunk = parts.slice(4).join(':');
-
-  const key = type;
-  if(!_rtcChunks[key]) _rtcChunks[key] = { total, parts:{} };
-  _rtcChunks[key].parts[idx] = chunk;
-
-  const collected = Object.keys(_rtcChunks[key].parts).length;
-  if(collected < total){
-    setStatus(`📡 Получено ${collected}/${total} частей, наведите на следующий QR...`);
-    return true; // распознано, но ещё не полное
-  }
-
-  // Все части собраны
-  const full = Array.from({length:total},(_,i)=>_rtcChunks[key].parts[i]).join('');
-  delete _rtcChunks[key];
-
-  if(type === 'OFFER'){
-    // Покупатель получил offer → создаём answer
-    stopScan();
-    toast('📡 Offer получен, создаём ответ...');
-    rtcCreateAnswer(full);
-  } else if(type === 'ANSWER'){
-    // Сотрудник получил answer
-    stopScan();
-    rtcAcceptAnswer(full);
-  }
+  const parts=data.split(':');if(parts.length<5||parts[0]!=='RTC')return false;
+  const type=parts[1],idx=parseInt(parts[2]),total=parseInt(parts[3]),chunk=parts.slice(4).join(':');
+  const key=type;if(!_rtcChunks[key])_rtcChunks[key]={total,parts:{}};
+  _rtcChunks[key].parts[idx]=chunk;
+  const collected=Object.keys(_rtcChunks[key].parts).length;
+  if(collected<total){setStatus(`📡 Получено ${collected}/${total} частей...`);return true;}
+  const full=Array.from({length:total},(_,i)=>_rtcChunks[key].parts[i]).join('');delete _rtcChunks[key];
+  if(type==='OFFER'){stopScan();toast('📡 Offer получен, создаём ответ...');rtcCreateAnswer(full);}
+  else if(type==='ANSWER'){stopScan();rtcAcceptAnswer(full);}
   return true;
 }
-
-// ── Запуск сканера для answer (у сотрудника) ──────────
-function startRTCAnswerScan(){
-  document.getElementById('rtcOfferOverlay').classList.remove('active');
-  _rtcChunks = {};
-  startScan('rtcAnswer');
-}
-
-// ── Кнопка для покупателя: подключиться ───────────────
-function rtcGuestConnect(){
-  _rtcChunks = {};
-  startScan('rtcOffer');
-}
-
-function rtcTogglePanel(){
-  if(_rtcConnected){
-    toast('🔗 Wi-Fi активен · ' + (_rtcRole==='host'?'Сотрудник (хост)':'Покупатель (гость)'));
-  } else if(ROLE === 'emp'){
-    rtcCreateOffer();
-  } else {
-    rtcGuestConnect();
-  }
-}
-
+function startRTCAnswerScan(){document.getElementById('rtcOfferOverlay').classList.remove('active');_rtcChunks={};startScan();}
+function rtcGuestConnect(){_rtcChunks={};startScan();}
+function rtcTogglePanel(){if(_rtcConnected){toast('🔗 Wi-Fi активен · '+(_rtcRole==='host'?'Сотрудник':'Покупатель'));}else if(ROLE==='emp'){rtcCreateOffer();}else{rtcGuestConnect();}}
 </script>
-
 </body>
 </html>
