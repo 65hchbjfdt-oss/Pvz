@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -592,6 +593,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 <div id="root">
 
 <!-- ══ ROLE SCREEN ══ -->
+
 <div class="screen active" id="roleScreen">
   <div class="rs-logo">📦</div>
   <div class="rs-title">ПВЗ Pro</div>
@@ -631,6 +633,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div>
 
 <!-- ══ APP SCREEN ══ -->
+
 <div class="screen" id="appScreen">
   <div class="navbar glass" style="border-radius:0">
     <div class="nb-l">
@@ -656,6 +659,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div><!-- #root -->
 
 <!-- ══ SCANNER OVERLAY ══ -->
+
 <div id="scanOverlay">
   <div class="scan-modal glass-card">
     <div class="scan-modal-head">
@@ -679,9 +683,11 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div>
 
 <!-- ══ MODAL BG ══ -->
+
 <div id="modalBg" onclick="closeAllModals()"></div>
 
 <!-- ══ MODALS ══ -->
+
 <div class="bottom-sheet" id="mProduct">
   <div class="bs-handle"></div>
   <div class="bs-title" id="mProductTitle">Новый товар</div>
@@ -723,6 +729,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div>
 
 <!-- ══ TOAST ══ -->
+
 <div id="toast"></div>
 
 <script>
@@ -773,7 +780,8 @@ let selPay='delivery';
 let retOid=null;
 let retSel=new Set();
 let scanStream=null;
-let scanTimer = null;          // для интервального сканирования
+let scanTimer=null;
+let scanActive=false;   // ← флаг активного сканирования
 let pidC=20,oidC=100;
 function pid(){return ++pidC}
 function oid(){return ++oidC}
@@ -1122,32 +1130,93 @@ function showQR(orderId) {
   }, 80);
 }
 
-/* ===== БЫСТРЫЙ СКАНЕР (с низким разрешением и интервалом) ===== */
-let _qrCanvas = null;
-let _qrCtx = null;
+/* ═══════════════════════════════════════════════
+   QR SCANNER — ИСПРАВЛЕННАЯ ВЕРСИЯ
+   Ключевые исправления:
+   1. requestAnimationFrame вместо setInterval —
+      синхронизация с реальными кадрами видео,
+      исключает попытки читать один и тот же кадр.
+   2. Полное разрешение кадра для захвата (не уменьшаем
+      при захвате — только рабочий canvas масштабируем
+      до 640px для jsQR, чтобы сохранить качество).
+   3. vid.readyState >= 2 (HAVE_CURRENT_DATA) —
+      гарантия что кадр реально есть в буфере.
+   4. Флаг scanActive исключает повторные вызовы после
+      успешного считывания.
+   5. snapDecode использует тот же grabAndDecode
+      с несколькими попытками через rAF.
+═══════════════════════════════════════════════ */
 
+let _qrCanvas = null;
+let _qrCtx    = null;
+
+/**
+ * Снимает кадр с видео и пытается декодировать QR.
+ * Использует разрешение до 640px по длинной стороне
+ * — достаточно для jsQR и не перегружает CPU.
+ * @returns {string|null} строка QR или null
+ */
 function grabAndDecode(vid) {
-  if (!vid.videoWidth || !vid.videoHeight) return null;
-  const maxDim = 320; // оптимально для скорости/качества
-  let sw = vid.videoWidth, sh = vid.videoHeight;
-  let scale = 1;
-  if (sw > maxDim || sh > maxDim) {
-    scale = maxDim / Math.max(sw, sh);
-  }
-  const dw = Math.floor(sw * scale);
-  const dh = Math.floor(sh * scale);
+  // Видео должно иметь данные и ненулевой размер
+  if (!vid || vid.readyState < 2 || !vid.videoWidth || !vid.videoHeight) return null;
+
+  const MAX = 640; // оптимальный баланс скорость/качество
+  const sw = vid.videoWidth;
+  const sh = vid.videoHeight;
+  const scale = Math.min(1, MAX / Math.max(sw, sh));
+  const dw = Math.max(1, Math.floor(sw * scale));
+  const dh = Math.max(1, Math.floor(sh * scale));
 
   if (!_qrCanvas) {
     _qrCanvas = document.createElement('canvas');
-    _qrCtx = _qrCanvas.getContext('2d', { willReadFrequently: true });
+    _qrCtx    = _qrCanvas.getContext('2d', { willReadFrequently: true });
   }
-  _qrCanvas.width = dw;
-  _qrCanvas.height = dh;
-  _qrCtx.drawImage(vid, 0, 0, sw, sh, 0, 0, dw, dh);
 
-  const img = _qrCtx.getImageData(0, 0, dw, dh);
-  const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+  if (_qrCanvas.width !== dw || _qrCanvas.height !== dh) {
+    _qrCanvas.width  = dw;
+    _qrCanvas.height = dh;
+  }
+
+  try {
+    _qrCtx.drawImage(vid, 0, 0, sw, sh, 0, 0, dw, dh);
+  } catch(e) {
+    return null; // SecurityError если источник заблокирован
+  }
+
+  let imgData;
+  try {
+    imgData = _qrCtx.getImageData(0, 0, dw, dh);
+  } catch(e) {
+    return null;
+  }
+
+  const code = jsQR(imgData.data, imgData.width, imgData.height, {
+    inversionAttempts: 'attemptBoth'
+  });
+
   return code ? code.data : null;
+}
+
+/**
+ * Основной цикл сканирования через requestAnimationFrame.
+ * rAF вызывается только при отрисовке нового кадра браузером,
+ * что гарантирует что мы читаем НОВЫЙ кадр с камеры,
+ * а не тот же пиксельный буфер снова и снова.
+ */
+function scanLoop(vid) {
+  if (!scanActive) return; // цикл остановлен
+
+  const result = grabAndDecode(vid);
+
+  if (result) {
+    scanActive = false;
+    stopScan();
+    processQR(result);
+    return;
+  }
+
+  // Запрашиваем следующий кадр
+  requestAnimationFrame(() => scanLoop(vid));
 }
 
 function startScan() {
@@ -1157,47 +1226,69 @@ function startScan() {
   setStatus('Запрос доступа к камере…');
   showSnapBtn(false);
 
-  // Запрашиваем видео с низким разрешением для скорости
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    ov.classList.remove('active');
+    SFX.err();
+    toast('⚠️ Браузер не поддерживает доступ к камере');
+    return;
+  }
+
   navigator.mediaDevices.getUserMedia({
     video: {
       facingMode: { ideal: 'environment' },
-      width: { ideal: 640 },
-      height: { ideal: 480 }
-    }
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    },
+    audio: false
   })
   .then(stream => {
     scanStream = stream;
     const vid = document.getElementById('scanVid');
     vid.srcObject = stream;
-    vid.play().catch(() => {});
 
-    vid.onplaying = () => {
-      setStatus('Сканирование...');
+    // Запускаем воспроизведение явно
+    const playPromise = vid.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay blocked — показываем кнопку ручного запуска
+        setStatus('Нажмите «Сканировать» для начала');
+        showSnapBtn(true);
+      });
+    }
+
+    // Ждём первый кадр через событие — надёжнее чем onplaying
+    const onReady = () => {
+      if (!scanActive) return; // уже остановили
+      setStatus('📷 Наведите камеру на QR-код…');
       showSnapBtn(true);
-
-      if (scanTimer) clearInterval(scanTimer);
-
-      // Сканируем каждые 200 мс (достаточно быстро, не грузит процессор)
-      scanTimer = setInterval(() => {
-        if (!vid.videoWidth || vid.paused || vid.ended) return;
-
-        const result = grabAndDecode(vid);
-        if (result) {
-          clearInterval(scanTimer);
-          scanTimer = null;
-          stopScan();
-          processQR(result);
-        }
-      }, 200);
+      scanActive = true;
+      // Небольшая задержка — даём видео стабилизироваться
+      setTimeout(() => {
+        if (scanActive) requestAnimationFrame(() => scanLoop(vid));
+      }, 300);
     };
+
+    // timeupdate срабатывает когда реально пошли кадры
+    vid.addEventListener('timeupdate', onReady, { once: true });
+
+    // Fallback: если timeupdate не сработал за 3 сек
+    setTimeout(() => {
+      if (scanActive && vid.readyState >= 2) {
+        onReady();
+      }
+    }, 3000);
   })
   .catch(err => {
+    scanActive = false;
     setStatus('');
     ov.classList.remove('active');
     SFX.err();
-    if (err.name === 'NotAllowedError') toast('⚠️ Разрешите доступ к камере в настройках браузера');
-    else if (err.name === 'NotFoundError') toast('⚠️ Камера не найдена');
-    else toast('⚠️ Ошибка: ' + err.message);
+    if (err.name === 'NotAllowedError')
+      toast('⚠️ Разрешите доступ к камере в настройках браузера');
+    else if (err.name === 'NotFoundError')
+      toast('⚠️ Камера не найдена');
+    else
+      toast('⚠️ Ошибка камеры: ' + err.message);
   });
 }
 
@@ -1206,50 +1297,66 @@ function showSnapBtn(show) {
   if (btn) btn.style.display = show ? 'block' : 'none';
 }
 
+/**
+ * Ручное сканирование по нажатию кнопки.
+ * Делает несколько попыток через rAF.
+ */
 function snapDecode() {
   SFX.tap();
   const vid = document.getElementById('scanVid');
-  if (!vid || !vid.videoWidth) {
+  if (!vid || vid.readyState < 2) {
     setStatus('❌ Камера ещё не готова, подождите...');
     return;
   }
-  setStatus('⏳ Анализирую...');
+
   let attempts = 0;
-  const maxAttempts = 8;
-  const tryDecode = () => {
+  const MAX_ATTEMPTS = 10;
+
+  function tryOnce() {
     attempts++;
     const result = grabAndDecode(vid);
+
     if (result) {
-      if (scanTimer) {
-        clearInterval(scanTimer);
-        scanTimer = null;
-      }
+      scanActive = false;
       stopScan();
       processQR(result);
       return;
     }
-    if (attempts < maxAttempts) {
-      setStatus(`⏳ Попытка ${attempts}/${maxAttempts}...`);
-      setTimeout(tryDecode, 200);
+
+    if (attempts < MAX_ATTEMPTS) {
+      setStatus(`⏳ Сканирую... попытка ${attempts}/${MAX_ATTEMPTS}`);
+      requestAnimationFrame(tryOnce);
     } else {
       setStatus('❌ QR не найден. Поднесите ближе и попробуйте снова');
-      setTimeout(() => setStatus('Наведите камеру и нажмите кнопку ниже'), 2500);
+      setTimeout(() => {
+        if (scanActive) setStatus('📷 Наведите камеру на QR-код…');
+      }, 2500);
     }
-  };
-  tryDecode();
+  }
+
+  setStatus('⏳ Анализирую кадр...');
+  requestAnimationFrame(tryOnce);
 }
 
 function stopScan() {
+  scanActive = false;
+
   if (scanTimer) {
     clearInterval(scanTimer);
     scanTimer = null;
   }
+
   if (scanStream) {
     scanStream.getTracks().forEach(t => t.stop());
     scanStream = null;
   }
+
   const vid = document.getElementById('scanVid');
-  vid.srcObject = null;
+  if (vid) {
+    vid.srcObject = null;
+    vid.load(); // сброс состояния элемента
+  }
+
   showSnapBtn(false);
   document.getElementById('scanOverlay').classList.remove('active');
 }
@@ -1274,8 +1381,22 @@ function processQR(raw){
   const n=data.count||(data.items||[]).reduce((s,i)=>s+i.qty,0);
   speak(`Ячейка ${data.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${data.payment==='delivery'?'Оплата при получении':'Оплачено онлайн'}.`);
   toast(`📦 Заказ #${id} загружен`);
-  // Сразу переходим на страницу заказов сотрудника
   renderPage('eorders');
+}
+
+/* ===== SCANNER PAGE HTML ===== */
+function scannerHTML(){
+  return`<div class="scan-hero glass-card">
+    <div class="scan-icon">📷</div>
+    <div class="scan-title">Сканер QR‑кодов</div>
+    <div class="scan-sub">Наведите камеру на QR‑код покупателя для загрузки заказа</div>
+    <button class="fullbtn blue" style="margin-top:0" onclick="startScan()">📷 Открыть камеру</button>
+  </div>
+  <div class="glass-card" style="border-radius:20px;padding:18px;font-size:13px;color:rgba(255,255,255,0.4);line-height:1.7">
+    <div style="font-weight:600;color:rgba(255,255,255,0.65);margin-bottom:8px">💡 Как использовать</div>
+    Покупатель открывает заказ → нажимает «Показать QR‑код» → вы сканируете код.<br><br>
+    Если автосканирование не срабатывает — нажмите кнопку <b>🔲 Сканировать</b>.
+  </div>`;
 }
 
 /* ===== EMP ORDERS ===== */
@@ -1431,5 +1552,6 @@ function speak(txt){
   speechSynthesis.speak(u);
 }
 </script>
+
 </body>
 </html>
