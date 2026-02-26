@@ -1088,44 +1088,74 @@ function showQR(orderId) {
   if (!o) return;
   SFX.scan();
 
-  // Короткие ключи = меньше байт = проще QR = лучше читается камерой
+  // ВАЖНО: эмодзи не включаем в QR — qrcode-generator не поддерживает
+  // unicode surrogate pairs (эмодзи > U+FFFF). Храним отдельно по id.
   const payload = {
     oid: o.id,
     c: o.cell,
     t: o.total,
     p: o.payment === 'delivery' ? 0 : 1,
-    i: o.items.map(i => [i.p.id, i.p.name, i.p.price, i.qty, i.p.emoji])
+    i: o.items.map(i => ({
+      id: i.p.id,
+      nm: i.p.name,
+      pr: i.p.price,
+      q:  i.qty
+    }))
   };
   const data = JSON.stringify(payload);
 
-  // Используем уровень коррекции L вместо M — меньше модулей, крупнее точки
+  // Уровень L = меньше модулей = крупнее точки = легче читать камерой
   const qr = qrcode(0, 'L');
-  qr.addData(data);
-  qr.make();
+  try {
+    qr.addData(data, 'Byte');
+    qr.make();
+  } catch(e) {
+    // Fallback: попробуем без указания типа
+    const qr2 = qrcode(0, 'L');
+    qr2.addData(data);
+    qr2.make();
+    // Перезаписываем qr → qr2 через замену ссылки невозможно,
+    // поэтому рендерим qr2 напрямую
+    document.getElementById('mQRtitle').textContent = `🔲 Заказ #${o.id}`;
+    document.getElementById('qrInfo').textContent =
+      `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
+    openModal('mQR');
+    setTimeout(() => renderQRCanvas(qr2), 80);
+    return;
+  }
 
   document.getElementById('mQRtitle').textContent = `🔲 Заказ #${o.id}`;
   document.getElementById('qrInfo').textContent =
     `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
 
   openModal('mQR');
+  setTimeout(() => renderQRCanvas(qr), 80);
+}
 
-  setTimeout(() => {
-    const box = document.getElementById('qrBox');
-    box.innerHTML = '';
-    const canvas = document.createElement('canvas');
-    const size = 256;
-    canvas.width = canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    const modules = qr.getModuleCount();
-    const cellSize = size / modules;
-    for (let row = 0; row < modules; row++) {
-      for (let col = 0; col < modules; col++) {
-        ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#ffffff';
+function renderQRCanvas(qr) {
+  const box = document.getElementById('qrBox');
+  if (!box) return;
+  box.innerHTML = '';
+  const modules = qr.getModuleCount();
+  // Минимальный размер модуля 8px для надёжного считывания камерой
+  const cellSize = Math.max(8, Math.floor(280 / modules));
+  const size = modules * cellSize;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  // Белый фон
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  // Тёмные модули
+  ctx.fillStyle = '#000000';
+  for (let row = 0; row < modules; row++) {
+    for (let col = 0; col < modules; col++) {
+      if (qr.isDark(row, col)) {
         ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
       }
     }
-    box.appendChild(canvas);
-  }, 80);
+  }
+  box.appendChild(canvas);
 }
 
 /* ═══════════════════════════════════════════════
@@ -1248,24 +1278,55 @@ function setStatus(t) {
 
 function processQR(raw){
   let d;
-  try{d=JSON.parse(raw);}catch(e){SFX.err();toast('⚠️ Нечитаемый QR‑код');return;}
-  // Поддержка как новых коротких ключей {oid,c,t,p,i} так и старых {orderId,cell,...}
+  try {
+    // QrScanner может вернуть объект {data:...} или строку
+    const str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw);
+    d = JSON.parse(str);
+  } catch(e) {
+    SFX.err();
+    toast('⚠️ Нечитаемый QR‑код');
+    console.error('processQR parse error:', e, 'raw:', raw);
+    return;
+  }
+
+  // Поддержка коротких ключей {oid,c,t,p,i} и старых {orderId,cell,...}
   const id   = d.oid   ?? d.orderId ?? d.id;
   const cell = d.c     ?? d.cell;
   const total= d.t     ?? d.total;
-  const pay  = d.p !== undefined ? (d.p === 0 ? 'delivery' : 'online') : (d.payment ?? 'delivery');
-  // items: новый формат [id, name, price, qty, emoji] или старый {id, name, price, qty, emoji}
-  const items = (d.i || d.items || []).map(item => {
-    if (Array.isArray(item)) return { id: item[0], name: item[1], price: item[2], qty: item[3], emoji: item[4] };
-    return item;
+  const pay  = d.p !== undefined
+    ? (d.p === 0 ? 'delivery' : 'online')
+    : (d.payment ?? 'delivery');
+
+  // items: формат {id,nm,pr,q} или старый {id,name,price,qty,emoji}
+  const rawItems = d.i || d.items || [];
+  const items = rawItems.map(item => {
+    if (Array.isArray(item)) {
+      // совсем старый формат массива
+      return { id: item[0], name: item[1], price: item[2], qty: item[3], emoji: item[4] || '📦' };
+    }
+    return {
+      id:    item.id,
+      name:  item.nm   ?? item.name  ?? '—',
+      price: item.pr   ?? item.price ?? 0,
+      qty:   item.q    ?? item.qty   ?? 1,
+      emoji: item.emoji ?? item.e    ?? '📦'
+    };
   });
-  if(!id){SFX.err();toast('⚠️ QR не содержит данных заказа');return;}
-  if(!empOrders.find(o=>o.id===id)){
-    empOrders.push({id, cell, total, payment: pay, status:'pending', items, scanned:[], returned:[]});
+
+  if (!id) { SFX.err(); toast('⚠️ QR не содержит данных заказа'); return; }
+
+  if (!empOrders.find(o => o.id === id)) {
+    empOrders.push({ id, cell, total, payment: pay, status: 'pending', items, scanned: [], returned: [] });
   }
+
   SFX.scan();
-  const n = items.reduce((s,i)=>s+(i.qty||1),0);
-  speak(`Ячейка ${cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${pay==='delivery'?'Оплата при получении':'Оплачено онлайн'}.`);
+
+  // Голосовое озвучивание — список всех товаров
+  const n = items.reduce((s, i) => s + (i.qty || 1), 0);
+  const itemsList = items.map(i => `${i.name}${i.qty > 1 ? ', ' + i.qty + ' штуки' : ''}`).join(', ');
+  const payText = pay === 'delivery' ? 'оплата при получении' : 'оплачено онлайн';
+  speak(`Заказ номер ${id}. Ячейка ${cell}. ${itemsList}. Итого: ${total} рублей. ${payText}.`);
+
   toast(`📦 Заказ #${id} загружен`);
   renderPage('eorders');
 }
