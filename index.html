@@ -1225,9 +1225,11 @@ function startScan() {
   ov.classList.add('active');
   setStatus('Запрос доступа к камере…');
   showSnapBtn(false);
+  scanActive = true; // ← ставим флаг сразу
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     ov.classList.remove('active');
+    scanActive = false;
     SFX.err();
     toast('⚠️ Браузер не поддерживает доступ к камере');
     return;
@@ -1246,37 +1248,59 @@ function startScan() {
     const vid = document.getElementById('scanVid');
     vid.srcObject = stream;
 
-    // Запускаем воспроизведение явно
+    let started = false; // защита от двойного запуска
+
+    // Единая функция старта — вызывается из любого события
+    const onReady = () => {
+      if (started || !scanActive) return;
+      // iOS: videoWidth может быть 0 в loadeddata — проверяем
+      if (!vid.videoWidth || !vid.videoHeight) return;
+      started = true;
+      setStatus('📷 Наведите камеру на QR-код…');
+      showSnapBtn(true);
+      requestAnimationFrame(() => scanLoop(vid));
+    };
+
+    // Слушаем сразу несколько событий — iOS Safari капризный:
+    // loadeddata — данные есть, но videoWidth может быть 0
+    // canplay    — обычно уже есть размер
+    // playing    — точно играет
+    // timeupdate — первый реальный кадр (надёжно, но медленно)
+    vid.addEventListener('loadeddata', onReady);
+    vid.addEventListener('canplay',    onReady);
+    vid.addEventListener('playing',    onReady);
+    vid.addEventListener('timeupdate', onReady, { once: true });
+
+    // Запускаем воспроизведение
     const playPromise = vid.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        // Autoplay blocked — показываем кнопку ручного запуска
         setStatus('Нажмите «Сканировать» для начала');
         showSnapBtn(true);
       });
     }
 
-    // Ждём первый кадр через событие — надёжнее чем onplaying
-    const onReady = () => {
-      if (!scanActive) return; // уже остановили
-      setStatus('📷 Наведите камеру на QR-код…');
-      showSnapBtn(true);
-      scanActive = true;
-      // Небольшая задержка — даём видео стабилизироваться
-      setTimeout(() => {
-        if (scanActive) requestAnimationFrame(() => scanLoop(vid));
-      }, 300);
-    };
-
-    // timeupdate срабатывает когда реально пошли кадры
-    vid.addEventListener('timeupdate', onReady, { once: true });
-
-    // Fallback: если timeupdate не сработал за 3 сек
-    setTimeout(() => {
-      if (scanActive && vid.readyState >= 2) {
+    // Polling-fallback: iOS иногда не стреляет события корректно —
+    // опрашиваем каждые 200мс пока не появится videoWidth
+    const pollReady = setInterval(() => {
+      if (!scanActive) { clearInterval(pollReady); return; }
+      if (vid.readyState >= 2 && vid.videoWidth > 0) {
+        clearInterval(pollReady);
         onReady();
       }
-    }, 3000);
+    }, 200);
+
+    // Страховочный таймаут — через 8 сек если ничего не сработало
+    setTimeout(() => {
+      clearInterval(pollReady);
+      if (!started && scanActive) {
+        // Последняя попытка — запускаем принудительно
+        started = true;
+        setStatus('📷 Наведите камеру на QR-код…');
+        showSnapBtn(true);
+        requestAnimationFrame(() => scanLoop(vid));
+      }
+    }, 8000);
   })
   .catch(err => {
     scanActive = false;
