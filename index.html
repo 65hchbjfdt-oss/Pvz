@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ПВЗ</title>
+<title>ПВЗ — QR scanner fix</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<!-- Подключаем надёжную библиотеку для генерации QR-кодов -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
+/* Все стили остаются без изменений (из исходного кода) */
 *,::before,::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:#000}
 body{
@@ -15,8 +17,6 @@ body{
   color:#fff;
   position:relative;
 }
-
-/* ═══ WALLPAPER ═══ */
 #wall{
 position:fixed;inset:0;z-index:0;
 background:radial-gradient(ellipse 120% 80% at 15% 5%, #1a0533 0%,transparent 55%),
@@ -26,7 +26,7 @@ radial-gradient(ellipse 80% 60% at 50% 95%, #001a0d 0%,transparent 50%),
 overflow:hidden;
 }
 #wall::before{
-content:’’;position:absolute;inset:0;
+content:'';position:absolute;inset:0;
 background:
 radial-gradient(circle 400px at 10% 20%, rgba(120,50,255,0.35) 0%,transparent 70%),
 radial-gradient(circle 350px at 90% 15%, rgba(0,100,255,0.3) 0%,transparent 70%),
@@ -39,8 +39,6 @@ animation:wallShift 20s ease-in-out infinite alternate;
 50%{transform:scale(1.05) translate(-15px,10px)}
 100%{transform:scale(1.02) translate(10px,-8px)}
 }
-
-/* ═══ LIQUID GLASS MIXIN ═══ */
 .glass{
 background:rgba(255,255,255,0.07);
 backdrop-filter:blur(40px) saturate(180%) brightness(1.15);
@@ -71,29 +69,20 @@ box-shadow:
 inset 0 1px 0 rgba(255,255,255,0.25),
 0 4px 12px rgba(0,0,0,0.3);
 }
-
-/* ═══ ROOT LAYOUT ═══ */
 #root{
 position:relative;z-index:1;
 height:100dvh;
 display:flex;flex-direction:column;
 overflow:hidden;
 }
-
-/* ═══ SCREENS ═══ */
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
-
-/* ══════════════════════════════════════
-ROLE SCREEN
-══════════════════════════════════════ */
 #roleScreen{
 align-items:center;justify-content:center;
 padding:0 24px;gap:0;
 padding-top:env(safe-area-inset-top,0);
 padding-bottom:env(safe-area-inset-bottom,0);
 }
-
 .rs-logo{
 width:100px;height:100px;border-radius:28px;
 background:linear-gradient(145deg,rgba(120,50,255,0.6),rgba(0,122,255,0.5));
@@ -107,7 +96,6 @@ border:1px solid rgba(255,255,255,0.25);
 animation:logoPop 0.6s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes logoPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
-
 .rs-title{
 font-size:34px;font-weight:700;letter-spacing:-0.8px;
 margin-bottom:6px;text-align:center;
@@ -119,8 +107,6 @@ text-align:center;margin-bottom:40px;line-height:1.5;
 animation:fadeUp 0.5s 0.15s both;
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-/* Profile preview */
 .rs-profile{
 width:100%;max-width:360px;margin-bottom:28px;
 animation:fadeUp 0.5s 0.2s both;
@@ -157,8 +143,6 @@ font-size:11px;font-weight:600;flex-shrink:0;
 }
 .rs-pbadge.buyer{background:rgba(0,122,255,0.2);border:1px solid rgba(0,122,255,0.35);color:#007AFF}
 .rs-pbadge.emp{background:rgba(52,199,89,0.18);border:1px solid rgba(52,199,89,0.3);color:#34C759}
-
-/* Role buttons */
 .rs-btns{
 display:flex;flex-direction:column;gap:14px;
 width:100%;max-width:360px;
@@ -171,7 +155,7 @@ transition:transform 0.2s cubic-bezier(.34,1.56,.64,1),box-shadow 0.2s;
 position:relative;overflow:hidden;
 }
 .rs-btn::after{
-content:’’;position:absolute;inset:0;opacity:0;transition:opacity 0.15s;
+content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.15s;
 background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.15),transparent 70%);
 }
 .rs-btn:active{transform:scale(0.96)}
@@ -191,15 +175,9 @@ box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.2),0 8px 32px rgba(52,199,89,0.15)
 .rs-bicon{font-size:40px}
 .rs-btitle{font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
 .rs-bsub{font-size:12px;color:rgba(255,255,255,0.45)}
-
-/* ══════════════════════════════════════
-APP SCREEN
-══════════════════════════════════════ */
 #appScreen{
 padding-top:env(safe-area-inset-top,0);
 }
-
-/* ─── Nav bar (top) ─── */
 .navbar{
 padding:14px 20px 12px;
 display:flex;align-items:center;justify-content:space-between;
@@ -223,8 +201,6 @@ font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;
 transition:all 0.15s;
 }
 .nb-exit:active{transform:scale(0.94);background:rgba(255,255,255,0.13)}
-
-/* ─── Tab bar ─── */
 .tabbar{
 display:flex;
 padding:8px 10px calc(8px + env(safe-area-inset-bottom,16px));
@@ -250,8 +226,6 @@ background:#FF3B30;color:#fff;font-size:9px;font-weight:700;
 min-width:15px;height:15px;border-radius:8px;padding:0 3px;
 display:flex;align-items:center;justify-content:center;
 }
-
-/* ─── Page content ─── */
 .pages{flex:1;overflow:hidden;position:relative}
 .page{
 position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
@@ -261,26 +235,17 @@ display:none;
 }
 .page.active{display:block;animation:pgIn 0.22s ease}
 @keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
-/* Scrollbar hide */
 .page::-webkit-scrollbar{display:none}
-
-/* ─── Section label ─── */
 .sec-label{
 font-size:13px;font-weight:600;color:rgba(255,255,255,0.35);
 letter-spacing:0.5px;text-transform:uppercase;
 margin-bottom:12px;padding-left:4px;
 }
-
-/* ════════════════════════════
-PRODUCT CARDS
-════════════════════════════ */
 .pgrid{
 display:grid;grid-template-columns:1fr 1fr;gap:12px;
 }
 @media(min-width:500px){.pgrid{grid-template-columns:repeat(3,1fr)}}
 @media(min-width:700px){.pgrid{grid-template-columns:repeat(4,1fr)}}
-
 .pcard{
 border-radius:22px;overflow:hidden;
 display:flex;flex-direction:column;
@@ -301,10 +266,6 @@ border-bottom:1px solid rgba(255,255,255,0.07);
 display:flex;gap:6px;padding:9px 10px;
 border-top:1px solid rgba(255,255,255,0.07);
 }
-
-/* ════════════════════════════
-BUTTONS
-════════════════════════════ */
 .btn{
 padding:8px 10px;border-radius:12px;font-size:12px;font-weight:600;
 border:none;cursor:pointer;font-family:inherit;
@@ -331,7 +292,6 @@ border:1px solid rgba(255,255,255,0.14);
 color:rgba(255,255,255,0.7);
 }
 .btn-glass:active{background:rgba(255,255,255,0.15)}
-
 .fullbtn{
 width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:600;
 border:none;cursor:pointer;font-family:inherit;margin-top:10px;
@@ -351,8 +311,6 @@ box-shadow:0 8px 20px rgba(52,199,89,0.35);
 background:rgba(255,255,255,0.08);
 border:1px solid rgba(255,255,255,0.13);color:rgba(255,255,255,0.6);
 }
-
-/* FAB */
 .fab{
 position:fixed;bottom:calc(90px + env(safe-area-inset-bottom,16px));right:20px;
 width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;
@@ -362,10 +320,6 @@ box-shadow:0 8px 28px rgba(0,122,255,0.5),inset 0 1px 0 rgba(255,255,255,0.3);
 z-index:100;transition:transform 0.25s cubic-bezier(.34,1.56,.64,1);
 }
 .fab:active{transform:scale(0.88)}
-
-/* ════════════════════════════
-CART
-════════════════════════════ */
 .cart-item{
 border-radius:18px;padding:14px 16px;
 display:flex;align-items:center;gap:14px;margin-bottom:10px;
@@ -385,7 +339,6 @@ transition:all 0.15s;
 .qbtn:active{background:rgba(0,122,255,0.4);transform:scale(0.85)}
 .qnum{font-size:16px;font-weight:700;min-width:24px;text-align:center}
 .ci-total{font-size:15px;font-weight:700;color:#FF9500;white-space:nowrap}
-
 .cart-summary{border-radius:18px;padding:18px;margin-top:14px}
 .cs-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:14px}
 .cs-row .l{color:rgba(255,255,255,0.45)}
@@ -401,10 +354,6 @@ border-color:#007AFF;background:rgba(0,122,255,0.15);color:#fff;
 box-shadow:0 0 0 1px rgba(0,122,255,0.3) inset;
 }
 .pay-opt .pi{font-size:24px;display:block;margin-bottom:5px}
-
-/* ════════════════════════════
-ORDERS
-════════════════════════════ */
 .order-card{border-radius:20px;padding:18px;margin-bottom:12px}
 .oc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
 .oc-num{font-size:16px;font-weight:700}
@@ -418,10 +367,6 @@ background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
 border-radius:8px;padding:4px 10px;
 }
 .oc-price{font-size:20px;font-weight:700;color:#FF9500;margin-bottom:14px}
-
-/* ════════════════════════════
-QR MODAL
-════════════════════════════ */
 .qr-center{display:flex;flex-direction:column;align-items:center;text-align:center}
 #qrBox{
 padding:16px;background:#fff;border-radius:16px;
@@ -430,20 +375,12 @@ box-shadow:0 8px 40px rgba(0,0,0,0.5);
 }
 #qrBox canvas{display:block}
 .qr-info{color:rgba(255,255,255,0.45);font-size:13px;margin-bottom:6px}
-
-/* ════════════════════════════
-SCANNER PAGE
-════════════════════════════ */
 .scan-hero{
 border-radius:26px;padding:32px 24px;text-align:center;margin-bottom:16px;
 }
 .scan-icon{font-size:64px;margin-bottom:16px}
 .scan-title{font-size:22px;font-weight:700;margin-bottom:8px}
 .scan-sub{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:24px}
-
-/* ════════════════════════════
-SCANNER OVERLAY
-════════════════════════════ */
 #scanOverlay{
 display:none;position:fixed;inset:0;z-index:500;
 background:rgba(0,0,0,0.85);
@@ -452,7 +389,6 @@ flex-direction:column;align-items:center;justify-content:center;
 padding:24px;
 }
 #scanOverlay.active{display:flex}
-
 .scan-modal{
 width:100%;max-width:420px;border-radius:28px;padding:0;overflow:hidden;
 }
@@ -462,22 +398,17 @@ border-bottom:1px solid rgba(255,255,255,0.08);
 }
 .scan-modal-title{font-size:18px;font-weight:700;margin-bottom:2px}
 .scan-modal-sub{font-size:13px;color:rgba(255,255,255,0.4)}
-
 .vid-container{
 position:relative;background:#000;
 aspect-ratio:1;width:100%;max-height:50dvh;overflow:hidden;
 }
 #scanVid{width:100%;height:100%;object-fit:cover;display:block}
-
-/* Dimming with transparent centre */
 .vid-dim{
 position:absolute;inset:0;pointer-events:none;
 background:rgba(0,0,0,0.5);
 -webkit-mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);
 mask:radial-gradient(ellipse 55% 55% at 50% 50%,transparent 60%,black 61%);
 }
-
-/* QR frame corners */
 .vid-frame{
 position:absolute;
 top:50%;left:50%;
@@ -486,7 +417,7 @@ width:58%;height:58%;pointer-events:none;
 }
 .vid-frame::before,.vid-frame::after,
 .vf-inner::before,.vf-inner::after{
-content:’’;position:absolute;
+content:'';position:absolute;
 width:26px;height:26px;
 border-color:#fff;border-style:solid;
 }
@@ -494,8 +425,6 @@ border-color:#fff;border-style:solid;
 .vid-frame::after{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 6px 0 0}
 .vf-inner::before{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 6px}
 .vf-inner::after{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 6px 0}
-
-/* scanning beam */
 .vid-beam{
 position:absolute;left:21%;right:21%;height:2px;
 background:linear-gradient(90deg,transparent,rgba(255,255,255,0.9) 40%,#007AFF 50%,rgba(255,255,255,0.9) 60%,transparent);
@@ -510,16 +439,11 @@ animation:beam 2.2s ease-in-out infinite;
 54%{opacity:1}
 100%{top:21%;opacity:1}
 }
-
 .scan-modal-foot{padding:16px 22px 20px}
 .scan-status{
 text-align:center;font-size:13px;color:rgba(255,255,255,0.45);
 margin-bottom:14px;min-height:20px;
 }
-
-/* ════════════════════════════
-EMP ORDERS
-════════════════════════════ */
 .emp-card{border-radius:22px;padding:18px;margin-bottom:14px}
 .ec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .ec-title{font-size:17px;font-weight:700}
@@ -544,10 +468,6 @@ border-radius:14px;padding:12px;transition:all 0.3s;
 .item-price{font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px}
 .item-mark{font-size:20px}
 .ec-acts{display:flex;gap:8px}
-
-/* ════════════════════════════
-PROFILE
-════════════════════════════ */
 .prof-hero{border-radius:24px;padding:28px;text-align:center;margin-bottom:14px}
 .prof-av{
 width:84px;height:84px;border-radius:50%;font-size:44px;
@@ -588,10 +508,6 @@ border-bottom:1px solid rgba(255,255,255,0.07);
 .info-row:last-child{border:none}
 .info-row .lbl{color:rgba(255,255,255,0.4)}
 .info-row .val{font-weight:600}
-
-/* ════════════════════════════
-MODAL (bottom sheet)
-════════════════════════════ */
 #modalBg{
 display:none;position:fixed;inset:0;z-index:300;
 background:rgba(0,0,0,0.6);
@@ -615,8 +531,6 @@ box-shadow:0 -20px 80px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.15);
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .bs-handle{width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:12px auto 20px}
 .bs-title{font-size:20px;font-weight:700;margin-bottom:20px}
-
-/* Form */
 .fg{margin-bottom:16px}
 .fg label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.35);
 text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:8px}
@@ -631,18 +545,12 @@ border-color:rgba(0,122,255,0.6);background:rgba(0,122,255,0.08);
 }
 .fg textarea{min-height:75px}
 input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.2)}
-
-/* Emoji grid */
 .egrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:12px}
 .eo{
 font-size:26px;text-align:center;padding:5px;border-radius:9px;cursor:pointer;
 border:2px solid transparent;transition:all 0.14s;
 }
 .eo.on{border-color:#007AFF;background:rgba(0,122,255,0.18)}
-
-/* ════════════════════════════
-RETURN MODAL
-════════════════════════════ */
 .ret-item{
 display:flex;align-items:center;gap:12px;padding:13px;
 background:rgba(255,255,255,0.05);border:2px solid transparent;
@@ -655,14 +563,9 @@ background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-conten
 font-size:13px;font-weight:700;transition:all 0.18s;flex-shrink:0;
 }
 .ret-item.on .ret-cb{background:#FF3B30;border-color:#FF3B30;color:#fff}
-
-/* ════════════════════════════
-EMPTY + TOAST
-════════════════════════════ */
 .empty{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.35)}
 .empty .ei{font-size:56px;margin-bottom:14px;opacity:0.5}
 .empty p{font-size:15px;line-height:1.6}
-
 #toast{
 position:fixed;top:80px;left:50%;
 transform:translateX(-50%) translateY(-10px) scale(0.95);
@@ -675,8 +578,6 @@ pointer-events:none;white-space:nowrap;
 box-shadow:0 8px 36px rgba(0,0,0,0.5);
 }
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
-
-/* PC tweaks */
 @media(min-width:600px){
 .bottom-sheet{max-width:520px;left:50%;transform:translateX(-50%);border-radius:28px 28px 0 0}
 .bottom-sheet.active{animation:sheetUpPC 0.38s cubic-bezier(.32,.72,0,.95)}
@@ -684,7 +585,6 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 #scanOverlay .scan-modal{max-width:400px}
 }
 </style>
-
 </head>
 <body>
 
@@ -693,7 +593,6 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 <div id="root">
 
 <!-- ══ ROLE SCREEN ══ -->
-
 <div class="screen active" id="roleScreen">
   <div class="rs-logo">📦</div>
   <div class="rs-title">ПВЗ Pro</div>
@@ -733,7 +632,6 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div>
 
 <!-- ══ APP SCREEN ══ -->
-
 <div class="screen" id="appScreen">
   <div class="navbar glass" style="border-radius:0">
     <div class="nb-l">
@@ -759,7 +657,6 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div><!-- #root -->
 
 <!-- ══ SCANNER OVERLAY ══ -->
-
 <div id="scanOverlay">
   <div class="scan-modal glass-card">
     <div class="scan-modal-head">
@@ -783,11 +680,9 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div>
 
 <!-- ══ MODAL BG ══ -->
-
 <div id="modalBg" onclick="closeAllModals()"></div>
 
 <!-- ══ MODALS ══ -->
-
 <div class="bottom-sheet" id="mProduct">
   <div class="bs-handle"></div>
   <div class="bs-title" id="mProductTitle">Новый товар</div>
@@ -829,12 +724,11 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 </div>
 
 <!-- ══ TOAST ══ -->
-
 <div id="toast"></div>
 
 <script>
 /* ═══════════════════════════════
-   AUDIO
+   AUDIO (без изменений)
 ═══════════════════════════════ */
 let _ac = null;
 function ac(){
@@ -867,7 +761,7 @@ const SFX={
 document.addEventListener('pointerdown',()=>{if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)()},{once:true});
 
 /* ═══════════════════════════════
-   STATE
+   STATE (добавлена переменная scanRaf)
 ═══════════════════════════════ */
 let ROLE = 'buyer';
 let CUR  = 'shop';
@@ -885,7 +779,7 @@ let selPay='delivery';
 let retOid=null;
 let retSel=new Set();
 let scanStream=null;
-let scanTimer=null;
+let scanRaf = null;          // для анимации сканирования
 let pidC=20,oidC=100;
 function pid(){return ++pidC}
 function oid(){return ++oidC}
@@ -902,7 +796,7 @@ const CT =()=>cart.reduce((s,i)=>s+i.p.price*i.qty,0);
 const EMOJIS=['📦','🎧','📱','👟','👜','🎮','💻','⌚','🔌','📷','🎁','🧴','👗','🕹️','📚','🍕','🧸','💡','🖥️','🎵','🎒','🛍️','🖱️','🎸','🏋️'];
 
 /* ═══════════════════════════════
-   TOAST
+   TOAST (без изменений)
 ═══════════════════════════════ */
 let _tt=null;
 function toast(msg,dur=2600){
@@ -912,7 +806,7 @@ function toast(msg,dur=2600){
 }
 
 /* ═══════════════════════════════
-   MODAL
+   MODAL (без изменений)
 ═══════════════════════════════ */
 let _openModal=null;
 function openModal(id){
@@ -935,7 +829,7 @@ function closeAllModals(){
 }
 
 /* ═══════════════════════════════
-   ROLE / PREVIEW
+   ROLE / PREVIEW (без изменений)
 ═══════════════════════════════ */
 function previewSwitch(r){
   SFX.tap();
@@ -971,7 +865,7 @@ function exitRole(){
 }
 
 /* ═══════════════════════════════
-   TABS
+   TABS (без изменений)
 ═══════════════════════════════ */
 const BTABS=[
   {id:'shop',   icon:'🏪',label:'Магазин'},
@@ -1005,12 +899,11 @@ function navTo(id){
 }
 
 /* ═══════════════════════════════
-   PAGE RENDER
+   PAGE RENDER (без изменений)
 ═══════════════════════════════ */
 function renderPage(id){
   CUR=id;
   buildTabs();
-  // clear all pages
   ['shop','cart','orders','scanner','eorders','profile'].forEach(p=>{
     const el=document.getElementById('pg-'+p);
     if(el){el.classList.remove('active');el.innerHTML='';}
@@ -1026,7 +919,6 @@ function renderPage(id){
   pg.classList.add('active');
   pg.scrollTop=0;
 
-  // FAB
   document.getElementById('_fab')?.remove();
   if(id==='shop'){
     const f=document.createElement('button');
@@ -1037,7 +929,7 @@ function renderPage(id){
 }
 
 /* ═══════════════════════════════
-   SHOP
+   SHOP (без изменений)
 ═══════════════════════════════ */
 function shopHTML(){
   if(!products.length) return`<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
@@ -1061,7 +953,7 @@ function cardHTML(p){
 }
 
 /* ═══════════════════════════════
-   PRODUCT MODAL
+   PRODUCT MODAL (без изменений)
 ═══════════════════════════════ */
 function openProductModal(id){
   editId=id;
@@ -1104,7 +996,7 @@ function delProduct(id){
 }
 
 /* ═══════════════════════════════
-   CART
+   CART (без изменений)
 ═══════════════════════════════ */
 function addCart(id){
   const p=products.find(x=>x.id===id);
@@ -1183,7 +1075,7 @@ function placeOrder(){
 }
 
 /* ═══════════════════════════════
-   ORDERS
+   ORDERS (без изменений)
 ═══════════════════════════════ */
 function ordersHTML(){
   if(!orders.length)return`<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
@@ -1207,125 +1099,61 @@ function ordersHTML(){
 }
 
 /* ═══════════════════════════════
-   QR CODE GENERATOR (pure JS)
+   QR CODE GENERATOR (исправлено — используем библиотеку)
 ═══════════════════════════════ */
-function showQR(orderId){
-  const o=orders.find(x=>x.id===orderId);if(!o)return;
+function showQR(orderId) {
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
   SFX.scan();
-  const data=JSON.stringify({
-    orderId:o.id,cell:o.cell,total:o.total,payment:o.payment,
-    count:o.items.reduce((s,i)=>s+i.qty,0),
-    items:o.items.map(i=>({id:i.p.id,name:i.p.name,price:i.p.price,qty:i.qty,emoji:i.p.emoji}))
-  });
-  document.getElementById('mQRtitle').textContent=`🔲 Заказ #${o.id}`;
-  document.getElementById('qrInfo').textContent=
-    `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
-  openModal('mQR');
-  setTimeout(()=>{
-    const box=document.getElementById('qrBox');
-    box.innerHTML='';
-    const c=document.createElement('canvas');
-    c.width=c.height=256;
-    box.appendChild(c);
-    renderQR(c,data);
-  },80);
-}
 
-/* ── Minimal self-contained QR encoder ── */
-function renderQR(canvas,text){
-  const bytes=toUTF8(text);
-  const ver=findVersion(bytes.length);
-  if(!ver){canvas.getContext('2d').fillText('Ошибка',10,20);return;}
-  const N=ver*4+17;
-  const mat=makeMatrix(N,ver,bytes);
-  const ctx=canvas.getContext('2d');
-  const sz=canvas.width,cell=sz/N;
-  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
-  ctx.fillStyle='#000';
-  for(let r=0;r<N;r++)
-    for(let c=0;c<N;c++)
-      if(mat[r][c]===1)
-        ctx.fillRect(~~(c*cell),~~(r*cell),Math.ceil(cell),Math.ceil(cell));
-}
-function toUTF8(s){
-  const b=[];
-  for(let i=0;i<s.length;i++){
-    const c=s.charCodeAt(i);
-    if(c<128)b.push(c);
-    else if(c<2048){b.push(192|(c>>6));b.push(128|(c&63));}
-    else{b.push(224|(c>>12));b.push(128|((c>>6)&63));b.push(128|(c&63));}
-  }
-  return b;
-}
-/* ECC=M byte-mode capacities */
-const QR_CAP=[0,14,26,42,62,84,106,122,154,180,213,251,287,331,365,415,453,507,563,627,669,714,782,860,914,1000,1062,1128,1193,1267,1373,1455,1541,1631,1725,1812,1914,1992,2102,2216,2334];
-function findVersion(n){for(let v=1;v<=40;v++)if(QR_CAP[v]>=n+3)return v;return null}
-/* Total data codewords ECC=M */
-const QR_DC=[0,16,28,44,64,86,108,124,154,182,216,254,290,334,365,415,453,507,563,627,669,714,782,860,914,1000,1062,1128,1193,1267,1373,1455,1541,1631,1725,1812,1914,1992,2102,2216,2334];
-/* Alignment pattern centers */
-const QR_AL=[null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
-function makeMatrix(N,V,bytes){
-  const m=Array.from({length:N},()=>new Int8Array(N).fill(-1));
-  /* finder */
-  function finder(r,c){
-    for(let dr=-1;dr<=7;dr++)for(let dc=-1;dc<=7;dc++){
-      const rr=r+dr,cc=c+dc;if(rr<0||rr>=N||cc<0||cc>=N)continue;
-      m[rr][cc]=(dr>=0&&dr<=6&&dc>=0&&dc<=6&&(dr===0||dr===6||dc===0||dc===6||(dr>=2&&dr<=4&&dc>=2&&dc<=4)))?1:0;
+  // Данные для QR-кода
+  const data = JSON.stringify({
+    orderId: o.id,
+    cell: o.cell,
+    total: o.total,
+    payment: o.payment,
+    items: o.items.map(i => ({
+      id: i.p.id,
+      name: i.p.name,
+      price: i.p.price,
+      qty: i.qty,
+      emoji: i.p.emoji
+    }))
+  });
+
+  // Создаём QR-код с уровнем коррекции M (15%)
+  const qr = qrcode(0, 'M');
+  qr.addData(data);
+  qr.make();
+
+  document.getElementById('mQRtitle').textContent = `🔲 Заказ #${o.id}`;
+  document.getElementById('qrInfo').textContent =
+    `${o.items.reduce((s,i)=>s+i.qty,0)} поз. · Ячейка ${o.cell} · ${FMT(o.total)}`;
+
+  openModal('mQR');
+
+  // Отрисовываем в canvas
+  setTimeout(() => {
+    const box = document.getElementById('qrBox');
+    box.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    const size = 256;
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const modules = qr.getModuleCount();
+    const cellSize = size / modules;
+    for (let row = 0; row < modules; row++) {
+      for (let col = 0; col < modules; col++) {
+        ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#ffffff';
+        ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+      }
     }
-  }
-  finder(0,0);finder(0,N-7);finder(N-7,0);
-  /* timing */
-  for(let i=8;i<N-8;i++){if(m[6][i]<0)m[6][i]=i%2?0:1;if(m[i][6]<0)m[i][6]=i%2?0:1;}
-  m[N-8][8]=1;
-  /* alignment */
-  if(V>=2&&QR_AL[V]){
-    const a=QR_AL[V];
-    for(const r of a)for(const c of a){
-      if(m[r][c]>=0)continue;
-      for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++)
-        m[r+dr][c+dc]=(Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0))?1:0;
-    }
-  }
-  /* data bytes */
-  const db=[];
-  db.push(0x40|(bytes.length>>4));
-  db.push(((bytes.length&15)<<4)|(bytes.length?bytes[0]>>4:0));
-  for(let i=0;i<bytes.length;i++){
-    const lo=bytes[i]&15,hi=i+1<bytes.length?bytes[i+1]>>4:0;
-    db.push((lo<<4)|hi);
-  }
-  const tot=QR_DC[V]||128;
-  while(db.length<tot)db.push(db.length%2?0x11:0xEC);
-  /* bits */
-  const bits=[];for(const b of db)for(let i=7;i>=0;i--)bits.push((b>>i)&1);
-  /* zigzag */
-  let bi=0,up=true;
-  for(let col=N-1;col>=1;col-=2){
-    if(col===6)col--;
-    for(let i=0;i<N;i++){
-      const row=up?N-1-i:i;
-      for(const dc of[0,-1]){const c=col+dc;if(m[row][c]<0)m[row][c]=bi<bits.length?bits[bi++]:0;}
-    }
-    up=!up;
-  }
-  /* mask 0: (r+c)%2===0 */
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-    const fixed=(r<9&&c<9)||(r<9&&c>=N-8)||(r>=N-8&&c<9)||r===6||c===6;
-    if(!fixed&&m[r][c]>=0&&(r+c)%2===0)m[r][c]^=1;
-  }
-  /* format string ECC=M mask=0: 101010000010010 */
-  const fs=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
-  const fp=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
-  for(let i=0;i<15;i++){
-    m[fp[i][0]][fp[i][1]]=fs[i];
-    if(i<7)m[N-1-i][8]=fs[i];
-    if(i>=7)m[8][N-15+i]=fs[i];
-  }
-  return m;
+    box.appendChild(canvas);
+  }, 80);
 }
 
 /* ═══════════════════════════════
-   SCANNER
+   SCANNER — обновлён с requestAnimationFrame
 ═══════════════════════════════ */
 function scannerHTML(){
   const hist=empOrders.slice(-3).reverse();
@@ -1374,14 +1202,28 @@ function startScan(){
       vid.play().catch(()=>{});
     };
 
-    // Show snap button + start auto-scan after 1s
-    setTimeout(()=>{
-      setStatus('Наведите камеру и нажмите кнопку ниже');
+    vid.onplaying = () => {
+      setStatus('Сканирование...');
       showSnapBtn(true);
-      // Also try auto-scan every 300ms
-      clearInterval(scanTimer);
-      scanTimer=setInterval(()=>autoTryDecode(vid),300);
-    },1200);
+      // Запускаем непрерывное сканирование
+      if (scanRaf) cancelAnimationFrame(scanRaf);
+      function scanLoop() {
+        if (!vid.videoWidth || vid.paused || vid.ended) {
+          scanRaf = requestAnimationFrame(scanLoop);
+          return;
+        }
+        const result = grabAndDecode(vid);
+        if (result) {
+          cancelAnimationFrame(scanRaf);
+          scanRaf = null;
+          stopScan();
+          processQR(result);
+          return;
+        }
+        scanRaf = requestAnimationFrame(scanLoop);
+      }
+      scanRaf = requestAnimationFrame(scanLoop);
+    };
   })
   .catch(err=>{
     setStatus('');
@@ -1398,18 +1240,7 @@ function showSnapBtn(show){
   if(btn) btn.style.display=show?'block':'none';
 }
 
-// Auto-try silently (no feedback if fails)
-function autoTryDecode(vid){
-  if(!vid||!vid.videoWidth||vid.paused||vid.ended)return;
-  const result=grabAndDecode(vid);
-  if(result){
-    clearInterval(scanTimer);scanTimer=null;
-    stopScan();
-    processQR(result);
-  }
-}
-
-// Manual snap button — shows feedback
+// Ручной режим (оставлен как запасной)
 function snapDecode(){
   SFX.tap();
   const vid=document.getElementById('scanVid');
@@ -1418,13 +1249,13 @@ function snapDecode(){
     return;
   }
   setStatus('⏳ Анализирую...');
-  // Try multiple times with slight delay for focus
   let attempts=0;
   const tryDecode=()=>{
     attempts++;
     const result=grabAndDecode(vid);
     if(result){
-      clearInterval(scanTimer);scanTimer=null;
+      if (scanRaf) cancelAnimationFrame(scanRaf);
+      scanRaf = null;
       stopScan();
       processQR(result);
       return;
@@ -1442,26 +1273,26 @@ function snapDecode(){
 
 function grabAndDecode(vid){
   try{
+    if (!vid.videoWidth || !vid.videoHeight) return null;
     _qrCanvas.width=vid.videoWidth;
     _qrCanvas.height=vid.videoHeight;
     _qrCtx.drawImage(vid,0,0);
     const img=_qrCtx.getImageData(0,0,_qrCanvas.width,_qrCanvas.height);
-    // Try normal
-    let code=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
-    if(code&&code.data)return code.data;
-    // Try inverted
-    code=jsQR(img.data,img.width,img.height,{inversionAttempts:'onlyInvert'});
-    if(code&&code.data)return code.data;
-    // Try both
-    code=jsQR(img.data,img.width,img.height,{inversionAttempts:'attemptBoth'});
-    if(code&&code.data)return code.data;
+    let code=jsQR(img.data,img.width,img.height,{inversionAttempts:'attemptBoth'});
+    return code ? code.data : null;
   }catch(e){}
   return null;
 }
 
 function stopScan(){
-  clearInterval(scanTimer);scanTimer=null;
-  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+  if (scanRaf) {
+    cancelAnimationFrame(scanRaf);
+    scanRaf = null;
+  }
+  if(scanStream){
+    scanStream.getTracks().forEach(t=>t.stop());
+    scanStream=null;
+  }
   const vid=document.getElementById('scanVid');
   vid.srcObject=null;
   showSnapBtn(false);
@@ -1489,10 +1320,22 @@ function processQR(raw){
   speak(`Ячейка ${data.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${data.payment==='delivery'?'Оплата при получении':'Оплачено онлайн'}.`);
   toast(`📦 Заказ #${id} загружен`);
   renderPage('eorders');
+
+  // Подсветка нового заказа (добавляем data-order-id в карточку)
+  setTimeout(() => {
+    const newOrderEl = document.querySelector(`[data-order-id="${id}"]`);
+    if (newOrderEl) {
+      newOrderEl.style.transition = 'background 0.5s';
+      newOrderEl.style.background = 'rgba(0,122,255,0.2)';
+      setTimeout(() => {
+        newOrderEl.style.background = '';
+      }, 1000);
+    }
+  }, 100);
 }
 
 /* ═══════════════════════════════
-   EMP ORDERS
+   EMP ORDERS (добавлен data-order-id)
 ═══════════════════════════════ */
 function eordersHTML(){
   const active=empOrders.filter(o=>o.status!=='done');
@@ -1512,7 +1355,7 @@ function empCardHTML(o){
   if(o.status==='done') acts=`<div style="text-align:center;color:#34C759;font-weight:600;padding:10px">✅ Завершён</div>`;
   else if(allDone) acts=`<div class="ec-acts"><button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button><button class="btn btn-green flex" onclick="completeOrder(${o.id})">✅ Завершить</button></div>`;
   else acts=`<button class="btn btn-red" onclick="openReturn(${o.id})">↩️ Возврат</button>`;
-  return`<div class="emp-card glass-card">
+  return`<div class="emp-card glass-card" data-order-id="${o.id}">
     <div class="ec-head">
       <div class="ec-title">Заказ #${o.id}</div>
       <div class="oc-status ${o.status==='done'?'st-done':'st-wait'}">${o.status==='done'?'Выдан':'Активен'}</div>
@@ -1584,7 +1427,7 @@ function completeOrder(oid){
 }
 
 /* ═══════════════════════════════
-   PROFILE
+   PROFILE (без изменений)
 ═══════════════════════════════ */
 function profileHTML(){
   const p=profiles[ROLE];
@@ -1640,7 +1483,7 @@ function editName(){
 }
 
 /* ═══════════════════════════════
-   SPEECH
+   SPEECH (без изменений)
 ═══════════════════════════════ */
 function speak(txt){
   if(!window.speechSynthesis)return;
