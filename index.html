@@ -1088,23 +1088,13 @@ function showQR(orderId) {
   if (!o) return;
   SFX.scan();
 
-  // Данные заказа в QR
-  // КЛЮЧЕВОЕ: кодируем через encodeURIComponent чтобы получить чистый ASCII.
-  // qrcode-generator не поддерживает кириллицу (ISO-8859-1 only).
-  // encodeURIComponent("%D0%9D...") — это 100% ASCII, работает везде.
-  const payload = {
-    oid: o.id,
-    c: o.cell,
-    t: o.total,
-    p: o.payment === 'delivery' ? 0 : 1,
-    i: o.items.map(i => ({
-      id: i.p.id,
-      nm: i.p.name,
-      pr: i.p.price,
-      q:  i.qty
-    }))
-  };
-  const data = encodeURIComponent(JSON.stringify(payload));
+  // В QR — ТОЛЬКО цифры: id заказа, ячейка, тип оплаты, кол-во и цена каждого товара
+  // Формат: "oid|cell|pay|qty1:price1|qty2:price2|..."
+  // Пример: "101|42|0|1:3990|2:490|1:890"
+  // Никакой кириллицы, никаких эмодзи — чистые цифры и ASCII
+  const itemsPart = o.items.map(i => `${i.qty}:${i.p.price}`).join('|');
+  const payCode   = o.payment === 'delivery' ? 0 : 1;
+  const data      = `${o.id}|${o.cell}|${payCode}|${itemsPart}`;
 
   const qr = qrcode(0, 'L');
   qr.addData(data);
@@ -1263,62 +1253,50 @@ function setStatus(t) {
 }
 
 function processQR(raw){
-  let d;
   try {
-    // QrScanner может вернуть объект {data:...} или строку
-    let str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw);
-    // Поддержка encodeURIComponent-кодировки (новый формат)
-    if (str.indexOf('%') !== -1) {
-      try { str = decodeURIComponent(str); } catch(e2) { /* не закодировано — используем как есть */ }
+    const str = (typeof raw === 'object' && raw.data) ? raw.data : String(raw).trim();
+
+    // Формат: "oid|cell|pay|qty1:price1|qty2:price2|..."
+    const parts = str.split('|');
+    if (parts.length < 4) { SFX.err(); toast('⚠️ Неверный формат QR'); return; }
+
+    const id   = parseInt(parts[0]);
+    const cell = parts[1];
+    const pay  = parts[2] === '0' ? 'delivery' : 'online';
+
+    // Генерируем карточки товаров на стороне сотрудника
+    // Название не передаётся — просто "Товар 1", "Товар 2"...
+    const items = parts.slice(3).map((p, idx) => {
+      const [qty, price] = p.split(':').map(Number);
+      return { id: idx + 1, name: `Товар ${idx + 1}`, price, qty, emoji: '📦' };
+    });
+
+    const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+
+    if (!id || !cell || items.length === 0) {
+      SFX.err(); toast('⚠️ QR не содержит данных заказа'); return;
     }
-    d = JSON.parse(str);
+
+    if (!empOrders.find(o => o.id === id)) {
+      empOrders.push({ id, cell, total, payment: pay, status: 'pending', items, scanned: [], returned: [] });
+    }
+
+    SFX.scan();
+
+    // Озвучка: ячейка, кол-во товаров, тип оплаты
+    const n = items.reduce((s, i) => s + i.qty, 0);
+    const nWord   = n === 1 ? 'товар' : n < 5 ? 'товара' : 'товаров';
+    const payText = pay === 'delivery' ? 'оплата при получении' : 'оплачено онлайн';
+    speak(`${cell}. ${n} ${nWord}. ${payText}.`);
+
+    toast(`📦 Заказ #${id} загружен`);
+    renderPage('eorders');
+
   } catch(e) {
     SFX.err();
     toast('⚠️ Нечитаемый QR‑код');
-    console.error('processQR parse error:', e, 'raw:', raw);
-    return;
+    console.error('processQR error:', e, 'raw:', raw);
   }
-
-  // Поддержка коротких ключей {oid,c,t,p,i} и старых {orderId,cell,...}
-  const id   = d.oid   ?? d.orderId ?? d.id;
-  const cell = d.c     ?? d.cell;
-  const total= d.t     ?? d.total;
-  const pay  = d.p !== undefined
-    ? (d.p === 0 ? 'delivery' : 'online')
-    : (d.payment ?? 'delivery');
-
-  // items: формат {id,nm,pr,q} или старый {id,name,price,qty,emoji}
-  const rawItems = d.i || d.items || [];
-  const items = rawItems.map(item => {
-    if (Array.isArray(item)) {
-      // совсем старый формат массива
-      return { id: item[0], name: item[1], price: item[2], qty: item[3], emoji: item[4] || '📦' };
-    }
-    return {
-      id:    item.id,
-      name:  item.nm   ?? item.name  ?? '—',
-      price: item.pr   ?? item.price ?? 0,
-      qty:   item.q    ?? item.qty   ?? 1,
-      emoji: item.emoji ?? item.e    ?? '📦'
-    };
-  });
-
-  if (!id) { SFX.err(); toast('⚠️ QR не содержит данных заказа'); return; }
-
-  if (!empOrders.find(o => o.id === id)) {
-    empOrders.push({ id, cell, total, payment: pay, status: 'pending', items, scanned: [], returned: [] });
-  }
-
-  SFX.scan();
-
-  // Голосовое озвучивание — список всех товаров
-  const n = items.reduce((s, i) => s + (i.qty || 1), 0);
-  const nWord = n === 1 ? 'товар' : n < 5 ? 'товара' : 'товаров';
-  const payText = pay === 'delivery' ? 'оплата при получении' : 'оплачено онлайн';
-  speak(`${cell}. ${n} ${nWord}. ${payText}.`);
-
-  toast(`📦 Заказ #${id} загружен`);
-  renderPage('eorders');
 }
 
 /* ===== SCANNER PAGE HTML ===== */
