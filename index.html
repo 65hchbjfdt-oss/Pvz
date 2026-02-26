@@ -773,7 +773,7 @@ let selPay='delivery';
 let retOid=null;
 let retSel=new Set();
 let scanStream=null;
-let scanRaf = null;          // id requestAnimationFrame
+let scanTimer = null;          // для интервального сканирования
 let pidC=20,oidC=100;
 function pid(){return ++pidC}
 function oid(){return ++oidC}
@@ -1122,30 +1122,13 @@ function showQR(orderId) {
   }, 80);
 }
 
-/* ========== ИСПРАВЛЕННЫЙ СКАНЕР ========== */
-function scannerHTML(){
-  const hist=empOrders.slice(-3).reverse();
-  return`<div class="scan-hero glass-card">
-    <div class="scan-icon">📷</div>
-    <div class="scan-title">Сканер QR‑кодов</div>
-    <div class="scan-sub">Нажмите кнопку и поднесите<br>QR‑код клиента к камере</div>
-    <button class="fullbtn blue" onclick="startScan()" style="margin:0;max-width:280px">📷 Открыть камеру</button>
-  </div>
-  ${hist.length?`<div class="sec-label" style="margin-top:16px">Последние сканирования</div>
-  ${hist.map(o=>`<div class="glass-card" style="border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px">
-    <span style="font-size:28px">📦</span>
-    <div style="flex:1"><div style="font-weight:600">Заказ #${o.id}</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.35)">Ячейка ${o.cell} · ${FMT(o.total)}</div></div>
-    <div style="font-size:12px;font-weight:600;color:${o.status==='done'?'#34C759':'#FF9500'}">${o.status==='done'?'Выдан':'Активен'}</div>
-  </div>`).join('')}`:''}`;
-}
+/* ===== БЫСТРЫЙ СКАНЕР (с низким разрешением и интервалом) ===== */
+let _qrCanvas = null;
+let _qrCtx = null;
 
-let _qrCanvas=null,_qrCtx=null;
-
-// Функция захвата кадра с масштабированием (уменьшаем до 480px по большей стороне)
 function grabAndDecode(vid) {
   if (!vid.videoWidth || !vid.videoHeight) return null;
-  const maxDim = 480;
+  const maxDim = 320; // оптимально для скорости/качества
   let sw = vid.videoWidth, sh = vid.videoHeight;
   let scale = 1;
   if (sw > maxDim || sh > maxDim) {
@@ -1167,120 +1150,113 @@ function grabAndDecode(vid) {
   return code ? code.data : null;
 }
 
-function startScan(){
+function startScan() {
   SFX.tap();
-  const ov=document.getElementById('scanOverlay');
+  const ov = document.getElementById('scanOverlay');
   ov.classList.add('active');
   setStatus('Запрос доступа к камере…');
   showSnapBtn(false);
 
+  // Запрашиваем видео с низким разрешением для скорости
   navigator.mediaDevices.getUserMedia({
-    video:{
-      facingMode:{ideal:'environment'},
-      width:{ideal:1920},height:{ideal:1080}
+    video: {
+      facingMode: { ideal: 'environment' },
+      width: { ideal: 640 },
+      height: { ideal: 480 }
     }
   })
-  .then(stream=>{
-    scanStream=stream;
-    const vid=document.getElementById('scanVid');
-    vid.srcObject=stream;
-    vid.play().catch(()=>{});
+  .then(stream => {
+    scanStream = stream;
+    const vid = document.getElementById('scanVid');
+    vid.srcObject = stream;
+    vid.play().catch(() => {});
 
     vid.onplaying = () => {
       setStatus('Сканирование...');
       showSnapBtn(true);
-      if (scanRaf) cancelAnimationFrame(scanRaf);
 
-      let frameCount = 0;
-      function scanLoop() {
-        // Проверяем, что видео всё ещё активно и имеет размеры
-        if (!vid.videoWidth || vid.paused || vid.ended) {
-          scanRaf = requestAnimationFrame(scanLoop);
-          return;
-        }
-        frameCount++;
-        // Пропускаем каждый второй кадр для снижения нагрузки (опционально)
-        if (frameCount % 2 === 0) {
-          scanRaf = requestAnimationFrame(scanLoop);
-          return;
-        }
+      if (scanTimer) clearInterval(scanTimer);
+
+      // Сканируем каждые 200 мс (достаточно быстро, не грузит процессор)
+      scanTimer = setInterval(() => {
+        if (!vid.videoWidth || vid.paused || vid.ended) return;
+
         const result = grabAndDecode(vid);
         if (result) {
-          cancelAnimationFrame(scanRaf);
-          scanRaf = null;
+          clearInterval(scanTimer);
+          scanTimer = null;
           stopScan();
           processQR(result);
-          return;
         }
-        scanRaf = requestAnimationFrame(scanLoop);
-      }
-      scanRaf = requestAnimationFrame(scanLoop);
+      }, 200);
     };
   })
-  .catch(err=>{
+  .catch(err => {
     setStatus('');
     ov.classList.remove('active');
     SFX.err();
-    if(err.name==='NotAllowedError') toast('⚠️ Разрешите доступ к камере в настройках браузера');
-    else if(err.name==='NotFoundError') toast('⚠️ Камера не найдена');
-    else toast('⚠️ Ошибка: '+err.message);
+    if (err.name === 'NotAllowedError') toast('⚠️ Разрешите доступ к камере в настройках браузера');
+    else if (err.name === 'NotFoundError') toast('⚠️ Камера не найдена');
+    else toast('⚠️ Ошибка: ' + err.message);
   });
 }
 
-function showSnapBtn(show){
-  const btn=document.getElementById('snapBtn');
-  if(btn) btn.style.display=show?'block':'none';
+function showSnapBtn(show) {
+  const btn = document.getElementById('snapBtn');
+  if (btn) btn.style.display = show ? 'block' : 'none';
 }
 
-// Ручной режим (теперь тоже использует масштабированный захват)
-function snapDecode(){
+function snapDecode() {
   SFX.tap();
-  const vid=document.getElementById('scanVid');
-  if(!vid||!vid.videoWidth){
+  const vid = document.getElementById('scanVid');
+  if (!vid || !vid.videoWidth) {
     setStatus('❌ Камера ещё не готова, подождите...');
     return;
   }
   setStatus('⏳ Анализирую...');
-  let attempts=0;
-  const tryDecode=()=>{
+  let attempts = 0;
+  const maxAttempts = 8;
+  const tryDecode = () => {
     attempts++;
-    const result=grabAndDecode(vid);
-    if(result){
-      if (scanRaf) cancelAnimationFrame(scanRaf);
-      scanRaf = null;
+    const result = grabAndDecode(vid);
+    if (result) {
+      if (scanTimer) {
+        clearInterval(scanTimer);
+        scanTimer = null;
+      }
       stopScan();
       processQR(result);
       return;
     }
-    if(attempts<5){
-      setStatus(`⏳ Попытка ${attempts}/5...`);
-      setTimeout(tryDecode,300);
-    }else{
+    if (attempts < maxAttempts) {
+      setStatus(`⏳ Попытка ${attempts}/${maxAttempts}...`);
+      setTimeout(tryDecode, 200);
+    } else {
       setStatus('❌ QR не найден. Поднесите ближе и попробуйте снова');
-      setTimeout(()=>setStatus('Наведите камеру и нажмите кнопку ниже'),2500);
+      setTimeout(() => setStatus('Наведите камеру и нажмите кнопку ниже'), 2500);
     }
   };
   tryDecode();
 }
 
-function stopScan(){
-  if (scanRaf) {
-    cancelAnimationFrame(scanRaf);
-    scanRaf = null;
+function stopScan() {
+  if (scanTimer) {
+    clearInterval(scanTimer);
+    scanTimer = null;
   }
-  if(scanStream){
-    scanStream.getTracks().forEach(t=>t.stop());
-    scanStream=null;
+  if (scanStream) {
+    scanStream.getTracks().forEach(t => t.stop());
+    scanStream = null;
   }
-  const vid=document.getElementById('scanVid');
-  vid.srcObject=null;
+  const vid = document.getElementById('scanVid');
+  vid.srcObject = null;
   showSnapBtn(false);
   document.getElementById('scanOverlay').classList.remove('active');
 }
 
-function setStatus(t){
-  const el=document.getElementById('scanStatus');
-  if(el)el.textContent=t;
+function setStatus(t) {
+  const el = document.getElementById('scanStatus');
+  if (el) el.textContent = t;
 }
 
 function processQR(raw){
@@ -1298,18 +1274,8 @@ function processQR(raw){
   const n=data.count||(data.items||[]).reduce((s,i)=>s+i.qty,0);
   speak(`Ячейка ${data.cell}. ${n} ${n===1?'товар':n<5?'товара':'товаров'}. ${data.payment==='delivery'?'Оплата при получении':'Оплачено онлайн'}.`);
   toast(`📦 Заказ #${id} загружен`);
+  // Сразу переходим на страницу заказов сотрудника
   renderPage('eorders');
-
-  setTimeout(() => {
-    const newOrderEl = document.querySelector(`[data-order-id="${id}"]`);
-    if (newOrderEl) {
-      newOrderEl.style.transition = 'background 0.5s';
-      newOrderEl.style.background = 'rgba(0,122,255,0.2)';
-      setTimeout(() => {
-        newOrderEl.style.background = '';
-      }, 1000);
-    }
-  }, 100);
 }
 
 /* ===== EMP ORDERS ===== */
