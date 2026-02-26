@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ПВЗ — QR scanner fix</title>
+<title>ПВЗ — QR scanner FIX</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
-<!-- Подключаем надёжную библиотеку для генерации QR-кодов -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
-/* Все стили остаются без изменений (из исходного кода) */
+/* ===== ВСЕ СТИЛИ БЕЗ ИЗМЕНЕНИЙ (как в исходнике) ===== */
 *,::before,::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:#000}
 body{
@@ -727,9 +726,7 @@ box-shadow:0 8px 36px rgba(0,0,0,0.5);
 <div id="toast"></div>
 
 <script>
-/* ═══════════════════════════════
-   AUDIO (без изменений)
-═══════════════════════════════ */
+/* ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (AUDIO, MODALS, STATE) ===== */
 let _ac = null;
 function ac(){
   if(!_ac) _ac = new (window.AudioContext||window.webkitAudioContext)();
@@ -760,9 +757,6 @@ const SFX={
 };
 document.addEventListener('pointerdown',()=>{if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)()},{once:true});
 
-/* ═══════════════════════════════
-   STATE (добавлена переменная scanRaf)
-═══════════════════════════════ */
 let ROLE = 'buyer';
 let CUR  = 'shop';
 let products=[
@@ -779,12 +773,11 @@ let selPay='delivery';
 let retOid=null;
 let retSel=new Set();
 let scanStream=null;
-let scanRaf = null;          // для анимации сканирования
+let scanRaf = null;          // id requestAnimationFrame
 let pidC=20,oidC=100;
 function pid(){return ++pidC}
 function oid(){return ++oidC}
 
-/* profiles – editable */
 const profiles={
   buyer:{name:'Имя покупателя',role:'Покупатель',av:'🛍️'},
   emp:  {name:'Имя сотрудника',role:'Сотрудник ПВЗ',av:'👷'}
@@ -795,9 +788,7 @@ const CC =()=>cart.reduce((s,i)=>s+i.qty,0);
 const CT =()=>cart.reduce((s,i)=>s+i.p.price*i.qty,0);
 const EMOJIS=['📦','🎧','📱','👟','👜','🎮','💻','⌚','🔌','📷','🎁','🧴','👗','🕹️','📚','🍕','🧸','💡','🖥️','🎵','🎒','🛍️','🖱️','🎸','🏋️'];
 
-/* ═══════════════════════════════
-   TOAST (без изменений)
-═══════════════════════════════ */
+/* ===== TOAST ===== */
 let _tt=null;
 function toast(msg,dur=2600){
   const el=document.getElementById('toast');
@@ -805,9 +796,7 @@ function toast(msg,dur=2600){
   clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),dur);
 }
 
-/* ═══════════════════════════════
-   MODAL (без изменений)
-═══════════════════════════════ */
+/* ===== MODAL ===== */
 let _openModal=null;
 function openModal(id){
   closeAllModals();
@@ -828,9 +817,7 @@ function closeAllModals(){
   _openModal=null;
 }
 
-/* ═══════════════════════════════
-   ROLE / PREVIEW (без изменений)
-═══════════════════════════════ */
+/* ===== ROLE / PREVIEW ===== */
 function previewSwitch(r){
   SFX.tap();
   const tabs=document.querySelectorAll('.rs-ptab');
@@ -864,9 +851,7 @@ function exitRole(){
   document.getElementById('roleScreen').classList.add('active');
 }
 
-/* ═══════════════════════════════
-   TABS (без изменений)
-═══════════════════════════════ */
+/* ===== TABS ===== */
 const BTABS=[
   {id:'shop',   icon:'🏪',label:'Магазин'},
   {id:'cart',   icon:'🛒',label:'Корзина',  bdg:'cart'},
@@ -898,9 +883,7 @@ function navTo(id){
   renderPage(id);
 }
 
-/* ═══════════════════════════════
-   PAGE RENDER (без изменений)
-═══════════════════════════════ */
+/* ===== PAGE RENDER ===== */
 function renderPage(id){
   CUR=id;
   buildTabs();
@@ -928,9 +911,7 @@ function renderPage(id){
   }
 }
 
-/* ═══════════════════════════════
-   SHOP (без изменений)
-═══════════════════════════════ */
+/* ===== SHOP ===== */
 function shopHTML(){
   if(!products.length) return`<div class="empty"><div class="ei">🏪</div><p>Нет товаров.<br>Нажмите + чтобы добавить</p></div>`;
   return`<div class="sec-label">Товары · ${products.length}</div>
@@ -952,9 +933,7 @@ function cardHTML(p){
   </div>`;
 }
 
-/* ═══════════════════════════════
-   PRODUCT MODAL (без изменений)
-═══════════════════════════════ */
+/* ===== PRODUCT MODAL ===== */
 function openProductModal(id){
   editId=id;
   const p=id?products.find(x=>x.id===id):null;
@@ -995,9 +974,7 @@ function delProduct(id){
   renderPage('shop');toast('🗑️ Удалено');
 }
 
-/* ═══════════════════════════════
-   CART (без изменений)
-═══════════════════════════════ */
+/* ===== CART ===== */
 function addCart(id){
   const p=products.find(x=>x.id===id);
   const e=cart.find(i=>i.p.id===id);
@@ -1074,9 +1051,7 @@ function placeOrder(){
   toast('🎉 Заказ оформлен!');renderPage('orders');
 }
 
-/* ═══════════════════════════════
-   ORDERS (без изменений)
-═══════════════════════════════ */
+/* ===== ORDERS ===== */
 function ordersHTML(){
   if(!orders.length)return`<div class="empty"><div class="ei">📋</div><p>Заказов пока нет</p></div>`;
   return`<div class="sec-label">Мои заказы · ${orders.length}</div>
@@ -1098,15 +1073,12 @@ function ordersHTML(){
   }).join('')}`;
 }
 
-/* ═══════════════════════════════
-   QR CODE GENERATOR (исправлено — используем библиотеку)
-═══════════════════════════════ */
+/* ===== QR GENERATOR ===== */
 function showQR(orderId) {
   const o = orders.find(x => x.id === orderId);
   if (!o) return;
   SFX.scan();
 
-  // Данные для QR-кода
   const data = JSON.stringify({
     orderId: o.id,
     cell: o.cell,
@@ -1121,7 +1093,6 @@ function showQR(orderId) {
     }))
   });
 
-  // Создаём QR-код с уровнем коррекции M (15%)
   const qr = qrcode(0, 'M');
   qr.addData(data);
   qr.make();
@@ -1132,7 +1103,6 @@ function showQR(orderId) {
 
   openModal('mQR');
 
-  // Отрисовываем в canvas
   setTimeout(() => {
     const box = document.getElementById('qrBox');
     box.innerHTML = '';
@@ -1152,9 +1122,7 @@ function showQR(orderId) {
   }, 80);
 }
 
-/* ═══════════════════════════════
-   SCANNER — обновлён с requestAnimationFrame
-═══════════════════════════════ */
+/* ========== ИСПРАВЛЕННЫЙ СКАНЕР ========== */
 function scannerHTML(){
   const hist=empOrders.slice(-3).reverse();
   return`<div class="scan-hero glass-card">
@@ -1174,17 +1142,37 @@ function scannerHTML(){
 
 let _qrCanvas=null,_qrCtx=null;
 
+// Функция захвата кадра с масштабированием (уменьшаем до 480px по большей стороне)
+function grabAndDecode(vid) {
+  if (!vid.videoWidth || !vid.videoHeight) return null;
+  const maxDim = 480;
+  let sw = vid.videoWidth, sh = vid.videoHeight;
+  let scale = 1;
+  if (sw > maxDim || sh > maxDim) {
+    scale = maxDim / Math.max(sw, sh);
+  }
+  const dw = Math.floor(sw * scale);
+  const dh = Math.floor(sh * scale);
+
+  if (!_qrCanvas) {
+    _qrCanvas = document.createElement('canvas');
+    _qrCtx = _qrCanvas.getContext('2d', { willReadFrequently: true });
+  }
+  _qrCanvas.width = dw;
+  _qrCanvas.height = dh;
+  _qrCtx.drawImage(vid, 0, 0, sw, sh, 0, 0, dw, dh);
+
+  const img = _qrCtx.getImageData(0, 0, dw, dh);
+  const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+  return code ? code.data : null;
+}
+
 function startScan(){
   SFX.tap();
   const ov=document.getElementById('scanOverlay');
   ov.classList.add('active');
   setStatus('Запрос доступа к камере…');
   showSnapBtn(false);
-
-  if(!_qrCanvas){
-    _qrCanvas=document.createElement('canvas');
-    _qrCtx=_qrCanvas.getContext('2d',{willReadFrequently:true});
-  }
 
   navigator.mediaDevices.getUserMedia({
     video:{
@@ -1198,17 +1186,21 @@ function startScan(){
     vid.srcObject=stream;
     vid.play().catch(()=>{});
 
-    vid.onloadedmetadata=()=>{
-      vid.play().catch(()=>{});
-    };
-
     vid.onplaying = () => {
       setStatus('Сканирование...');
       showSnapBtn(true);
-      // Запускаем непрерывное сканирование
       if (scanRaf) cancelAnimationFrame(scanRaf);
+
+      let frameCount = 0;
       function scanLoop() {
+        // Проверяем, что видео всё ещё активно и имеет размеры
         if (!vid.videoWidth || vid.paused || vid.ended) {
+          scanRaf = requestAnimationFrame(scanLoop);
+          return;
+        }
+        frameCount++;
+        // Пропускаем каждый второй кадр для снижения нагрузки (опционально)
+        if (frameCount % 2 === 0) {
           scanRaf = requestAnimationFrame(scanLoop);
           return;
         }
@@ -1240,7 +1232,7 @@ function showSnapBtn(show){
   if(btn) btn.style.display=show?'block':'none';
 }
 
-// Ручной режим (оставлен как запасной)
+// Ручной режим (теперь тоже использует масштабированный захват)
 function snapDecode(){
   SFX.tap();
   const vid=document.getElementById('scanVid');
@@ -1260,8 +1252,8 @@ function snapDecode(){
       processQR(result);
       return;
     }
-    if(attempts<4){
-      setStatus(`⏳ Попытка ${attempts}/4...`);
+    if(attempts<5){
+      setStatus(`⏳ Попытка ${attempts}/5...`);
       setTimeout(tryDecode,300);
     }else{
       setStatus('❌ QR не найден. Поднесите ближе и попробуйте снова');
@@ -1269,19 +1261,6 @@ function snapDecode(){
     }
   };
   tryDecode();
-}
-
-function grabAndDecode(vid){
-  try{
-    if (!vid.videoWidth || !vid.videoHeight) return null;
-    _qrCanvas.width=vid.videoWidth;
-    _qrCanvas.height=vid.videoHeight;
-    _qrCtx.drawImage(vid,0,0);
-    const img=_qrCtx.getImageData(0,0,_qrCanvas.width,_qrCanvas.height);
-    let code=jsQR(img.data,img.width,img.height,{inversionAttempts:'attemptBoth'});
-    return code ? code.data : null;
-  }catch(e){}
-  return null;
 }
 
 function stopScan(){
@@ -1321,7 +1300,6 @@ function processQR(raw){
   toast(`📦 Заказ #${id} загружен`);
   renderPage('eorders');
 
-  // Подсветка нового заказа (добавляем data-order-id в карточку)
   setTimeout(() => {
     const newOrderEl = document.querySelector(`[data-order-id="${id}"]`);
     if (newOrderEl) {
@@ -1334,9 +1312,7 @@ function processQR(raw){
   }, 100);
 }
 
-/* ═══════════════════════════════
-   EMP ORDERS (добавлен data-order-id)
-═══════════════════════════════ */
+/* ===== EMP ORDERS ===== */
 function eordersHTML(){
   const active=empOrders.filter(o=>o.status!=='done');
   const done=empOrders.filter(o=>o.status==='done');
@@ -1426,9 +1402,7 @@ function completeOrder(oid){
   SFX.done();toast('🎉 Заказ выдан!');renderPage('eorders');
 }
 
-/* ═══════════════════════════════
-   PROFILE (без изменений)
-═══════════════════════════════ */
+/* ===== PROFILE ===== */
 function profileHTML(){
   const p=profiles[ROLE];
   const myOrders=ROLE==='buyer'?orders:empOrders;
@@ -1482,9 +1456,7 @@ function editName(){
   input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
 }
 
-/* ═══════════════════════════════
-   SPEECH (без изменений)
-═══════════════════════════════ */
+/* ===== SPEECH ===== */
 function speak(txt){
   if(!window.speechSynthesis)return;
   speechSynthesis.cancel();
@@ -1493,6 +1465,5 @@ function speak(txt){
   speechSynthesis.speak(u);
 }
 </script>
-
 </body>
 </html>
