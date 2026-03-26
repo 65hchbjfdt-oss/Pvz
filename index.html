@@ -430,7 +430,7 @@ padding:0 16px 16px;
       <div class="profile-avatar" id="profile-avatar-display">K</div>
       <div>
         <div class="profile-name" id="profile-name-display">Пользователь</div>
-        <div class="profile-email" id="profile-email-display">email@example.com</div>
+        <div class="profile-email" id="profile-email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bdd8d0dcd4d1fdd8c5dcd0cdd1d893ded2d0">[email&#160;protected]</a></div>
         <div class="profile-badge">♥ <span id="likes-count">0</span> треков</div>
       </div>
     </div>
@@ -531,7 +531,7 @@ padding:0 16px 16px;
 <div class="toast" id="toast"></div>
 <audio id="audio"></audio>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ══════════════════════════════════════════════════
 // CONFIG
 // ══════════════════════════════════════════════════
@@ -555,6 +555,7 @@ let listenCount = 0;
 let searchHistory = JSON.parse(localStorage.getItem('kiwi_history') || '[]');
 let pendingRegEmail = '';
 let pendingRegUsername = '';
+let pendingRegPass = '';
 let otpCountdownTimer = null;
 const audio = document.getElementById('audio');
 
@@ -612,27 +613,28 @@ async function doRegister() {
   if (username.length < 3) return showMsg('Имя минимум 3 символа', 'error');
   if (!email || pass.length < 6) return showMsg('Заполните все поля (пароль мин. 6 символов)', 'error');
 
-  showMsg('Создаём аккаунт...', 'success');
+  showMsg('Отправляем код...', 'success');
 
-  // Register with OTP flow — Supabase отправит письмо с кодом (без ссылки)
-  const data = await sbAuth('signup', {
-    email,
-    password: pass,
-    data: { username },
-    options: { emailRedirectTo: null } // отключаем magic link
+  // Шаг 1: отправляем 6-значный OTP на email через signInWithOtp
+  // Это гарантирует числовой код в письме, без ссылок
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email,
+      create_user: true,       // создаёт юзера если не существует
+      data: { username },
+      options: { shouldCreateUser: true }
+    })
   });
+  const data = await res.json();
 
-  if (data.error) return showMsg(data.error_description || 'Ошибка регистрации', 'error');
+  if (data.error) return showMsg(data.error_description || data.error || 'Ошибка отправки кода', 'error');
 
-  // Если email уже подтверждён (dev mode без верификации)
-  if (data.access_token) {
-    await loginSuccess(data);
-    return;
-  }
-
-  // Стандартный флоу — показываем OTP экран
+  // Сохраняем данные для шага 2 (после верификации — обновим пароль)
   pendingRegEmail = email;
   pendingRegUsername = username;
+  pendingRegPass = pass;
   showOTPScreen(email);
 }
 
@@ -718,12 +720,12 @@ async function verifyOTP() {
   btn.disabled = true;
   btn.textContent = 'Проверяем...';
 
-  // Verify OTP via Supabase
+  // Шаг 2: верифицируем 6-значный OTP
   const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      type: 'signup',
+      type: 'email',      // тип для signInWithOtp / OTP флоу
       email: pendingRegEmail,
       token: code
     })
@@ -736,7 +738,6 @@ async function verifyOTP() {
   if (data.error || !data.access_token) {
     const msgEl = document.getElementById('otp-msg');
     msgEl.innerHTML = '<p class="error-msg">Неверный код. Проверь почту и попробуй снова.</p>';
-    // Shake the inputs
     const inputsWrap = document.getElementById('otp-inputs');
     inputsWrap.style.animation = 'none';
     inputsWrap.offsetHeight;
@@ -744,7 +745,19 @@ async function verifyOTP() {
     return;
   }
 
-  // Success
+  // Шаг 3: устанавливаем пароль для аккаунта (теперь есть access_token)
+  if (pendingRegPass) {
+    await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      method: 'PUT',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${data.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password: pendingRegPass })
+    });
+  }
+
   clearInterval(otpCountdownTimer);
   document.getElementById('otp-screen').classList.remove('show');
   await loginSuccess(data);
@@ -754,11 +767,10 @@ async function resendOTP() {
   const btn = document.getElementById('otp-resend-btn');
   btn.disabled = true;
 
-  // Re-send OTP via Supabase resend endpoint
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/resend`, {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'signup', email: pendingRegEmail })
+    body: JSON.stringify({ email: pendingRegEmail, create_user: false })
   });
   const data = await res.json();
 
@@ -769,7 +781,6 @@ async function resendOTP() {
   }
 
   document.getElementById('otp-msg').innerHTML = '<p class="success-msg">Новый код отправлен!</p>';
-  // Reset inputs
   document.querySelectorAll('#otp-inputs input').forEach(i => { i.value = ''; i.classList.remove('filled'); });
   document.querySelectorAll('#otp-inputs input')[0].focus();
   document.getElementById('otp-submit-btn').disabled = true;
@@ -826,6 +837,7 @@ async function loginSuccess(data) {
   localStorage.setItem('kiwi_session', JSON.stringify({ token, uid }));
   pendingRegEmail = '';
   pendingRegUsername = '';
+  pendingRegPass = '';
   await initApp();
 }
 
@@ -1295,15 +1307,4 @@ function showToast(msg) {
 })();
 </script>
 
-<!-- Shake animation for wrong OTP -->
-<style>
-@keyframes shake {
-  0%,100%{transform:translateX(0)}
-  20%{transform:translateX(-8px)}
-  40%{transform:translateX(8px)}
-  60%{transform:translateX(-4px)}
-  80%{transform:translateX(4px)}
-}
-</style>
-</body>
-</html>
+<!-- Shake animation for wrong OTP
