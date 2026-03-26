@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
@@ -28,36 +27,59 @@ justify-content:center;padding:24px;position:relative;overflow:hidden;
 .auth-logo .icon{width:80px;height:80px;background:linear-gradient(135deg,#22C55E,#0D3B1E);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;box-shadow:0 20px 60px rgba(34,197,94,0.3);}
 .auth-logo h1{font-size:32px;font-weight:700;margin-bottom:4px;}
 .auth-logo p{color:rgba(255,255,255,0.5);font-size:14px;}
-.auth-box{background:rgba(255,255,255,0.05);border:1px solid var(–border);border-radius:24px;padding:32px;width:100%;max-width:400px;backdrop-filter:blur(20px);}
+.auth-box{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:24px;padding:32px;width:100%;max-width:400px;backdrop-filter:blur(20px);}
 .tabs{display:flex;gap:4px;background:rgba(255,255,255,0.05);border-radius:12px;padding:4px;margin-bottom:24px;}
 .tab-btn{flex:1;padding:8px;border:none;background:none;color:rgba(255,255,255,0.5);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.2s;}
 .tab-btn.active{background:rgba(255,255,255,0.1);color:#fff;}
 .form-group{margin-bottom:16px;}
 .form-group label{display:block;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:6px;}
-.form-group input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(–border);border-radius:12px;padding:12px 16px;color:#fff;font-size:14px;outline:none;transition:.2s;}
-.form-group input:focus{border-color:var(–emerald);background:rgba(255,255,255,0.08);}
+.form-group input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:#fff;font-size:14px;outline:none;transition:.2s;}
+.form-group input:focus{border-color:var(--emerald);background:rgba(255,255,255,0.08);}
 .form-group input::placeholder{color:rgba(255,255,255,0.3);}
-.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(–emerald),#16A34A);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;margin-top:8px;}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--emerald),#16A34A);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;margin-top:8px;}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,197,94,0.3);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 .error-msg{color:#F87171;font-size:13px;margin-top:8px;text-align:center;}
-.success-msg{color:var(–emerald);font-size:13px;margin-top:8px;text-align:center;}
+.success-msg{color:var(--emerald);font-size:13px;margin-top:8px;text-align:center;}
+
+/* OTP Screen */
+#otp-screen{
+min-height:100vh;display:none;flex-direction:column;align-items:center;
+justify-content:center;padding:24px;position:relative;overflow:hidden;
+}
+#otp-screen.show{display:flex;}
+.otp-box{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:24px;padding:32px;width:100%;max-width:400px;backdrop-filter:blur(20px);text-align:center;}
+.otp-box h2{font-size:22px;font-weight:700;margin-bottom:8px;}
+.otp-box .otp-email{color:var(--emerald);font-size:14px;margin-bottom:24px;word-break:break-all;}
+.otp-box p{color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:24px;}
+.otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:24px;}
+.otp-inputs input{
+  width:48px;height:56px;border-radius:14px;border:2px solid var(--border);
+  background:rgba(255,255,255,0.06);color:#fff;font-size:24px;font-weight:700;
+  text-align:center;outline:none;transition:.2s;caret-color:var(--emerald);
+}
+.otp-inputs input:focus{border-color:var(--emerald);background:rgba(34,197,94,0.08);}
+.otp-inputs input.filled{border-color:rgba(34,197,94,0.5);}
+.otp-resend{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;margin-top:16px;transition:.2s;}
+.otp-resend:hover{color:var(--emerald);}
+.otp-resend:disabled{opacity:.4;cursor:not-allowed;}
+.otp-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;margin-top:12px;display:block;width:100%;transition:.2s;}
+.otp-back:hover{color:#fff;}
+.otp-countdown{color:rgba(255,255,255,0.3);font-size:12px;margin-top:8px;}
 
 /* ── MAIN APP ── */
 #app{display:none;flex-direction:column;min-height:100vh;}
 #app.show{display:flex;}
 
-/* Header */
 .app-header{padding:48px 16px 16px;display:flex;align-items:center;justify-content:space-between;}
 .app-header h1{font-size:22px;font-weight:700;}
 .header-right{display:flex;align-items:center;gap:12px;}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(–emerald),var(–green));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;cursor:pointer;}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--green));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;cursor:pointer;}
 
-/* Pages */
 .page{display:none;padding:0 16px 140px;animation:fadeIn .2s ease;}
 .page.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* KiwiFlow */
 .kiwiflow{
 border-radius:24px;overflow:hidden;cursor:pointer;margin-bottom:24px;
 position:relative;min-height:160px;
@@ -66,7 +88,7 @@ background-size:400% 400%;animation:gradientX 8s ease infinite;
 }
 @keyframes gradientX{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .kiwiflow::before{
-content:’’;position:absolute;inset:0;
+content:'';position:absolute;inset:0;
 background:radial-gradient(ellipse at 30% 60%,rgba(34,197,94,0.25) 0%,transparent 60%),
 radial-gradient(ellipse at 80% 20%,rgba(139,0,0,0.4) 0%,transparent 60%);
 }
@@ -74,37 +96,34 @@ radial-gradient(ellipse at 80% 20%,rgba(139,0,0,0.4) 0%,transparent 60%);
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 .kiwiflow-content{position:relative;z-index:1;padding:20px;}
 .kiwiflow-badge{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.kiwiflow-badge span{color:var(–emerald);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
+.kiwiflow-badge span{color:var(--emerald);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
 .kiwiflow-content h2{font-size:24px;font-weight:700;margin-bottom:4px;}
 .kiwiflow-content p{color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:16px;}
 .btn-glass{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:50px;padding:8px 16px;font-size:13px;font-weight:500;color:#fff;cursor:pointer;transition:.2s;}
 .btn-glass:hover{background:rgba(255,255,255,0.3);}
 
-/* Sections */
 .section{margin-bottom:28px;}
 .section-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .section-header h2{font-size:18px;font-weight:700;}
-.section-header .icon{color:var(–emerald);}
+.section-header .icon{color:var(--emerald);}
 
-/* Track row */
 .track-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;cursor:pointer;transition:.15s;}
 .track-row:hover{background:rgba(255,255,255,0.05);}
 .track-row.active{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);}
 .track-num{width:20px;text-align:center;font-size:13px;color:rgba(255,255,255,0.3);flex-shrink:0;}
-.track-row.active .track-num{color:var(–emerald);}
+.track-row.active .track-num{color:var(--emerald);}
 .track-img{width:44px;height:44px;border-radius:12px;object-fit:cover;flex-shrink:0;background:rgba(255,255,255,0.1);}
 .track-info{flex:1;min-width:0;}
 .track-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.track-row.active .track-name{color:var(–emerald);}
+.track-row.active .track-name{color:var(--emerald);}
 .track-artist{font-size:12px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .track-dur{font-size:12px;color:rgba(255,255,255,0.25);flex-shrink:0;}
 .bars{display:flex;align-items:flex-end;gap:2px;height:16px;}
-.bar{width:3px;background:var(–emerald);border-radius:2px;animation:bar 1.2s ease-in-out infinite;}
+.bar{width:3px;background:var(--emerald);border-radius:2px;animation:bar 1.2s ease-in-out infinite;}
 .bar:nth-child(2){animation-delay:.2s;}
 .bar:nth-child(3){animation-delay:.4s;}
 @keyframes bar{0%,100%{height:4px}50%{height:16px}}
 
-/* Horizontal scroll */
 .scroll-row{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .scroll-row::-webkit-scrollbar{display:none;}
 .album-card{flex-shrink:0;width:128px;cursor:pointer;}
@@ -113,31 +132,29 @@ radial-gradient(ellipse at 80% 20%,rgba(139,0,0,0.4) 0%,transparent 60%);
 .album-card .name{font-size:12px;font-weight:500;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .album-card .artist{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* Events */
 .event-tabs{display:flex;gap:8px;margin-bottom:12px;}
 .event-tab{padding:6px 16px;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;}
-.event-tab.active{background:var(–emerald);color:#fff;}
+.event-tab.active{background:var(--emerald);color:#fff;}
 .event-tab:not(.active){background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);}
-.event-card{background:rgba(255,255,255,0.05);border:1px solid var(–border);border-radius:16px;padding:16px;margin-bottom:12px;}
+.event-card{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
 .event-card h3{font-size:15px;font-weight:600;margin-bottom:4px;}
 .event-card p{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;}
 .progress-bars{display:flex;gap:4px;margin-bottom:12px;}
 .prog-bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);}
-.prog-bar.done{background:var(–emerald);}
-.btn-event{width:100%;padding:10px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:12px;color:var(–emerald);font-size:13px;font-weight:500;cursor:pointer;transition:.2s;}
+.prog-bar.done{background:var(--emerald);}
+.btn-event{width:100%;padding:10px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:12px;color:var(--emerald);font-size:13px;font-weight:500;cursor:pointer;transition:.2s;}
 .btn-event:hover{background:rgba(34,197,94,0.25);}
 
-/* ── SEARCH ── */
 .search-bar{position:relative;margin-bottom:20px;}
-.search-bar input{width:100%;background:rgba(255,255,255,0.08);border:1px solid var(–border);border-radius:16px;padding:14px 48px;color:#fff;font-size:15px;outline:none;transition:.2s;}
+.search-bar input{width:100%;background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:16px;padding:14px 48px;color:#fff;font-size:15px;outline:none;transition:.2s;}
 .search-bar input:focus{border-color:rgba(34,197,94,0.5);}
 .search-bar input::placeholder{color:rgba(255,255,255,0.3);}
 .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);}
 .clear-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px;}
 .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
 .tag{padding:6px 14px;border-radius:50px;font-size:13px;cursor:pointer;transition:.2s;}
-.tag.trending{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(–emerald);}
-.tag.history{background:rgba(255,255,255,0.08);border:1px solid var(–border);color:rgba(255,255,255,0.7);}
+.tag.trending{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--emerald);}
+.tag.history{background:rgba(255,255,255,0.08);border:1px solid var(--border);color:rgba(255,255,255,0.7);}
 .tag:hover{opacity:.8;}
 .search-result{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;cursor:pointer;transition:.15s;border:1px solid transparent;}
 .search-result:hover{background:rgba(255,255,255,0.05);}
@@ -147,27 +164,25 @@ radial-gradient(ellipse at 80% 20%,rgba(139,0,0,0.4) 0%,transparent 60%);
 .result-artist{font-size:13px;color:rgba(255,255,255,0.5);}
 .result-album{font-size:12px;color:rgba(255,255,255,0.25);}
 
-/* ── PROFILE ── */
-.profile-header{display:flex;align-items:center;gap:16px;padding:16px 16px 24px;border-bottom:1px solid var(–border);margin-bottom:20px;}
-.profile-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(–emerald),var(–green));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0;}
+.profile-header{display:flex;align-items:center;gap:16px;padding:16px 16px 24px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--green));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0;}
 .profile-name{font-size:20px;font-weight:700;}
 .profile-email{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px;}
-.profile-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(–emerald);}
+.profile-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--emerald);}
 .stats-row{display:flex;gap:8px;margin-bottom:20px;}
-.stat-card{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(–border);border-radius:14px;padding:14px;text-align:center;}
-.stat-num{font-size:22px;font-weight:700;color:var(–emerald);}
+.stat-card{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
+.stat-num{font-size:22px;font-weight:700;color:var(--emerald);}
 .stat-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;}
 .liked-track{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;cursor:pointer;transition:.15s;}
 .liked-track:hover{background:rgba(255,255,255,0.05);}
 .liked-img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:rgba(255,255,255,0.1);}
-.btn-logout{width:calc(100% - 32px);margin:16px;padding:14px;background:rgba(255,255,255,0.05);border:1px solid var(–border);border-radius:14px;color:rgba(255,255,255,0.6);font-size:14px;cursor:pointer;transition:.2s;}
+.btn-logout{width:calc(100% - 32px);margin:16px;padding:14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:14px;color:rgba(255,255,255,0.6);font-size:14px;cursor:pointer;transition:.2s;}
 .btn-logout:hover{background:rgba(255,255,255,0.1);color:#fff;}
 
-/* ── MINI PLAYER ── */
 #mini-player{
 position:fixed;bottom:72px;left:12px;right:12px;z-index:40;
 background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);
-border:1px solid var(–border);border-radius:20px;padding:12px;
+border:1px solid var(--border);border-radius:20px;padding:12px;
 display:none;cursor:pointer;
 }
 #mini-player.show{display:block;}
@@ -179,11 +194,10 @@ display:none;cursor:pointer;
 .mini-controls{display:flex;align-items:center;gap:8px;}
 .mini-btn{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:6px;border-radius:50%;transition:.2s;font-size:18px;}
 .mini-btn:hover{color:#fff;background:rgba(255,255,255,0.1);}
-.play-btn-mini{background:var(–emerald)!important;color:#fff!important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.play-btn-mini{background:var(--emerald)!important;color:#fff!important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
 .mini-progress{margin-top:8px;height:2px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
-.mini-progress-bar{height:100%;background:linear-gradient(90deg,var(–emerald),#16A34A);border-radius:2px;transition:width .5s linear;}
+.mini-progress-bar{height:100%;background:linear-gradient(90deg,var(--emerald),#16A34A);border-radius:2px;transition:width .5s linear;}
 
-/* ── FULL PLAYER ── */
 #full-player{
 position:fixed;inset:0;z-index:50;
 background:linear-gradient(180deg,#5C0000 0%,#000 60%);
@@ -205,16 +219,15 @@ display:none;flex-direction:column;overflow:hidden;
 .like-btn:not(.liked){color:rgba(255,255,255,0.4);}
 .fp-progress{width:100%;margin-bottom:16px;}
 .progress-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;cursor:pointer;position:relative;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(–emerald),#16A34A);border-radius:2px;position:relative;transition:width .5s linear;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--emerald),#16A34A);border-radius:2px;position:relative;transition:width .5s linear;}
 .progress-thumb{position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
 .time-row{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:rgba(255,255,255,0.4);}
 .fp-controls{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:16px;}
 .ctrl-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-size:22px;cursor:pointer;padding:8px;transition:.2s;}
 .ctrl-btn:hover{color:#fff;}
-.ctrl-btn.active{color:var(–emerald);}
-.play-btn-main{width:64px;height:64px;background:var(–emerald);border:none;border-radius:50%;font-size:28px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(34,197,94,0.4);transition:.2s;}
+.ctrl-btn.active{color:var(--emerald);}
+.play-btn-main{width:64px;height:64px;background:var(--emerald);border:none;border-radius:50%;font-size:28px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(34,197,94,0.4);transition:.2s;}
 .play-btn-main:hover{transform:scale(1.05);}
-/* Not what I wanted - small subtle button */
 .not-this{
 position:absolute;bottom:100px;right:16px;
 padding:6px 12px;background:rgba(255,255,255,0.05);
@@ -223,32 +236,27 @@ color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;transition:.2s;
 }
 .not-this:hover{color:rgba(255,255,255,0.6);}
 
-/* ── BOTTOM NAV ── */
 #bottom-nav{
 position:fixed;bottom:0;left:0;right:0;z-index:45;
 padding:0 16px 16px;
 }
-.nav-inner{background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);border:1px solid var(–border);border-radius:20px;padding:12px 24px;}
+.nav-inner{background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:12px 24px;}
 .nav-tabs{display:flex;justify-content:space-around;}
 .nav-tab{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;transition:.2s;padding:4px 12px;}
-.nav-tab.active{color:var(–emerald);}
+.nav-tab.active{color:var(--emerald);}
 .nav-tab svg{width:24px;height:24px;}
 .nav-tab span{font-size:11px;font-weight:500;}
 
-/* Loading skeleton */
 .skeleton{background:rgba(255,255,255,0.05);border-radius:12px;animation:pulse 1.5s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-/* Toast */
-.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(34,197,94,0.9);color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;z-index:100;transition:.3s;opacity:0;pointer-events:none;}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(34,197,94,0.9);color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;z-index:100;transition:.3s;opacity:0;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 </style>
-
 </head>
 <body>
 
 <!-- AUTH -->
-
 <div id="auth-screen">
   <div class="blob blob1"></div>
   <div class="blob blob2"></div>
@@ -277,10 +285,37 @@ padding:0 16px 16px;
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- OTP VERIFICATION SCREEN -->
+<div id="otp-screen">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="auth-logo">
+    <div class="icon">📬</div>
+    <h1>Kiwi Music</h1>
+    <p>Подтверждение почты</p>
+  </div>
+  <div class="otp-box">
+    <h2>Проверь почту</h2>
+    <div class="otp-email" id="otp-email-display"></div>
+    <p>Мы отправили 6-значный код. Введи его ниже — без перехода по ссылкам.</p>
+    <div class="otp-inputs" id="otp-inputs">
+      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="one-time-code"/>
+      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
+      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
+      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
+      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
+      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
+    </div>
+    <button class="btn-primary" id="otp-submit-btn" onclick="verifyOTP()" disabled>Подтвердить</button>
+    <div id="otp-msg" style="margin-top:12px"></div>
+    <div class="otp-countdown" id="otp-countdown"></div>
+    <button class="otp-resend" id="otp-resend-btn" onclick="resendOTP()" disabled>Отправить код повторно</button>
+    <button class="otp-back" onclick="backToAuth()">← Вернуться к регистрации</button>
+  </div>
+</div>
 
+<!-- MAIN APP -->
 <div id="app">
-  <!-- HOME PAGE -->
   <div id="page-home" class="page active">
     <div class="app-header">
       <div>
@@ -292,81 +327,73 @@ padding:0 16px 16px;
       </div>
     </div>
 
-```
-<!-- KiwiFlow -->
-<div class="kiwiflow" style="margin:0 16px 24px" onclick="playKiwiFlow()">
-  <div class="kiwiflow-blob"></div>
-  <div class="kiwiflow-content">
-    <div class="kiwiflow-badge">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      <span>KiwiFlow</span>
-    </div>
-    <h2>Моя волна</h2>
-    <p id="kf-count">Загрузка треков...</p>
-    <button class="btn-glass" onclick="event.stopPropagation();playKiwiFlow()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      Слушать
-    </button>
-  </div>
-</div>
-
-<!-- Popular -->
-<div class="section" style="padding:0 16px">
-  <div class="section-header">
-    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-    <h2>Популярное</h2>
-  </div>
-  <div id="popular-list"></div>
-</div>
-
-<!-- Events -->
-<div class="section" style="padding:0 16px">
-  <div class="section-header">
-    <span style="font-size:16px">🏆</span>
-    <h2>Ивенты</h2>
-  </div>
-  <div class="event-tabs">
-    <button class="event-tab active" onclick="switchEventTab('tasks',this)">Задания</button>
-    <button class="event-tab" onclick="switchEventTab('collection',this)">Коллекция</button>
-  </div>
-  <div id="events-tasks">
-    <div class="event-card">
-      <div style="display:flex;justify-content:space-between;align-items:start">
-        <div><h3>Рок-марафон</h3><p>Послушай 3 рок трека и получи стикер!</p></div>
-        <span style="font-size:24px">🎸</span>
+    <div class="kiwiflow" style="margin:0 16px 24px" onclick="playKiwiFlow()">
+      <div class="kiwiflow-blob"></div>
+      <div class="kiwiflow-content">
+        <div class="kiwiflow-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>KiwiFlow</span>
+        </div>
+        <h2>Моя волна</h2>
+        <p id="kf-count">Загрузка треков...</p>
+        <button class="btn-glass" onclick="event.stopPropagation();playKiwiFlow()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Слушать
+        </button>
       </div>
-      <div class="progress-bars"><div class="prog-bar done"></div><div class="prog-bar"></div><div class="prog-bar"></div></div>
-      <button class="btn-event" onclick="startEvent('rock')">▶ Начать задание</button>
     </div>
-    <div class="event-card">
-      <div style="display:flex;justify-content:space-between;align-items:start">
-        <div><h3>Электро-ночь</h3><p>Погрузись в мир электронной музыки!</p></div>
-        <span style="font-size:24px">🎛️</span>
+
+    <div class="section" style="padding:0 16px">
+      <div class="section-header">
+        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <h2>Популярное</h2>
       </div>
-      <div class="progress-bars"><div class="prog-bar"></div><div class="prog-bar"></div><div class="prog-bar"></div></div>
-      <button class="btn-event" onclick="startEvent('electronic')">▶ Начать задание</button>
+      <div id="popular-list"></div>
     </div>
-  </div>
-  <div id="events-collection" class="hidden" style="text-align:center;padding:32px;color:rgba(255,255,255,0.3)">
-    <div style="font-size:48px;margin-bottom:8px">⭐</div>
-    <p>Выполняй задания, чтобы получить стикеры</p>
-  </div>
-</div>
 
-<!-- New Releases -->
-<div class="section" style="padding:0 16px">
-  <div class="section-header">
-    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-    <h2>Новинки</h2>
-  </div>
-  <div class="scroll-row" id="new-releases"></div>
-</div>
-```
+    <div class="section" style="padding:0 16px">
+      <div class="section-header">
+        <span style="font-size:16px">🏆</span>
+        <h2>Ивенты</h2>
+      </div>
+      <div class="event-tabs">
+        <button class="event-tab active" onclick="switchEventTab('tasks',this)">Задания</button>
+        <button class="event-tab" onclick="switchEventTab('collection',this)">Коллекция</button>
+      </div>
+      <div id="events-tasks">
+        <div class="event-card">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <div><h3>Рок-марафон</h3><p>Послушай 3 рок трека и получи стикер!</p></div>
+            <span style="font-size:24px">🎸</span>
+          </div>
+          <div class="progress-bars"><div class="prog-bar done"></div><div class="prog-bar"></div><div class="prog-bar"></div></div>
+          <button class="btn-event" onclick="startEvent('rock')">▶ Начать задание</button>
+        </div>
+        <div class="event-card">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <div><h3>Электро-ночь</h3><p>Погрузись в мир электронной музыки!</p></div>
+            <span style="font-size:24px">🎛️</span>
+          </div>
+          <div class="progress-bars"><div class="prog-bar"></div><div class="prog-bar"></div><div class="prog-bar"></div></div>
+          <button class="btn-event" onclick="startEvent('electronic')">▶ Начать задание</button>
+        </div>
+      </div>
+      <div id="events-collection" class="hidden" style="text-align:center;padding:32px;color:rgba(255,255,255,0.3)">
+        <div style="font-size:48px;margin-bottom:8px">⭐</div>
+        <p>Выполняй задания, чтобы получить стикеры</p>
+      </div>
+    </div>
 
+    <div class="section" style="padding:0 16px">
+      <div class="section-header">
+        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <h2>Новинки</h2>
+      </div>
+      <div class="scroll-row" id="new-releases"></div>
+    </div>
   </div>
 
   <!-- SEARCH PAGE -->
-
   <div id="page-search" class="page" style="padding-top:52px">
     <div style="padding:0 16px">
       <div class="search-bar">
@@ -389,14 +416,15 @@ padding:0 16px 16px;
       <div id="search-results" class="hidden"></div>
       <div id="search-loading" class="hidden">
         <div style="display:flex;flex-direction:column;gap:10px">
-          ${[1,2,3,4,5].map(()=>`<div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>`).join('')}
+          <div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>
+          <div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>
+          <div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- PROFILE PAGE -->
-
   <div id="page-profile" class="page" style="padding:48px 0 140px">
     <div class="profile-header">
       <div class="profile-avatar" id="profile-avatar-display">K</div>
@@ -423,7 +451,6 @@ padding:0 16px 16px;
 </div>
 
 <!-- MINI PLAYER -->
-
 <div id="mini-player" onclick="openFullPlayer()">
   <div class="mini-inner">
     <img class="mini-img" id="mini-img" src="" alt=""/>
@@ -441,7 +468,6 @@ padding:0 16px 16px;
 </div>
 
 <!-- FULL PLAYER -->
-
 <div id="full-player">
   <div class="fp-header">
     <button class="fp-close" onclick="closeFullPlayer()">⌄</button>
@@ -483,7 +509,6 @@ padding:0 16px 16px;
 </div>
 
 <!-- BOTTOM NAV -->
-
 <div id="bottom-nav" class="hidden">
   <div class="nav-inner">
     <div class="nav-tabs">
@@ -524,10 +549,13 @@ let queue = [];
 let queueIdx = 0;
 let isPlaying = false;
 let isShuffle = false;
-let repeatMode = 'none'; // none / all / one
+let repeatMode = 'none';
 let likedIds = new Set();
 let listenCount = 0;
 let searchHistory = JSON.parse(localStorage.getItem('kiwi_history') || '[]');
+let pendingRegEmail = '';
+let pendingRegUsername = '';
+let otpCountdownTimer = null;
 const audio = document.getElementById('audio');
 
 // ══════════════════════════════════════════════════
@@ -563,7 +591,7 @@ async function sbAuth(endpoint, body) {
 function switchTab(tab) {
   document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
   document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='login')));
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'login')));
   document.getElementById('auth-msg').innerHTML = '';
 }
 
@@ -583,24 +611,210 @@ async function doRegister() {
   const pass = document.getElementById('reg-pass').value;
   if (username.length < 3) return showMsg('Имя минимум 3 символа', 'error');
   if (!email || pass.length < 6) return showMsg('Заполните все поля (пароль мин. 6 символов)', 'error');
+
   showMsg('Создаём аккаунт...', 'success');
-  const data = await sbAuth('signup', { email, password: pass, data: { username } });
+
+  // Register with OTP flow — Supabase отправит письмо с кодом (без ссылки)
+  const data = await sbAuth('signup', {
+    email,
+    password: pass,
+    data: { username },
+    options: { emailRedirectTo: null } // отключаем magic link
+  });
+
   if (data.error) return showMsg(data.error_description || 'Ошибка регистрации', 'error');
+
+  // Если email уже подтверждён (dev mode без верификации)
   if (data.access_token) {
     await loginSuccess(data);
-  } else {
-    showMsg('Проверьте почту для подтверждения!', 'success');
+    return;
   }
+
+  // Стандартный флоу — показываем OTP экран
+  pendingRegEmail = email;
+  pendingRegUsername = username;
+  showOTPScreen(email);
 }
 
+// ══════════════════════════════════════════════════
+// OTP SCREEN
+// ══════════════════════════════════════════════════
+function showOTPScreen(email) {
+  document.getElementById('auth-screen').style.display = 'none';
+  const screen = document.getElementById('otp-screen');
+  screen.classList.add('show');
+  document.getElementById('otp-email-display').textContent = email;
+  document.getElementById('otp-msg').innerHTML = '';
+
+  // Setup OTP inputs
+  setupOTPInputs();
+
+  // Start resend countdown (60 sec)
+  startResendCountdown(60);
+}
+
+function setupOTPInputs() {
+  const inputs = document.querySelectorAll('#otp-inputs input');
+  inputs.forEach((inp, idx) => {
+    inp.value = '';
+    inp.classList.remove('filled');
+
+    inp.addEventListener('input', (e) => {
+      // Allow only digits
+      inp.value = inp.value.replace(/\D/g, '').slice(-1);
+      if (inp.value) {
+        inp.classList.add('filled');
+        if (idx < inputs.length - 1) inputs[idx + 1].focus();
+      } else {
+        inp.classList.remove('filled');
+      }
+      checkOTPComplete();
+    });
+
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !inp.value && idx > 0) {
+        inputs[idx - 1].focus();
+        inputs[idx - 1].value = '';
+        inputs[idx - 1].classList.remove('filled');
+        checkOTPComplete();
+      }
+    });
+
+    inp.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+      if (!paste) return;
+      paste.split('').slice(0, 6).forEach((ch, i) => {
+        if (inputs[i]) {
+          inputs[i].value = ch;
+          inputs[i].classList.add('filled');
+        }
+      });
+      const last = Math.min(paste.length, 6) - 1;
+      if (inputs[last]) inputs[last].focus();
+      checkOTPComplete();
+    });
+  });
+
+  // Focus first input
+  setTimeout(() => inputs[0].focus(), 100);
+}
+
+function checkOTPComplete() {
+  const inputs = document.querySelectorAll('#otp-inputs input');
+  const code = Array.from(inputs).map(i => i.value).join('');
+  document.getElementById('otp-submit-btn').disabled = code.length < 6;
+}
+
+function getOTPCode() {
+  return Array.from(document.querySelectorAll('#otp-inputs input')).map(i => i.value).join('');
+}
+
+async function verifyOTP() {
+  const code = getOTPCode();
+  if (code.length < 6) return;
+
+  const btn = document.getElementById('otp-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Проверяем...';
+
+  // Verify OTP via Supabase
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'signup',
+      email: pendingRegEmail,
+      token: code
+    })
+  });
+  const data = await res.json();
+
+  btn.textContent = 'Подтвердить';
+  btn.disabled = false;
+
+  if (data.error || !data.access_token) {
+    const msgEl = document.getElementById('otp-msg');
+    msgEl.innerHTML = '<p class="error-msg">Неверный код. Проверь почту и попробуй снова.</p>';
+    // Shake the inputs
+    const inputsWrap = document.getElementById('otp-inputs');
+    inputsWrap.style.animation = 'none';
+    inputsWrap.offsetHeight;
+    inputsWrap.style.animation = 'shake .3s ease';
+    return;
+  }
+
+  // Success
+  clearInterval(otpCountdownTimer);
+  document.getElementById('otp-screen').classList.remove('show');
+  await loginSuccess(data);
+}
+
+async function resendOTP() {
+  const btn = document.getElementById('otp-resend-btn');
+  btn.disabled = true;
+
+  // Re-send OTP via Supabase resend endpoint
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/resend`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'signup', email: pendingRegEmail })
+  });
+  const data = await res.json();
+
+  if (data.error) {
+    document.getElementById('otp-msg').innerHTML = '<p class="error-msg">Ошибка отправки. Попробуй позже.</p>';
+    btn.disabled = false;
+    return;
+  }
+
+  document.getElementById('otp-msg').innerHTML = '<p class="success-msg">Новый код отправлен!</p>';
+  // Reset inputs
+  document.querySelectorAll('#otp-inputs input').forEach(i => { i.value = ''; i.classList.remove('filled'); });
+  document.querySelectorAll('#otp-inputs input')[0].focus();
+  document.getElementById('otp-submit-btn').disabled = true;
+  startResendCountdown(60);
+}
+
+function startResendCountdown(seconds) {
+  clearInterval(otpCountdownTimer);
+  const resendBtn = document.getElementById('otp-resend-btn');
+  const countdown = document.getElementById('otp-countdown');
+  resendBtn.disabled = true;
+  let left = seconds;
+
+  function tick() {
+    countdown.textContent = `Повторная отправка через ${left} сек.`;
+    if (left <= 0) {
+      clearInterval(otpCountdownTimer);
+      countdown.textContent = '';
+      resendBtn.disabled = false;
+    }
+    left--;
+  }
+  tick();
+  otpCountdownTimer = setInterval(tick, 1000);
+}
+
+function backToAuth() {
+  clearInterval(otpCountdownTimer);
+  document.getElementById('otp-screen').classList.remove('show');
+  document.getElementById('auth-screen').style.display = 'flex';
+  switchTab('register');
+  document.getElementById('auth-msg').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════
+// LOGIN SUCCESS
+// ══════════════════════════════════════════════════
 async function loginSuccess(data) {
   const token = data.access_token;
   const uid = data.user?.id;
-  // Get/create profile
   currentUser = { id: uid, token, email: data.user?.email };
+
   let profile = await sbFetch(`/profiles?id=eq.${uid}&select=*`);
   if (!profile || !profile[0]) {
-    const username = data.user?.user_metadata?.username || data.user?.email?.split('@')[0];
+    const username = pendingRegUsername || data.user?.user_metadata?.username || data.user?.email?.split('@')[0];
     await sbFetch('/profiles', {
       method: 'POST',
       headers: { 'Prefer': 'return=representation' },
@@ -610,6 +824,8 @@ async function loginSuccess(data) {
   }
   currentUser = { ...currentUser, ...profile[0] };
   localStorage.setItem('kiwi_session', JSON.stringify({ token, uid }));
+  pendingRegEmail = '';
+  pendingRegUsername = '';
   await initApp();
 }
 
@@ -668,7 +884,7 @@ async function loadPopular() {
   return (d.results || []).map(normTrack);
 }
 
-async function loadKiwiFlow(genre = 'pop') {
+async function loadKiwiFlow() {
   const genres = ['pop', 'electronic', 'rock', 'chill', 'jazz'];
   const g = genres[Math.floor(Math.random() * genres.length)];
   const d = await jFetch('/tracks', { limit: '20', tags: g, order: 'popularity_week', audioformat: 'mp32' });
@@ -677,7 +893,7 @@ async function loadKiwiFlow(genre = 'pop') {
 
 async function loadNewReleases() {
   const to = new Date().toISOString().split('T')[0];
-  const from = new Date(Date.now() - 30*86400000).toISOString().split('T')[0];
+  const from = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
   const d = await jFetch('/tracks', { limit: '10', order: 'releasedate_desc', audioformat: 'mp32', datebetween: `${from}_${to}` });
   return (d.results || []).map(normTrack);
 }
@@ -697,10 +913,10 @@ async function loadByGenre(genre) {
 // ══════════════════════════════════════════════════
 async function initApp() {
   document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('otp-screen').classList.remove('show');
   document.getElementById('app').classList.add('show');
   document.getElementById('bottom-nav').classList.remove('hidden');
 
-  // Update UI with user info
   const name = currentUser?.username || 'Пользователь';
   document.getElementById('greeting').textContent = `Привет, ${name} 👋`;
   document.getElementById('user-avatar-btn').textContent = name[0].toUpperCase();
@@ -708,41 +924,34 @@ async function initApp() {
   document.getElementById('profile-name-display').textContent = name;
   document.getElementById('profile-email-display').textContent = currentUser?.email || '';
 
-  // Load liked tracks
   await loadLiked();
-
-  // Load music
   loadHomeData();
   renderHistory();
-  // Restore last track
   restorePlayer();
 }
 
 async function loadHomeData() {
-  // Popular
   const pop = await loadPopular();
   tracks = pop;
   renderPopular(pop);
 
-  // KiwiFlow
   const kf = await loadKiwiFlow();
   document.getElementById('kf-count').textContent = `${kf.length} треков · специально для тебя`;
   window._kiwiFlow = kf;
 
-  // New releases
   const nr = await loadNewReleases();
   renderNewReleases(nr);
 }
 
 function renderPopular(list) {
   const el = document.getElementById('popular-list');
-  el.innerHTML = list.map((t, i) => trackRowHTML(t, i + 1, 'tracks')).join('');
+  el.innerHTML = list.map((t, i) => trackRowHTML(t, i + 1)).join('');
 }
 
 function renderNewReleases(list) {
   const el = document.getElementById('new-releases');
   el.innerHTML = list.map(t => `
-    <div class="album-card" onclick="playTrackFromList('${t.id}',[${JSON.stringify(list).replace(/'/g,"\\'")}])">
+    <div class="album-card" onclick='playTrackFromList("${t.id}",${JSON.stringify(list).replace(/'/g,"\\'")})'>
       <img src="${t.img}" alt="${t.name}" loading="lazy" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'"/>
       <div class="name">${t.name}</div>
       <div class="artist">${t.artist}</div>
@@ -750,10 +959,11 @@ function renderNewReleases(list) {
   `).join('');
 }
 
-function trackRowHTML(t, idx, listVar) {
+function trackRowHTML(t, idx) {
   const active = queue[queueIdx]?.id === t.id;
+  const tStr = JSON.stringify(t).replace(/"/g, '&quot;');
   return `
-    <div class="track-row ${active ? 'active' : ''}" id="row-${t.id}" onclick="playTrackObj(${JSON.stringify(t).replace(/"/g,'&quot;')})">
+    <div class="track-row ${active ? 'active' : ''}" id="row-${t.id}" onclick="playTrackObj(JSON.parse(this.dataset.track))" data-track="${tStr}">
       <div class="track-num">${active && isPlaying ? '<div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>' : idx}</div>
       <img class="track-img" src="${t.img}" alt="" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'" loading="lazy"/>
       <div class="track-info">
@@ -769,7 +979,6 @@ function trackRowHTML(t, idx, listVar) {
 // PLAYER
 // ══════════════════════════════════════════════════
 function playTrackObj(t) {
-  // Find in current queue or set as single
   const idx = queue.findIndex(x => x.id === t.id);
   if (idx >= 0) queueIdx = idx;
   else { queue = [t]; queueIdx = 0; }
@@ -863,24 +1072,20 @@ function seekTo(e) {
 function updatePlayerUI() {
   const t = queue[queueIdx];
   if (!t) return;
-  // Mini player
   document.getElementById('mini-player').classList.add('show');
   document.getElementById('mini-img').src = t.img;
   document.getElementById('mini-name').textContent = t.name;
   document.getElementById('mini-artist').textContent = t.artist;
   document.getElementById('mini-play').innerHTML = isPlaying ? '⏸' : '▶';
-  // Full player
   document.getElementById('fp-img').src = t.img;
   document.getElementById('fp-name').textContent = t.name;
   document.getElementById('fp-artist').textContent = t.artist;
   document.getElementById('fp-play').innerHTML = isPlaying ? '⏸' : '▶';
-  // Like buttons
   const liked = likedIds.has(t.id);
   document.getElementById('mini-like').textContent = liked ? '♥' : '♡';
   document.getElementById('mini-like').className = 'mini-btn like-btn' + (liked ? ' liked' : '');
   document.getElementById('fp-like').textContent = liked ? '♥' : '♡';
   document.getElementById('fp-like').className = 'like-btn' + (liked ? ' liked' : '');
-  // Active row
   document.querySelectorAll('.track-row').forEach(r => r.classList.remove('active'));
   document.getElementById('row-' + t.id)?.classList.add('active');
 }
@@ -935,7 +1140,7 @@ async function renderLikedTracks() {
     return;
   }
   list.innerHTML = data.map(r => `
-    <div class="liked-track" onclick="playLikedTrack('${r.track_id}','${r.audio_url || ''}','${r.image_url || ''}','${(r.track_name||'').replace(/'/g,"\\'")}','${(r.artist_name||'').replace(/'/g,"\\'")}')">
+    <div class="liked-track" onclick="playLikedTrack('${r.track_id}','${r.audio_url || ''}','${r.image_url || ''}','${(r.track_name || '').replace(/'/g, "\\'")}','${(r.artist_name || '').replace(/'/g, "\\'")}')">
       <img class="liked-img" src="${r.image_url || 'https://picsum.photos/300/300'}" alt="" onerror="this.style.background='#333'"/>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.track_name || 'Трек'}</div>
@@ -1002,18 +1207,21 @@ function onSearch(val) {
       el.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3)"><div style="font-size:48px;margin-bottom:8px">🔍</div><p>Ничего не найдено</p></div>';
       return;
     }
-    el.innerHTML = results.map(t => `
-      <div class="search-result" onclick="playSearchResult(${JSON.stringify(t).replace(/"/g,'&quot;')},${JSON.stringify(results).replace(/"/g,'&quot;')})">
-        <img class="result-img" src="${t.img}" alt="" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'" loading="lazy"/>
-        <div class="result-info">
-          <div class="result-name">${t.name}</div>
-          <div class="result-artist">${t.artist}</div>
-          <div class="result-album">${t.album}</div>
+    el.innerHTML = results.map(t => {
+      const tStr = JSON.stringify(t).replace(/"/g, '&quot;');
+      const listStr = JSON.stringify(results).replace(/"/g, '&quot;');
+      return `
+        <div class="search-result" onclick="playSearchResult(JSON.parse(this.dataset.track),JSON.parse(this.dataset.list))" data-track="${tStr}" data-list="${listStr}">
+          <img class="result-img" src="${t.img}" alt="" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'" loading="lazy"/>
+          <div class="result-info">
+            <div class="result-name">${t.name}</div>
+            <div class="result-artist">${t.artist}</div>
+            <div class="result-album">${t.album}</div>
+          </div>
+          <span style="color:rgba(255,255,255,0.2);font-size:12px">${fmtTime(t.duration)}</span>
         </div>
-        <span style="color:rgba(255,255,255,0.2);font-size:12px">${fmtTime(t.duration)}</span>
-      </div>
-    `).join('');
-    // Save to history
+      `;
+    }).join('');
     if (!searchHistory.includes(val)) {
       searchHistory = [val, ...searchHistory].slice(0, 8);
       localStorage.setItem('kiwi_history', JSON.stringify(searchHistory));
@@ -1068,7 +1276,7 @@ function switchEventTab(tab, btn) {
 // ══════════════════════════════════════════════════
 function fmtTime(s) {
   s = Math.floor(s || 0);
-  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
 function showToast(msg) {
@@ -1083,11 +1291,19 @@ function showToast(msg) {
 // ══════════════════════════════════════════════════
 (async function boot() {
   const restored = await restoreSession();
-  if (restored) {
-    await initApp();
-  }
+  if (restored) await initApp();
 })();
 </script>
 
+<!-- Shake animation for wrong OTP -->
+<style>
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+</style>
 </body>
 </html>
