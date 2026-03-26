@@ -615,23 +615,24 @@ async function doRegister() {
 
   showMsg('Отправляем код...', 'success');
 
-  // Шаг 1: отправляем 6-значный OTP на email через signInWithOtp
-  // Это гарантирует числовой код в письме, без ссылок
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+  // Регистрация через signup — Supabase шлёт письмо с {{ .Token }} (6 цифр)
+  // Требует: Authentication > Settings > "Email OTP" = включён
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email,
-      create_user: true,       // создаёт юзера если не существует
-      data: { username },
-      options: { shouldCreateUser: true }
-    })
+    body: JSON.stringify({ email, password: pass, data: { username } })
   });
   const data = await res.json();
 
-  if (data.error) return showMsg(data.error_description || data.error || 'Ошибка отправки кода', 'error');
+  if (data.error) return showMsg(data.error_description || data.error || 'Ошибка регистрации', 'error');
 
-  // Сохраняем данные для шага 2 (после верификации — обновим пароль)
+  // Если email confirmations выключены — сразу входим
+  if (data.access_token) {
+    pendingRegUsername = username;
+    await loginSuccess(data);
+    return;
+  }
+
   pendingRegEmail = email;
   pendingRegUsername = username;
   pendingRegPass = pass;
@@ -725,7 +726,7 @@ async function verifyOTP() {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      type: 'email',      // тип для signInWithOtp / OTP флоу
+      type: 'signup',   // тип для email OTP при регистрации
       email: pendingRegEmail,
       token: code
     })
@@ -767,10 +768,10 @@ async function resendOTP() {
   const btn = document.getElementById('otp-resend-btn');
   btn.disabled = true;
 
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/resend`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: pendingRegEmail, create_user: false })
+    body: JSON.stringify({ type: 'signup', email: pendingRegEmail })
   });
   const data = await res.json();
 
