@@ -1,1313 +1,241 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>Kiwi Music</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --red:#8B0000;--red2:#A52A2A;--green:#0D3B1E;--green2:#1A5C32;
-  --emerald:#22C55E;--black:#080808;--glass:rgba(255,255,255,0.06);
-  --glass2:rgba(255,255,255,0.1);--border:rgba(255,255,255,0.1);
-}
-body{background:var(--black);color:#fff;font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
-.hidden{display:none!important;}
-
-/* ── AUTH ── */
-#auth-screen{
-min-height:100vh;display:flex;flex-direction:column;align-items:center;
-justify-content:center;padding:24px;position:relative;overflow:hidden;
-}
-.blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;}
-.blob1{width:400px;height:400px;top:-100px;left:-100px;background:radial-gradient(circle,rgba(34,197,94,0.3),transparent);opacity:.4;}
-.blob2{width:400px;height:400px;bottom:-100px;right:-100px;background:radial-gradient(circle,rgba(139,0,0,0.5),transparent);opacity:.3;}
-.auth-logo{text-align:center;margin-bottom:40px;}
-.auth-logo .icon{width:80px;height:80px;background:linear-gradient(135deg,#22C55E,#0D3B1E);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;box-shadow:0 20px 60px rgba(34,197,94,0.3);}
-.auth-logo h1{font-size:32px;font-weight:700;margin-bottom:4px;}
-.auth-logo p{color:rgba(255,255,255,0.5);font-size:14px;}
-.auth-box{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:24px;padding:32px;width:100%;max-width:400px;backdrop-filter:blur(20px);}
-.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.05);border-radius:12px;padding:4px;margin-bottom:24px;}
-.tab-btn{flex:1;padding:8px;border:none;background:none;color:rgba(255,255,255,0.5);border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:.2s;}
-.tab-btn.active{background:rgba(255,255,255,0.1);color:#fff;}
-.form-group{margin-bottom:16px;}
-.form-group label{display:block;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:6px;}
-.form-group input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:#fff;font-size:14px;outline:none;transition:.2s;}
-.form-group input:focus{border-color:var(--emerald);background:rgba(255,255,255,0.08);}
-.form-group input::placeholder{color:rgba(255,255,255,0.3);}
-.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--emerald),#16A34A);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;margin-top:8px;}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,197,94,0.3);}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.error-msg{color:#F87171;font-size:13px;margin-top:8px;text-align:center;}
-.success-msg{color:var(--emerald);font-size:13px;margin-top:8px;text-align:center;}
-
-/* OTP Screen */
-#otp-screen{
-min-height:100vh;display:none;flex-direction:column;align-items:center;
-justify-content:center;padding:24px;position:relative;overflow:hidden;
-}
-#otp-screen.show{display:flex;}
-.otp-box{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:24px;padding:32px;width:100%;max-width:400px;backdrop-filter:blur(20px);text-align:center;}
-.otp-box h2{font-size:22px;font-weight:700;margin-bottom:8px;}
-.otp-box .otp-email{color:var(--emerald);font-size:14px;margin-bottom:24px;word-break:break-all;}
-.otp-box p{color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:24px;}
-.otp-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:24px;}
-.otp-inputs input{
-  width:38px;height:50px;border-radius:12px;border:2px solid var(--border);
-  background:rgba(255,255,255,0.06);color:#fff;font-size:20px;font-weight:700;
-  text-align:center;outline:none;transition:.2s;caret-color:var(--emerald);
-}
-.otp-inputs input:focus{border-color:var(--emerald);background:rgba(34,197,94,0.08);}
-.otp-inputs input.filled{border-color:rgba(34,197,94,0.5);}
-.otp-resend{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;margin-top:16px;transition:.2s;}
-.otp-resend:hover{color:var(--emerald);}
-.otp-resend:disabled{opacity:.4;cursor:not-allowed;}
-.otp-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;margin-top:12px;display:block;width:100%;transition:.2s;}
-.otp-back:hover{color:#fff;}
-.otp-countdown{color:rgba(255,255,255,0.3);font-size:12px;margin-top:8px;}
-
-/* ── MAIN APP ── */
-#app{display:none;flex-direction:column;min-height:100vh;}
-#app.show{display:flex;}
-
-.app-header{padding:48px 16px 16px;display:flex;align-items:center;justify-content:space-between;}
-.app-header h1{font-size:22px;font-weight:700;}
-.header-right{display:flex;align-items:center;gap:12px;}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--green));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;cursor:pointer;}
-
-.page{display:none;padding:0 16px 140px;animation:fadeIn .2s ease;}
-.page.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-.kiwiflow{
-border-radius:24px;overflow:hidden;cursor:pointer;margin-bottom:24px;
-position:relative;min-height:160px;
-background:linear-gradient(270deg,#8B0000,#0D3B1E,#1a1a2e,#A52A2A,#0D3B1E);
-background-size:400% 400%;animation:gradientX 8s ease infinite;
-}
-@keyframes gradientX{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.kiwiflow::before{
-content:'';position:absolute;inset:0;
-background:radial-gradient(ellipse at 30% 60%,rgba(34,197,94,0.25) 0%,transparent 60%),
-radial-gradient(ellipse at 80% 20%,rgba(139,0,0,0.4) 0%,transparent 60%);
-}
-.kiwiflow-blob{position:absolute;top:8px;right:32px;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle,#22C55E,transparent);filter:blur(20px);opacity:.3;animation:float 6s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.kiwiflow-content{position:relative;z-index:1;padding:20px;}
-.kiwiflow-badge{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.kiwiflow-badge span{color:var(--emerald);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
-.kiwiflow-content h2{font-size:20px;font-weight:700;margin-bottom:4px;}
-.kiwiflow-content p{color:rgba(255,255,255,0.6);font-size:13px;margin-bottom:16px;}
-.btn-glass{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:50px;padding:8px 16px;font-size:13px;font-weight:500;color:#fff;cursor:pointer;transition:.2s;}
-.btn-glass:hover{background:rgba(255,255,255,0.3);}
-
-.section{margin-bottom:28px;}
-.section-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.section-header h2{font-size:18px;font-weight:700;}
-.section-header .icon{color:var(--emerald);}
-
-.track-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;cursor:pointer;transition:.15s;}
-.track-row:hover{background:rgba(255,255,255,0.05);}
-.track-row.active{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);}
-.track-num{width:20px;text-align:center;font-size:13px;color:rgba(255,255,255,0.3);flex-shrink:0;}
-.track-row.active .track-num{color:var(--emerald);}
-.track-img{width:44px;height:44px;border-radius:12px;object-fit:cover;flex-shrink:0;background:rgba(255,255,255,0.1);}
-.track-info{flex:1;min-width:0;}
-.track-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.track-row.active .track-name{color:var(--emerald);}
-.track-artist{font-size:12px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.track-dur{font-size:12px;color:rgba(255,255,255,0.25);flex-shrink:0;}
-.bars{display:flex;align-items:flex-end;gap:2px;height:16px;}
-.bar{width:3px;background:var(--emerald);border-radius:2px;animation:bar 1.2s ease-in-out infinite;}
-.bar:nth-child(2){animation-delay:.2s;}
-.bar:nth-child(3){animation-delay:.4s;}
-@keyframes bar{0%,100%{height:4px}50%{height:16px}}
-
-.scroll-row{display:flex;gap:16px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-.scroll-row::-webkit-scrollbar{display:none;}
-.album-card{flex-shrink:0;width:128px;cursor:pointer;}
-.album-card img{width:128px;height:128px;border-radius:16px;object-fit:cover;background:rgba(255,255,255,0.1);transition:.3s;}
-.album-card:hover img{transform:scale(1.05);}
-.album-card .name{font-size:12px;font-weight:500;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.album-card .artist{font-size:11px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-.event-tabs{display:flex;gap:8px;margin-bottom:12px;}
-.event-tab{padding:6px 16px;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;}
-.event-tab.active{background:var(--emerald);color:#fff;}
-.event-tab:not(.active){background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);}
-.event-card{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;}
-.event-card h3{font-size:15px;font-weight:600;margin-bottom:4px;}
-.event-card p{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;}
-.progress-bars{display:flex;gap:4px;margin-bottom:12px;}
-.prog-bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.1);}
-.prog-bar.done{background:var(--emerald);}
-.btn-event{width:100%;padding:10px;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:12px;color:var(--emerald);font-size:13px;font-weight:500;cursor:pointer;transition:.2s;}
-.btn-event:hover{background:rgba(34,197,94,0.25);}
-
-.search-bar{position:relative;margin-bottom:20px;}
-.search-bar input{width:100%;background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:16px;padding:14px 48px;color:#fff;font-size:15px;outline:none;transition:.2s;}
-.search-bar input:focus{border-color:rgba(34,197,94,0.5);}
-.search-bar input::placeholder{color:rgba(255,255,255,0.3);}
-.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);}
-.clear-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px;}
-.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
-.tag{padding:6px 14px;border-radius:50px;font-size:13px;cursor:pointer;transition:.2s;}
-.tag.trending{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--emerald);}
-.tag.history{background:rgba(255,255,255,0.08);border:1px solid var(--border);color:rgba(255,255,255,0.7);}
-.tag:hover{opacity:.8;}
-.search-result{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;cursor:pointer;transition:.15s;border:1px solid transparent;}
-.search-result:hover{background:rgba(255,255,255,0.05);}
-.result-img{width:56px;height:56px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,0.1);flex-shrink:0;}
-.result-info{flex:1;min-width:0;}
-.result-name{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.result-artist{font-size:13px;color:rgba(255,255,255,0.5);}
-.result-album{font-size:12px;color:rgba(255,255,255,0.25);}
-
-.profile-header{display:flex;align-items:center;gap:16px;padding:16px 16px 24px;border-bottom:1px solid var(--border);margin-bottom:20px;}
-.profile-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--emerald),var(--green));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0;}
-.profile-name{font-size:20px;font-weight:700;}
-.profile-email{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px;}
-.profile-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--emerald);}
-.stats-row{display:flex;gap:8px;margin-bottom:20px;}
-.stat-card{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;}
-.stat-num{font-size:22px;font-weight:700;color:var(--emerald);}
-.stat-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;}
-.liked-track{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;cursor:pointer;transition:.15s;}
-.liked-track:hover{background:rgba(255,255,255,0.05);}
-.liked-img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:rgba(255,255,255,0.1);}
-.btn-logout{width:calc(100% - 32px);margin:16px;padding:14px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:14px;color:rgba(255,255,255,0.6);font-size:14px;cursor:pointer;transition:.2s;}
-.btn-logout:hover{background:rgba(255,255,255,0.1);color:#fff;}
-
-#mini-player{
-position:fixed;bottom:72px;left:12px;right:12px;z-index:40;
-background:rgba(0,0,0,0.7);backdrop-filter:blur(20px);
-border:1px solid var(--border);border-radius:20px;padding:12px;
-display:none;cursor:pointer;
-}
-#mini-player.show{display:block;}
-.mini-inner{display:flex;align-items:center;gap:12px;}
-.mini-img{width:48px;height:48px;border-radius:12px;object-fit:cover;background:rgba(255,255,255,0.1);flex-shrink:0;}
-.mini-info{flex:1;min-width:0;}
-.mini-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mini-artist{font-size:12px;color:rgba(255,255,255,0.5);}
-.mini-controls{display:flex;align-items:center;gap:8px;}
-.mini-btn{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:6px;border-radius:50%;transition:.2s;font-size:18px;}
-.mini-btn:hover{color:#fff;background:rgba(255,255,255,0.1);}
-.play-btn-mini{background:var(--emerald)!important;color:#fff!important;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
-.mini-progress{margin-top:8px;height:2px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
-.mini-progress-bar{height:100%;background:linear-gradient(90deg,var(--emerald),#16A34A);border-radius:2px;transition:width .5s linear;}
-
-#full-player{
-position:fixed;inset:0;z-index:50;
-background:linear-gradient(180deg,#5C0000 0%,#000 60%);
-display:none;flex-direction:column;overflow:hidden;
-}
-#full-player.show{display:flex;}
-.fp-header{display:flex;align-items:center;justify-content:space-between;padding:48px 20px 16px;}
-.fp-close{background:none;border:none;color:rgba(255,255,255,0.7);font-size:28px;cursor:pointer;}
-.fp-title{font-size:14px;color:rgba(255,255,255,0.6);}
-.fp-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:0 24px;}
-.fp-artwork{position:relative;width:min(280px,70vw);height:min(280px,70vw);margin-bottom:32px;}
-.fp-artwork img{width:100%;height:100%;border-radius:24px;object-fit:cover;box-shadow:0 32px 80px rgba(0,0,0,0.6);}
-.fp-artwork-glow{position:absolute;inset:-20px;border-radius:40px;background:radial-gradient(ellipse,rgba(34,197,94,0.2),transparent 70%);filter:blur(20px);z-index:-1;}
-.fp-track-info{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
-.fp-track-info div h3{font-size:22px;font-weight:700;margin-bottom:4px;}
-.fp-track-info div p{font-size:15px;color:rgba(255,255,255,0.6);}
-.like-btn{background:none;border:none;font-size:24px;cursor:pointer;transition:.2s;padding:8px;}
-.like-btn.liked{color:#F43F5E;}
-.like-btn:not(.liked){color:rgba(255,255,255,0.4);}
-.fp-progress{width:100%;margin-bottom:16px;}
-.progress-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;cursor:pointer;position:relative;}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--emerald),#16A34A);border-radius:2px;position:relative;transition:width .5s linear;}
-.progress-thumb{position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:12px;height:12px;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
-.time-row{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:rgba(255,255,255,0.4);}
-.fp-controls{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:16px;}
-.ctrl-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-size:22px;cursor:pointer;padding:8px;transition:.2s;}
-.ctrl-btn:hover{color:#fff;}
-.ctrl-btn.active{color:var(--emerald);}
-.play-btn-main{width:64px;height:64px;background:var(--emerald);border:none;border-radius:50%;font-size:28px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(34,197,94,0.4);transition:.2s;}
-.play-btn-main:hover{transform:scale(1.05);}
-.not-this{
-position:absolute;bottom:100px;right:16px;
-padding:6px 12px;background:rgba(255,255,255,0.05);
-border:1px solid rgba(255,255,255,0.1);border-radius:8px;
-color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;transition:.2s;
-}
-.not-this:hover{color:rgba(255,255,255,0.6);}
-
-#bottom-nav{
-position:fixed;bottom:0;left:0;right:0;z-index:45;
-padding:0 16px 16px;
-}
-.nav-inner{background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:12px 24px;}
-.nav-tabs{display:flex;justify-content:space-around;}
-.nav-tab{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;transition:.2s;padding:4px 12px;}
-.nav-tab.active{color:var(--emerald);}
-.nav-tab svg{width:24px;height:24px;}
-.nav-tab span{font-size:11px;font-weight:500;}
-
-.skeleton{background:rgba(255,255,255,0.05);border-radius:12px;animation:pulse 1.5s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-
-.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(34,197,94,0.9);color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;z-index:100;transition:.3s;opacity:0;pointer-events:none;white-space:nowrap;}
-.toast.show{opacity:1;}
-</style>
-</head>
-<body>
-
-<!-- AUTH -->
-<div id="auth-screen">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="auth-logo">
-    <div class="icon">🥝</div>
-    <h1>Kiwi Music</h1>
-    <p>Твоя музыка, твой ритм</p>
-  </div>
-  <div class="auth-box">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('login')">Войти</button>
-      <button class="tab-btn" onclick="switchTab('register')">Регистрация</button>
-    </div>
-    <div id="login-form">
-      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"/></div>
-      <div class="form-group"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
-      <button class="btn-primary" onclick="doLogin()">Войти</button>
-    </div>
-    <div id="register-form" class="hidden">
-      <div class="form-group"><label>Имя пользователя</label><input type="text" id="reg-username" placeholder="минимум 3 символа"/></div>
-      <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"/></div>
-      <div class="form-group"><label>Пароль</label><input type="password" id="reg-pass" placeholder="минимум 6 символов"/></div>
-      <button class="btn-primary" onclick="doRegister()">Создать аккаунт</button>
-    </div>
-    <div id="auth-msg"></div>
-  </div>
-</div>
-
-<!-- OTP VERIFICATION SCREEN -->
-<div id="otp-screen">
-  <div class="blob blob1"></div>
-  <div class="blob blob2"></div>
-  <div class="auth-logo">
-    <div class="icon">📬</div>
-    <h1>Kiwi Music</h1>
-    <p>Подтверждение почты</p>
-  </div>
-  <div class="otp-box">
-    <h2>Проверь почту</h2>
-    <div class="otp-email" id="otp-email-display"></div>
-    <p>Мы отправили 6-значный код. Введи его ниже — без перехода по ссылкам.</p>
-    <div class="otp-inputs" id="otp-inputs">
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" autocomplete="one-time-code"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-      <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]"/>
-    </div>
-    <button class="btn-primary" id="otp-submit-btn" onclick="verifyOTP()" disabled>Подтвердить</button>
-    <div id="otp-msg" style="margin-top:12px"></div>
-    <div class="otp-countdown" id="otp-countdown"></div>
-    <button class="otp-resend" id="otp-resend-btn" onclick="resendOTP()" disabled>Отправить код повторно</button>
-    <button class="otp-back" onclick="backToAuth()">← Вернуться к регистрации</button>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div id="app">
-  <div id="page-home" class="page active">
-    <div class="app-header">
-      <div>
-        <p style="color:rgba(255,255,255,0.4);font-size:13px">Добро пожаловать</p>
-        <h1 id="greeting">Kiwi Music 🥝</h1>
-      </div>
-      <div class="header-right">
-        <div class="user-avatar" id="user-avatar-btn" onclick="switchPage('profile')">K</div>
-      </div>
-    </div>
-
-    <div class="kiwiflow" style="margin:0 16px 24px" onclick="playKiwiFlow()">
-      <div class="kiwiflow-blob"></div>
-      <div class="kiwiflow-content">
-        <div class="kiwiflow-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <span>KiwiFlow</span>
-        </div>
-        <h2>Моя волна</h2>
-        <p id="kf-count">Загрузка треков...</p>
-        <button class="btn-glass" onclick="event.stopPropagation();playKiwiFlow()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Слушать
-        </button>
-      </div>
-    </div>
-
-    <div class="section" style="padding:0 16px">
-      <div class="section-header">
-        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-        <h2>Популярное</h2>
-      </div>
-      <div id="popular-list"></div>
-    </div>
-
-    <div class="section" style="padding:0 16px">
-      <div class="section-header">
-        <span style="font-size:16px">🏆</span>
-        <h2>Ивенты</h2>
-      </div>
-      <div class="event-tabs">
-        <button class="event-tab active" onclick="switchEventTab('tasks',this)">Задания</button>
-        <button class="event-tab" onclick="switchEventTab('collection',this)">Коллекция</button>
-      </div>
-      <div id="events-tasks">
-        <div class="event-card">
-          <div style="display:flex;justify-content:space-between;align-items:start">
-            <div><h3>Рок-марафон</h3><p>Послушай 3 рок трека и получи стикер!</p></div>
-            <span style="font-size:24px">🎸</span>
-          </div>
-          <div class="progress-bars"><div class="prog-bar done"></div><div class="prog-bar"></div><div class="prog-bar"></div></div>
-          <button class="btn-event" onclick="startEvent('rock')">▶ Начать задание</button>
-        </div>
-        <div class="event-card">
-          <div style="display:flex;justify-content:space-between;align-items:start">
-            <div><h3>Электро-ночь</h3><p>Погрузись в мир электронной музыки!</p></div>
-            <span style="font-size:24px">🎛️</span>
-          </div>
-          <div class="progress-bars"><div class="prog-bar"></div><div class="prog-bar"></div><div class="prog-bar"></div></div>
-          <button class="btn-event" onclick="startEvent('electronic')">▶ Начать задание</button>
-        </div>
-      </div>
-      <div id="events-collection" class="hidden" style="text-align:center;padding:32px;color:rgba(255,255,255,0.3)">
-        <div style="font-size:48px;margin-bottom:8px">⭐</div>
-        <p>Выполняй задания, чтобы получить стикеры</p>
-      </div>
-    </div>
-
-    <div class="section" style="padding:0 16px">
-      <div class="section-header">
-        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <h2>Новинки</h2>
-      </div>
-      <div class="scroll-row" id="new-releases"></div>
-    </div>
-  </div>
-
-  <!-- SEARCH PAGE -->
-  <div id="page-search" class="page" style="padding-top:52px">
-    <div style="padding:0 16px">
-      <div class="search-bar">
-        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="search-input" placeholder="Треки, артисты, альбомы..." oninput="onSearch(this.value)"/>
-        <button class="clear-btn" onclick="clearSearch()">×</button>
-      </div>
-      <div id="search-empty">
-        <p style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:10px">Часто ищут</p>
-        <div class="tag-row">
-          <span class="tag trending" onclick="setSearch('Lofi hip hop')">Lofi hip hop</span>
-          <span class="tag trending" onclick="setSearch('Rock classics')">Rock classics</span>
-          <span class="tag trending" onclick="setSearch('Electronic')">Electronic</span>
-          <span class="tag trending" onclick="setSearch('Jazz relax')">Jazz relax</span>
-          <span class="tag trending" onclick="setSearch('Chill beats')">Chill beats</span>
-        </div>
-        <p style="font-size:13px;color:rgba(255,255,255,0.4);margin:16px 0 10px" id="history-label">Недавние</p>
-        <div class="tag-row" id="history-tags"></div>
-      </div>
-      <div id="search-results" class="hidden"></div>
-      <div id="search-loading" class="hidden">
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>
-          <div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>
-          <div style="display:flex;gap:12px;padding:12px"><div class="skeleton" style="width:56px;height:56px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;width:70%;margin-bottom:8px;border-radius:6px"></div><div class="skeleton" style="height:12px;width:50%;border-radius:6px"></div></div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE PAGE -->
-  <div id="page-profile" class="page" style="padding:48px 0 140px">
-    <div class="profile-header">
-      <div class="profile-avatar" id="profile-avatar-display">K</div>
-      <div>
-        <div class="profile-name" id="profile-name-display">Пользователь</div>
-        <div class="profile-email" id="profile-email-display"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bdd8d0dcd4d1fdd8c5dcd0cdd1d893ded2d0">[email&#160;protected]</a></div>
-        <div class="profile-badge">♥ <span id="likes-count">0</span> треков</div>
-      </div>
-    </div>
-    <div class="stats-row" style="padding:0 16px">
-      <div class="stat-card"><div class="stat-num" id="stat-listens">0</div><div class="stat-label">Прослушано</div></div>
-      <div class="stat-card"><div class="stat-num" id="stat-likes">0</div><div class="stat-label">Лайков</div></div>
-      <div class="stat-card"><div class="stat-num">—</div><div class="stat-label">Премиум</div></div>
-    </div>
-    <div style="padding:20px 16px 0">
-      <div class="section-header">
-        <span style="color:#F43F5E">♥</span>
-        <h2>Понравившиеся</h2>
-      </div>
-      <div id="liked-list"></div>
-    </div>
-    <button class="btn-logout" onclick="doLogout()">Выйти</button>
-  </div>
-</div>
-
-<!-- MINI PLAYER -->
-<div id="mini-player" onclick="openFullPlayer()">
-  <div class="mini-inner">
-    <img class="mini-img" id="mini-img" src="" alt=""/>
-    <div class="mini-info">
-      <div class="mini-name" id="mini-name">—</div>
-      <div class="mini-artist" id="mini-artist">—</div>
-    </div>
-    <div class="mini-controls" onclick="event.stopPropagation()">
-      <button class="mini-btn like-btn" id="mini-like" onclick="toggleLike()">♡</button>
-      <button class="mini-btn play-btn-mini" id="mini-play" onclick="togglePlay()">▶</button>
-      <button class="mini-btn" onclick="nextTrack()">⏭</button>
-    </div>
-  </div>
-  <div class="mini-progress"><div class="mini-progress-bar" id="mini-prog" style="width:0%"></div></div>
-</div>
-
-<!-- FULL PLAYER -->
-<div id="full-player">
-  <div class="fp-header">
-    <button class="fp-close" onclick="closeFullPlayer()">⌄</button>
-    <span class="fp-title">Сейчас играет</span>
-    <div style="width:40px"></div>
-  </div>
-  <div class="fp-body">
-    <div class="fp-artwork">
-      <div class="fp-artwork-glow"></div>
-      <img id="fp-img" src="" alt="" style="width:100%;height:100%;border-radius:24px;object-fit:cover"/>
-    </div>
-    <div class="fp-track-info" style="width:100%">
-      <div>
-        <h3 id="fp-name">—</h3>
-        <p id="fp-artist">—</p>
-      </div>
-      <button class="like-btn" id="fp-like" onclick="toggleLike()">♡</button>
-    </div>
-    <div class="fp-progress" style="width:100%">
-      <div class="progress-track" id="progress-track" onclick="seekTo(event)">
-        <div class="progress-fill" id="progress-fill" style="width:0%">
-          <div class="progress-thumb"></div>
-        </div>
-      </div>
-      <div class="time-row">
-        <span id="time-cur">0:00</span>
-        <span id="time-dur">0:00</span>
-      </div>
-    </div>
-    <div class="fp-controls" style="width:100%">
-      <button class="ctrl-btn" id="shuffle-btn" onclick="toggleShuffle()">⇄</button>
-      <button class="ctrl-btn" onclick="prevTrack()">⏮</button>
-      <button class="play-btn-main" id="fp-play" onclick="togglePlay()">▶</button>
-      <button class="ctrl-btn" onclick="nextTrack()">⏭</button>
-      <button class="ctrl-btn" id="repeat-btn" onclick="toggleRepeat()">↻</button>
-    </div>
-  </div>
-  <button class="not-this" onclick="nextTrack()">не то</button>
-</div>
-
-<!-- BOTTOM NAV -->
-<div id="bottom-nav" class="hidden">
-  <div class="nav-inner">
-    <div class="nav-tabs">
-      <button class="nav-tab active" id="nav-home" onclick="switchPage('home')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Главная</span>
-      </button>
-      <button class="nav-tab" id="nav-search" onclick="switchPage('search')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span>Поиск</span>
-      </button>
-      <button class="nav-tab" id="nav-profile" onclick="switchPage('profile')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>Профиль</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-<audio id="audio"></audio>
-
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ══════════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════════
-const SUPABASE_URL = 'https://kswsvpnhnowvvakgfkjz.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtzd3N2cG5obm93dnZha2dma2p6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2NjY0NzYsImV4cCI6MjA4OTI0MjQ3Nn0.kCWcvUPJAw0q-pJPyD6gbiuP-ocWGhtvJvUPiY1mEX0';
-const JAMENDO_ID = 'c01865fc';
-const JAMENDO = 'https://api.jamendo.com/v3.0';
-
-// ══════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════
-let currentUser = null;
-let tracks = [];
-let queue = [];
-let queueIdx = 0;
-let isPlaying = false;
-let isShuffle = false;
-let repeatMode = 'none';
-let likedIds = new Set();
-let listenCount = 0;
-let searchHistory = JSON.parse(localStorage.getItem('kiwi_history') || '[]');
-let pendingRegEmail = '';
-let pendingRegUsername = '';
-let pendingRegPass = '';
-let otpCountdownTimer = null;
-const audio = document.getElementById('audio');
-
-// ══════════════════════════════════════════════════
-// SUPABASE
-// ══════════════════════════════════════════════════
-async function sbFetch(path, opts = {}) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${currentUser?.token || SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-      ...opts.headers
-    },
-    ...opts
-  });
-  if (!res.ok && res.status !== 404) console.error('SB error', res.status, path);
-  try { return await res.json(); } catch { return null; }
-}
-
-async function sbAuth(endpoint, body) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/${endpoint}`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
-}
-
-// ══════════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════════
-function switchTab(tab) {
-  document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
-  document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
-  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'login')));
-  document.getElementById('auth-msg').innerHTML = '';
-}
-
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-pass').value;
-  if (!email || !pass) return showMsg('Заполните все поля', 'error');
-  showMsg('Входим...', 'success');
-  const data = await sbAuth('token?grant_type=password', { email, password: pass });
-  if (data.error) return showMsg(data.error_description || 'Ошибка входа', 'error');
-  await loginSuccess(data);
-}
-
-async function doRegister() {
-  const username = document.getElementById('reg-username').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const pass = document.getElementById('reg-pass').value;
-  if (username.length < 3) return showMsg('Имя минимум 3 символа', 'error');
-  if (!email || pass.length < 6) return showMsg('Заполните все поля (пароль мин. 6 символов)', 'error');
-
-  showMsg('Отправляем код...', 'success');
-
-  // Регистрация через signup — Supabase шлёт письмо с {{ .Token }} (6 цифр)
-  // Требует: Authentication > Settings > "Email OTP" = включён
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password: pass, data: { username } })
-  });
-  const data = await res.json();
-
-  if (data.error) return showMsg(data.error_description || data.error || 'Ошибка регистрации', 'error');
-
-  // Если email confirmations выключены — сразу входим
-  if (data.access_token) {
-    pendingRegUsername = username;
-    await loginSuccess(data);
-    return;
-  }
-
-  pendingRegEmail = email;
-  pendingRegUsername = username;
-  pendingRegPass = pass;
-  showOTPScreen(email);
-}
-
-// ══════════════════════════════════════════════════
-// OTP SCREEN
-// ══════════════════════════════════════════════════
-function showOTPScreen(email) {
-  document.getElementById('auth-screen').style.display = 'none';
-  const screen = document.getElementById('otp-screen');
-  screen.classList.add('show');
-  document.getElementById('otp-email-display').textContent = email;
-  document.getElementById('otp-msg').innerHTML = '';
-
-  // Setup OTP inputs
-  setupOTPInputs();
-
-  // Start resend countdown (60 sec)
-  startResendCountdown(60);
-}
-
-function setupOTPInputs() {
-  const inputs = document.querySelectorAll('#otp-inputs input');
-  inputs.forEach((inp, idx) => {
-    inp.value = '';
-    inp.classList.remove('filled');
-
-    inp.addEventListener('input', (e) => {
-      // Allow only digits
-      inp.value = inp.value.replace(/\D/g, '').slice(-1);
-      if (inp.value) {
-        inp.classList.add('filled');
-        if (idx < inputs.length - 1) inputs[idx + 1].focus();
-      } else {
-        inp.classList.remove('filled');
-      }
-      checkOTPComplete();
-    });
-
-    inp.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !inp.value && idx > 0) {
-        inputs[idx - 1].focus();
-        inputs[idx - 1].value = '';
-        inputs[idx - 1].classList.remove('filled');
-        checkOTPComplete();
-      }
-    });
-
-    inp.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
-      if (!paste) return;
-      paste.split('').slice(0, 8).forEach((ch, i) => {
-        if (inputs[i]) {
-          inputs[i].value = ch;
-          inputs[i].classList.add('filled');
-        }
-      });
-      const last = Math.min(paste.length, 8) - 1;
-      if (inputs[last]) inputs[last].focus();
-      checkOTPComplete();
-    });
-  });
-
-  // Focus first input
-  setTimeout(() => inputs[0].focus(), 100);
-}
-
-function checkOTPComplete() {
-  const inputs = document.querySelectorAll('#otp-inputs input');
-  const code = Array.from(inputs).map(i => i.value).join('');
-  document.getElementById('otp-submit-btn').disabled = code.length < 8;
-}
-
-function getOTPCode() {
-  return Array.from(document.querySelectorAll('#otp-inputs input')).map(i => i.value).join('');
-}
-
-async function verifyOTP() {
-  const code = getOTPCode();
-  if (code.length < 8) return;
-
-  const btn = document.getElementById('otp-submit-btn');
-  btn.disabled = true;
-  btn.textContent = 'Проверяем...';
-
-  // Шаг 2: верифицируем 6-значный OTP
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'signup',   // тип для email OTP при регистрации
-      email: pendingRegEmail,
-      token: code
-    })
-  });
-  const data = await res.json();
-
-  btn.textContent = 'Подтвердить';
-  btn.disabled = false;
-
-  if (data.error || !data.access_token) {
-    const msgEl = document.getElementById('otp-msg');
-    msgEl.innerHTML = '<p class="error-msg">Неверный код. Проверь почту и попробуй снова.</p>';
-    const inputsWrap = document.getElementById('otp-inputs');
-    inputsWrap.style.animation = 'none';
-    inputsWrap.offsetHeight;
-    inputsWrap.style.animation = 'shake .3s ease';
-    return;
-  }
-
-  // Шаг 3: устанавливаем пароль для аккаунта (теперь есть access_token)
-  if (pendingRegPass) {
-    await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      method: 'PUT',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${data.access_token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ password: pendingRegPass })
-    });
-  }
-
-  clearInterval(otpCountdownTimer);
-  document.getElementById('otp-screen').classList.remove('show');
-  await loginSuccess(data);
-}
-
-async function resendOTP() {
-  const btn = document.getElementById('otp-resend-btn');
-  btn.disabled = true;
-
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/resend`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'signup', email: pendingRegEmail })
-  });
-  const data = await res.json();
-
-  if (data.error) {
-    document.getElementById('otp-msg').innerHTML = '<p class="error-msg">Ошибка отправки. Попробуй позже.</p>';
-    btn.disabled = false;
-    return;
-  }
-
-  document.getElementById('otp-msg').innerHTML = '<p class="success-msg">Новый код отправлен!</p>';
-  document.querySelectorAll('#otp-inputs input').forEach(i => { i.value = ''; i.classList.remove('filled'); });
-  document.querySelectorAll('#otp-inputs input')[0].focus();
-  document.getElementById('otp-submit-btn').disabled = true;
-  startResendCountdown(60);
-}
-
-function startResendCountdown(seconds) {
-  clearInterval(otpCountdownTimer);
-  const resendBtn = document.getElementById('otp-resend-btn');
-  const countdown = document.getElementById('otp-countdown');
-  resendBtn.disabled = true;
-  let left = seconds;
-
-  function tick() {
-    countdown.textContent = `Повторная отправка через ${left} сек.`;
-    if (left <= 0) {
-      clearInterval(otpCountdownTimer);
-      countdown.textContent = '';
-      resendBtn.disabled = false;
+cat >> /home/claude/kiwigo.html << 'KIWIGO_EOF'
+
+<script>
+/* -------------------------------------------------------------------------
+   МОДУЛЬ: ElevationModule — высотный профиль и анализ сегментов.
+   Реальных данных SRTM нет (мок согласно ТЗ), поэтому высота генерируется
+   шумом Перлина, привязанным к пройденной дистанции маршрута — это даёт
+   правдоподобный, гладкий, но не повторяющийся рельеф для каждого маршрута.
+   Также реализует автоматическое определение сегментов: подъёмы, спуски,
+   спринты (по производной высоты и по скорости).
+------------------------------------------------------------------------- */
+const ElevationModule = {
+  // Сгенерировать профиль высоты: возвращает массив точек {distM, eleM, gradePct}
+  generateProfile(latlngs, totalDistM){
+    const N = Math.max(20, Math.min(200, Math.round(totalDistM/50)));
+    const seed = Math.round(latlngs[0][0]*1000 + latlngs[0][1]*1000);
+    const baseNoise = Utils.perlin1D(N, seed);
+    const fineNoise = Utils.perlin1D(N, seed+999);
+    const baseElevation = 20 + Math.abs(seed % 60); // "база" высоты местности
+    const profile = [];
+    for(let i=0;i<N;i++){
+      const distM = (i/(N-1)) * totalDistM;
+      // Крупный рельеф (холмы) + мелкий "шум дороги", амплитуды подобраны,
+      // чтобы получались реалистичные для городской вело-поездки уклоны.
+      const ele = baseElevation + baseNoise[i]*38 + fineNoise[i]*6;
+      profile.push({ distM, eleM: Math.max(0, ele) });
     }
-    left--;
-  }
-  tick();
-  otpCountdownTimer = setInterval(tick, 1000);
-}
-
-function backToAuth() {
-  clearInterval(otpCountdownTimer);
-  document.getElementById('otp-screen').classList.remove('show');
-  document.getElementById('auth-screen').style.display = 'flex';
-  switchTab('register');
-  document.getElementById('auth-msg').innerHTML = '';
-}
-
-// ══════════════════════════════════════════════════
-// LOGIN SUCCESS
-// ══════════════════════════════════════════════════
-async function loginSuccess(data) {
-  const token = data.access_token;
-  const uid = data.user?.id;
-  currentUser = { id: uid, token, email: data.user?.email };
-
-  let profile = await sbFetch(`/profiles?id=eq.${uid}&select=*`);
-  if (!profile || !profile[0]) {
-    const username = pendingRegUsername || data.user?.user_metadata?.username || data.user?.email?.split('@')[0];
-    await sbFetch('/profiles', {
-      method: 'POST',
-      headers: { 'Prefer': 'return=representation' },
-      body: JSON.stringify({ id: uid, email: data.user?.email, username })
-    });
-    profile = [{ id: uid, email: data.user?.email, username, role: 'user' }];
-  }
-  currentUser = { ...currentUser, ...profile[0] };
-  localStorage.setItem('kiwi_session', JSON.stringify({ token, uid }));
-  pendingRegEmail = '';
-  pendingRegUsername = '';
-  pendingRegPass = '';
-  await initApp();
-}
-
-async function restoreSession() {
-  const s = localStorage.getItem('kiwi_session');
-  if (!s) return false;
-  const { token, uid } = JSON.parse(s);
-  currentUser = { id: uid, token };
-  const profile = await sbFetch(`/profiles?id=eq.${uid}&select=*`);
-  if (!profile || !profile[0]) { localStorage.removeItem('kiwi_session'); return false; }
-  currentUser = { ...currentUser, ...profile[0] };
-  return true;
-}
-
-function doLogout() {
-  localStorage.removeItem('kiwi_session');
-  currentUser = null;
-  likedIds.clear();
-  audio.pause();
-  isPlaying = false;
-  document.getElementById('app').classList.remove('show');
-  document.getElementById('auth-screen').style.display = 'flex';
-  document.getElementById('mini-player').classList.remove('show');
-  document.getElementById('bottom-nav').classList.add('hidden');
-}
-
-function showMsg(msg, type) {
-  const el = document.getElementById('auth-msg');
-  el.innerHTML = `<p class="${type}-msg">${msg}</p>`;
-}
-
-// ══════════════════════════════════════════════════
-// JAMENDO API
-// ══════════════════════════════════════════════════
-async function jFetch(path, params = {}) {
-  const p = new URLSearchParams({ client_id: JAMENDO_ID, format: 'json', ...params });
-  const res = await fetch(`${JAMENDO}${path}?${p}`);
-  return res.json();
-}
-
-function normTrack(r) {
-  return {
-    id: r.id, name: r.name,
-    artist: r.artist_name, artistId: r.artist_id,
-    album: r.album_name || '',
-    duration: r.duration || 0,
-    url: r.audio,
-    img: r.image || 'https://picsum.photos/300/300?random=' + r.id,
-    genre: r.musicinfo?.tags?.genres?.[0] || '',
-    plays: r.listens || 0
-  };
-}
-
-async function loadPopular() {
-  const d = await jFetch('/tracks', { limit: '10', order: 'popularity_week', audioformat: 'mp32', include: 'musicinfo' });
-  return (d.results || []).map(normTrack);
-}
-
-async function loadKiwiFlow() {
-  const genres = ['pop', 'electronic', 'rock', 'chill', 'jazz'];
-  const g = genres[Math.floor(Math.random() * genres.length)];
-  const d = await jFetch('/tracks', { limit: '20', tags: g, order: 'popularity_week', audioformat: 'mp32' });
-  return (d.results || []).map(normTrack).sort(() => Math.random() - 0.5);
-}
-
-async function loadNewReleases() {
-  const to = new Date().toISOString().split('T')[0];
-  const from = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
-  const d = await jFetch('/tracks', { limit: '10', order: 'releasedate_desc', audioformat: 'mp32', datebetween: `${from}_${to}` });
-  return (d.results || []).map(normTrack);
-}
-
-async function searchTracks(q) {
-  const d = await jFetch('/tracks', { limit: '20', search: q, audioformat: 'mp32', include: 'musicinfo', order: 'relevance' });
-  return (d.results || []).map(normTrack);
-}
-
-async function loadByGenre(genre) {
-  const d = await jFetch('/tracks', { limit: '5', tags: genre, order: 'popularity_week', audioformat: 'mp32' });
-  return (d.results || []).map(normTrack);
-}
-
-// ══════════════════════════════════════════════════
-// INIT APP
-// ══════════════════════════════════════════════════
-async function initApp() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('otp-screen').classList.remove('show');
-  document.getElementById('app').classList.add('show');
-  document.getElementById('bottom-nav').classList.remove('hidden');
-
-  const name = currentUser?.username || 'Пользователь';
-  document.getElementById('greeting').textContent = `Привет, ${name} 👋`;
-  document.getElementById('user-avatar-btn').textContent = name[0].toUpperCase();
-  document.getElementById('profile-avatar-display').textContent = name[0].toUpperCase();
-  document.getElementById('profile-name-display').textContent = name;
-  document.getElementById('profile-email-display').textContent = currentUser?.email || '';
-
-  await loadLiked();
-  loadHomeData();
-  renderHistory();
-  restorePlayer();
-}
-
-async function loadHomeData() {
-  const pop = await loadPopular();
-  tracks = pop;
-  renderPopular(pop);
-
-  const kf = await loadKiwiFlow();
-  document.getElementById('kf-count').textContent = `${kf.length} треков · специально для тебя`;
-  window._kiwiFlow = kf;
-
-  const nr = await loadNewReleases();
-  renderNewReleases(nr);
-}
-
-function renderPopular(list) {
-  const el = document.getElementById('popular-list');
-  el.innerHTML = list.map((t, i) => trackRowHTML(t, i + 1)).join('');
-}
-
-function renderNewReleases(list) {
-  const el = document.getElementById('new-releases');
-  el.innerHTML = list.map(t => `
-    <div class="album-card" onclick='playTrackFromList("${t.id}",${JSON.stringify(list).replace(/'/g,"\\'")})'>
-      <img src="${t.img}" alt="${t.name}" loading="lazy" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'"/>
-      <div class="name">${t.name}</div>
-      <div class="artist">${t.artist}</div>
-    </div>
-  `).join('');
-}
-
-function trackRowHTML(t, idx) {
-  const active = queue[queueIdx]?.id === t.id;
-  const tStr = JSON.stringify(t).replace(/"/g, '&quot;');
-  return `
-    <div class="track-row ${active ? 'active' : ''}" id="row-${t.id}" onclick="playTrackObj(JSON.parse(this.dataset.track))" data-track="${tStr}">
-      <div class="track-num">${active && isPlaying ? '<div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>' : idx}</div>
-      <img class="track-img" src="${t.img}" alt="" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'" loading="lazy"/>
-      <div class="track-info">
-        <div class="track-name">${t.name}</div>
-        <div class="track-artist">${t.artist}</div>
-      </div>
-      <div class="track-dur">${fmtTime(t.duration)}</div>
-    </div>
-  `;
-}
-
-// ══════════════════════════════════════════════════
-// PLAYER
-// ══════════════════════════════════════════════════
-function playTrackObj(t) {
-  const idx = queue.findIndex(x => x.id === t.id);
-  if (idx >= 0) queueIdx = idx;
-  else { queue = [t]; queueIdx = 0; }
-  startPlay();
-}
-
-function playTrackFromList(id, list) {
-  queue = list;
-  queueIdx = list.findIndex(t => t.id === id);
-  if (queueIdx < 0) queueIdx = 0;
-  startPlay();
-}
-
-function playKiwiFlow() {
-  const kf = window._kiwiFlow || tracks;
-  if (!kf.length) return;
-  queue = kf;
-  queueIdx = 0;
-  startPlay();
-}
-
-function startEvent(genre) {
-  loadByGenre(genre).then(list => {
-    if (!list.length) return;
-    queue = list;
-    queueIdx = 0;
-    startPlay();
-    showToast('🎵 Задание начато!');
-  });
-}
-
-function startPlay() {
-  const t = queue[queueIdx];
-  if (!t) return;
-  audio.src = t.url;
-  audio.play().then(() => {
-    isPlaying = true;
-    updatePlayerUI();
-    savePlayerState();
-    listenCount++;
-    document.getElementById('stat-listens').textContent = listenCount;
-  }).catch(e => {
-    console.error('Play error:', e);
-    showToast('Ошибка воспроизведения');
-  });
-}
-
-function togglePlay() {
-  if (!queue.length) return;
-  if (isPlaying) { audio.pause(); isPlaying = false; }
-  else { audio.play(); isPlaying = true; }
-  updatePlayerUI();
-}
-
-function nextTrack() {
-  if (!queue.length) return;
-  if (repeatMode === 'one') { audio.currentTime = 0; audio.play(); return; }
-  let next = isShuffle ? Math.floor(Math.random() * queue.length) : queueIdx + 1;
-  if (next >= queue.length) {
-    if (repeatMode === 'all') next = 0;
-    else { isPlaying = false; updatePlayerUI(); return; }
-  }
-  queueIdx = next;
-  startPlay();
-}
-
-function prevTrack() {
-  if (audio.currentTime > 3) { audio.currentTime = 0; return; }
-  queueIdx = Math.max(0, queueIdx - 1);
-  startPlay();
-}
-
-function toggleShuffle() {
-  isShuffle = !isShuffle;
-  document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
-}
-
-function toggleRepeat() {
-  repeatMode = repeatMode === 'none' ? 'all' : repeatMode === 'all' ? 'one' : 'none';
-  const btn = document.getElementById('repeat-btn');
-  btn.classList.toggle('active', repeatMode !== 'none');
-  btn.textContent = repeatMode === 'one' ? '↺¹' : '↻';
-}
-
-function seekTo(e) {
-  const rect = e.currentTarget.getBoundingClientRect();
-  const pct = (e.clientX - rect.left) / rect.width;
-  audio.currentTime = pct * audio.duration;
-}
-
-function updatePlayerUI() {
-  const t = queue[queueIdx];
-  if (!t) return;
-  document.getElementById('mini-player').classList.add('show');
-  document.getElementById('mini-img').src = t.img;
-  document.getElementById('mini-name').textContent = t.name;
-  document.getElementById('mini-artist').textContent = t.artist;
-  document.getElementById('mini-play').innerHTML = isPlaying ? '⏸' : '▶';
-  document.getElementById('fp-img').src = t.img;
-  document.getElementById('fp-name').textContent = t.name;
-  document.getElementById('fp-artist').textContent = t.artist;
-  document.getElementById('fp-play').innerHTML = isPlaying ? '⏸' : '▶';
-  const liked = likedIds.has(t.id);
-  document.getElementById('mini-like').textContent = liked ? '♥' : '♡';
-  document.getElementById('mini-like').className = 'mini-btn like-btn' + (liked ? ' liked' : '');
-  document.getElementById('fp-like').textContent = liked ? '♥' : '♡';
-  document.getElementById('fp-like').className = 'like-btn' + (liked ? ' liked' : '');
-  document.querySelectorAll('.track-row').forEach(r => r.classList.remove('active'));
-  document.getElementById('row-' + t.id)?.classList.add('active');
-}
-
-audio.addEventListener('timeupdate', () => {
-  const pct = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
-  document.getElementById('mini-prog').style.width = pct + '%';
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('time-cur').textContent = fmtTime(audio.currentTime);
-  document.getElementById('time-dur').textContent = fmtTime(audio.duration || 0);
-});
-
-audio.addEventListener('ended', nextTrack);
-
-function openFullPlayer() { document.getElementById('full-player').classList.add('show'); }
-function closeFullPlayer() { document.getElementById('full-player').classList.remove('show'); }
-
-function savePlayerState() {
-  const t = queue[queueIdx];
-  if (t) localStorage.setItem('kiwi_player', JSON.stringify({ track: t, time: audio.currentTime }));
-}
-
-function restorePlayer() {
-  const s = localStorage.getItem('kiwi_player');
-  if (!s) return;
-  const { track, time } = JSON.parse(s);
-  queue = [track]; queueIdx = 0;
-  audio.src = track.url;
-  audio.currentTime = time || 0;
-  isPlaying = false;
-  updatePlayerUI();
-  document.getElementById('mini-player').classList.add('show');
-}
-
-// ══════════════════════════════════════════════════
-// LIKES
-// ══════════════════════════════════════════════════
-async function loadLiked() {
-  if (!currentUser) return;
-  const data = await sbFetch(`/liked_tracks?user_id=eq.${currentUser.id}&select=track_id`);
-  likedIds = new Set((data || []).map(r => r.track_id));
-  document.getElementById('likes-count').textContent = likedIds.size;
-  document.getElementById('stat-likes').textContent = likedIds.size;
-  renderLikedTracks();
-}
-
-async function renderLikedTracks() {
-  const data = await sbFetch(`/liked_tracks?user_id=eq.${currentUser.id}&select=*&order=liked_at.desc&limit=20`);
-  const list = document.getElementById('liked-list');
-  if (!data || !data.length) {
-    list.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:24px;font-size:14px">Нет понравившихся треков</p>';
-    return;
-  }
-  list.innerHTML = data.map(r => `
-    <div class="liked-track" onclick="playLikedTrack('${r.track_id}','${r.audio_url || ''}','${r.image_url || ''}','${(r.track_name || '').replace(/'/g, "\\'")}','${(r.artist_name || '').replace(/'/g, "\\'")}')">
-      <img class="liked-img" src="${r.image_url || 'https://picsum.photos/300/300'}" alt="" onerror="this.style.background='#333'"/>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.track_name || 'Трек'}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.4)">${r.artist_name || ''}</div>
-      </div>
-      <span style="color:#F43F5E">♥</span>
-    </div>
-  `).join('');
-}
-
-function playLikedTrack(id, url, img, name, artist) {
-  const t = { id, url, img, name, artist, duration: 0 };
-  queue = [t]; queueIdx = 0;
-  startPlay();
-}
-
-async function toggleLike() {
-  const t = queue[queueIdx];
-  if (!t || !currentUser) return;
-  if (likedIds.has(t.id)) {
-    likedIds.delete(t.id);
-    await sbFetch(`/liked_tracks?user_id=eq.${currentUser.id}&track_id=eq.${t.id}`, { method: 'DELETE' });
-    showToast('Убрано из понравившихся');
-  } else {
-    likedIds.add(t.id);
-    await sbFetch('/liked_tracks', {
-      method: 'POST',
-      body: JSON.stringify({
-        user_id: currentUser.id, track_id: t.id,
-        track_name: t.name, artist_name: t.artist,
-        image_url: t.img, audio_url: t.url,
-        liked_at: new Date().toISOString()
-      })
-    });
-    showToast('❤️ Добавлено в понравившиеся');
-  }
-  document.getElementById('likes-count').textContent = likedIds.size;
-  document.getElementById('stat-likes').textContent = likedIds.size;
-  updatePlayerUI();
-  renderLikedTracks();
-}
-
-// ══════════════════════════════════════════════════
-// SEARCH
-// ══════════════════════════════════════════════════
-let searchTimer = null;
-function onSearch(val) {
-  clearTimeout(searchTimer);
-  if (!val.trim()) {
-    document.getElementById('search-empty').style.display = 'block';
-    document.getElementById('search-results').classList.add('hidden');
-    document.getElementById('search-loading').classList.add('hidden');
-    return;
-  }
-  document.getElementById('search-empty').style.display = 'none';
-  document.getElementById('search-loading').classList.remove('hidden');
-  document.getElementById('search-results').classList.add('hidden');
-  searchTimer = setTimeout(async () => {
-    const results = await searchTracks(val);
-    document.getElementById('search-loading').classList.add('hidden');
-    const el = document.getElementById('search-results');
-    el.classList.remove('hidden');
-    if (!results.length) {
-      el.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3)"><div style="font-size:48px;margin-bottom:8px">🔍</div><p>Ничего не найдено</p></div>';
-      return;
+    // Уклон между соседними точками, %
+    for(let i=0;i<profile.length;i++){
+      if(i===0){ profile[i].gradePct = 0; continue; }
+      const dEle = profile[i].eleM - profile[i-1].eleM;
+      const dDist = Math.max(1, profile[i].distM - profile[i-1].distM);
+      profile[i].gradePct = (dEle/dDist)*100;
     }
-    el.innerHTML = results.map(t => {
-      const tStr = JSON.stringify(t).replace(/"/g, '&quot;');
-      const listStr = JSON.stringify(results).replace(/"/g, '&quot;');
-      return `
-        <div class="search-result" onclick="playSearchResult(JSON.parse(this.dataset.track),JSON.parse(this.dataset.list))" data-track="${tStr}" data-list="${listStr}">
-          <img class="result-img" src="${t.img}" alt="" onerror="this.src='https://picsum.photos/300/300?random=${t.id}'" loading="lazy"/>
-          <div class="result-info">
-            <div class="result-name">${t.name}</div>
-            <div class="result-artist">${t.artist}</div>
-            <div class="result-album">${t.album}</div>
-          </div>
-          <span style="color:rgba(255,255,255,0.2);font-size:12px">${fmtTime(t.duration)}</span>
-        </div>
-      `;
-    }).join('');
-    if (!searchHistory.includes(val)) {
-      searchHistory = [val, ...searchHistory].slice(0, 8);
-      localStorage.setItem('kiwi_history', JSON.stringify(searchHistory));
-      renderHistory();
+    return profile;
+  },
+
+  totalElevationGain(profile){
+    let gain = 0;
+    for(let i=1;i<profile.length;i++){ const d = profile[i].eleM-profile[i-1].eleM; if(d>0) gain += d; }
+    return Math.round(gain);
+  },
+
+  // Найти максимальный уклон на маршруте (для предупреждения о крутых подъёмах)
+  maxGrade(profile){
+    return profile.reduce((m,p)=>Math.max(m,p.gradePct), 0);
+  },
+
+  /* Автоматическое определение сегментов маршрута: подъём / спуск / спринт.
+     Подъём: gradePct > 3% на протяжении >150м. Спуск: gradePct < -3%.
+     Спринт определяется не по высоте, а по скорости (см. StatsModule). */
+  detectClimbsDescents(profile){
+    const segments = [];
+    let cur = null;
+    profile.forEach((p,i)=>{
+      const type = p.gradePct > 3 ? 'climb' : (p.gradePct < -3 ? 'descent' : null);
+      if(type){
+        if(cur && cur.type===type){ cur.endDistM = p.distM; cur.endEleM = p.eleM; }
+        else { if(cur) segments.push(cur); cur = {type, startDistM: profile[Math.max(0,i-1)].distM, endDistM:p.distM, startEleM:profile[Math.max(0,i-1)].eleM, endEleM:p.eleM}; }
+      } else if(cur){ segments.push(cur); cur=null; }
+    });
+    if(cur) segments.push(cur);
+    return segments.filter(s => (s.endDistM-s.startDistM) > 120)
+      .map(s=>({...s, lengthM: Math.round(s.endDistM-s.startDistM), eleChangeM: Math.round(s.endEleM-s.startEleM)}));
+  },
+
+  /* Отрисовка профиля высоты на Canvas с градиентной заливкой
+     зелёный (равнина) -> красный (крутой подъём), согласно ТЗ. */
+  drawProfileCanvas(canvas, profile, progressRatio){
+    if(!canvas || !profile || !profile.length) return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.clientWidth || 300, h = canvas.clientHeight || 120;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+    ctx.clearRect(0,0,w,h);
+
+    const minE = Math.min(...profile.map(p=>p.eleM)), maxE = Math.max(...profile.map(p=>p.eleM));
+    const range = Math.max(1, maxE-minE);
+    const maxD = profile[profile.length-1].distM || 1;
+
+    const pts = profile.map(p=>({
+      x: (p.distM/maxD) * w,
+      y: h - 8 - ((p.eleM-minE)/range) * (h-20),
+      grade: p.gradePct
+    }));
+
+    // Заливка под кривой, цвет каждого мини-сегмента зависит от уклона
+    for(let i=1;i<pts.length;i++){
+      const grade = Utils.clamp(pts[i].grade, -10, 10);
+      const t = (grade+10)/20; // 0=спуск(зелёный), 1=подъём(красный)
+      const r = Math.round(Utils.lerp(0,255,t)), g = Math.round(Utils.lerp(255,20,t));
+      ctx.fillStyle = `rgba(${r},${g},65,0.35)`;
+      ctx.strokeStyle = `rgba(${r},${g},65,0.95)`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pts[i-1].x, h); ctx.lineTo(pts[i-1].x,pts[i-1].y); ctx.lineTo(pts[i].x,pts[i].y); ctx.lineTo(pts[i].x,h);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(pts[i-1].x,pts[i-1].y); ctx.lineTo(pts[i].x,pts[i].y); ctx.stroke();
     }
-  }, 400);
-}
 
-function playSearchResult(t, list) {
-  queue = list; queueIdx = list.findIndex(x => x.id === t.id);
-  if (queueIdx < 0) { queue = [t]; queueIdx = 0; }
-  startPlay();
-}
+    // Маркер текущего прогресса по маршруту
+    if(typeof progressRatio === 'number'){
+      const px = Utils.clamp(progressRatio,0,1) * w;
+      ctx.strokeStyle = '#00FF41'; ctx.lineWidth = 2; ctx.shadowColor='#00FF41'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,h); ctx.stroke();
+      ctx.shadowBlur=0;
+    }
+  }
+};
 
-function setSearch(val) {
-  document.getElementById('search-input').value = val;
-  onSearch(val);
-}
+/* -------------------------------------------------------------------------
+   МОДУЛЬ: StatsModule — расчётная система уровня Strava.
+   Калории (формула MET с учётом веса/возраста/пульса/рельефа), мощность
+   (Вт, оценка по скорости и уклону), темп, обнаружение спринтов по скорости,
+   а также подготовка данных для графиков Chart.js.
+------------------------------------------------------------------------- */
+const StatsModule = {
+  charts: {},
 
-function clearSearch() {
-  document.getElementById('search-input').value = '';
-  onSearch('');
-}
+  /* MET (Metabolic Equivalent of Task) — стандартная методика оценки
+     энергозатрат. Базовое MET для езды на велосипеде зависит от скорости,
+     дополнительно корректируется уклоном (подъём расходует больше энергии)
+     и используется формула: ккал/мин = MET * 3.5 * вес(кг) / 200 */
+  metForSpeed(speedKmh, gradePct){
+    let met;
+    if(speedKmh < 16) met = 4.0;
+    else if(speedKmh < 19) met = 6.8;
+    else if(speedKmh < 22) met = 8.0;
+    else if(speedKmh < 26) met = 10.0;
+    else if(speedKmh < 30) met = 12.0;
+    else met = 15.8;
+    // Поправка на уклон: +0.3 MET за каждый % положительного уклона
+    if(gradePct > 0) met += gradePct * 0.3;
+    return Math.max(2.5, met);
+  },
+  caloriesForInterval(speedKmh, gradePct, dtSec, weightKg){
+    const met = this.metForSpeed(speedKmh, gradePct);
+    const kcalPerMin = met * 3.5 * weightKg / 200;
+    return kcalPerMin * (dtSec/60);
+  },
 
-function renderHistory() {
-  const el = document.getElementById('history-tags');
-  const label = document.getElementById('history-label');
-  if (!searchHistory.length) { label.style.display = 'none'; el.innerHTML = ''; return; }
-  label.style.display = 'block';
-  el.innerHTML = searchHistory.map(h => `<span class="tag history" onclick="setSearch('${h}')">${h}</span>`).join('');
-}
+  /* Оценка мощности (Вт) — упрощённая физическая модель: мощность на
+     преодоление сопротивления качению + аэродинамики + подъём в гору.
+     P = (Crr*m*g + 0.5*Cd*A*rho*v^2 + m*g*sin(slope)) * v   */
+  estimatePowerW(speedKmh, gradePct, weightKg){
+    const v = speedKmh/3.6; // м/с
+    if(v <= 0) return 0;
+    const m = weightKg + 12; // + масса велосипеда
+    const g = 9.81;
+    const Crr = 0.005, Cd_A = 0.36, rho = 1.225;
+    const slope = Math.atan((gradePct||0)/100);
+    const Froll = Crr*m*g*Math.cos(slope);
+    const Faero = 0.5*Cd_A*rho*v*v;
+    const Fgrav = m*g*Math.sin(slope);
+    const Ftotal = Math.max(0, Froll+Faero+Fgrav);
+    return Ftotal*v;
+  },
 
-// ══════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════
-function switchPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.getElementById('nav-' + page).classList.add('active');
-}
+  // Темп в секундах на километр
+  paceSecPerKm(speedKmh){
+    if(speedKmh<=0) return Infinity;
+    return 3600/speedKmh;
+  },
 
-function switchEventTab(tab, btn) {
-  document.querySelectorAll('.event-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('events-tasks').classList.toggle('hidden', tab !== 'tasks');
-  document.getElementById('events-collection').classList.toggle('hidden', tab !== 'collection');
-}
+  /* Обнаружение спринтов: участок трека, где скорость превышает
+     среднюю скорость поездки более чем на 35%, длительностью от 8 секунд. */
+  detectSprints(speedHistory){
+    if(speedHistory.length < 5) return [];
+    const avg = speedHistory.reduce((s,p)=>s+p.speed,0)/speedHistory.length;
+    const threshold = avg*1.35;
+    const sprints = []; let cur=null;
+    speedHistory.forEach((p,i)=>{
+      if(p.speed > threshold){
+        if(!cur) cur = {startT:p.t, endT:p.t, maxSpeed:p.speed};
+        else { cur.endT = p.t; cur.maxSpeed = Math.max(cur.maxSpeed,p.speed); }
+      } else if(cur){ if(cur.endT-cur.startT >= 8000) sprints.push(cur); cur=null; }
+    });
+    if(cur && cur.endT-cur.startT>=8000) sprints.push(cur);
+    return sprints;
+  },
 
-// ══════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════
-function fmtTime(s) {
-  s = Math.floor(s || 0);
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
+  /* Рекомендация перекуса по сожжённым калориям — простой мок-словарь
+     с порогами; в реальном приложении заменился бы на API питания. */
+  snackRecommendation(caloriesKcal){
+    if(caloriesKcal < 150) return {icon:'🍌', text:'Банан или горсть орехов восполнят энергию для короткой поездки.'};
+    if(caloriesKcal < 400) return {icon:'🥪', text:'Сэндвич с цельнозерновым хлебом и изотоник — оптимально для восстановления.'};
+    if(caloriesKcal < 700) return {icon:'🍝', text:'Порция пасты или риса с белком поможет восполнить запасы гликогена.'};
+    return {icon:'🍲', text:'Полноценный приём пищи с углеводами и белком 3:1 — у вас была серьёзная нагрузка!'};
+  },
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
+  // Инициализация трёх графиков Chart.js (скорость, высота, сравнение)
+  initCharts(){
+    const darkGrid = {color:'rgba(255,255,255,0.05)'};
+    const tickColor = '#7FA98B';
+    const common = {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#111', borderColor:'#00FF41', borderWidth:1, titleColor:'#00FF41', bodyColor:'#E8FFEA'} },
+      scales:{ x:{grid:darkGrid, ticks:{color:tickColor, font:{size:9}}}, y:{grid:darkGrid, ticks:{color:tickColor, font:{size:9}}} }
+    };
+    this.charts.speed = new Chart(document.getElementById('chart-speed'), {
+      type:'line',
+      data:{ labels:[], datasets:[{ data:[], borderColor:'#00FF41', backgroundColor:'rgba(0,255,65,0.12)', fill:true, tension:0.35, pointRadius:0, borderWidth:2 }]},
+      options: common
+    });
+    this.charts.elev = new Chart(document.getElementById('chart-elev'), {
+      type:'line',
+      data:{ labels:[], datasets:[{ data:[], borderColor:'#FF8A00', backgroundColor:'rgba(255,138,0,0.12)', fill:true, tension:0.4, pointRadius:0, borderWidth:2 }]},
+      options: common
+    });
+    this.charts.compare = new Chart(document.getElementById('chart-compare'), {
+      type:'bar',
+      data:{ labels:['3 поездки назад','2 поездки назад','Прошлая','Текущая'],
+        datasets:[{ data:[0,0,0,0], backgroundColor:['#2a2a2a','#2a2a2a','#2a2a2a','#00FF41'], borderRadius:6, borderSkipped:false }]},
+      options: { ...common, plugins:{...common.plugins} }
+    });
+  },
 
-// ══════════════════════════════════════════════════
-// BOOT
-// ══════════════════════════════════════════════════
-(async function boot() {
-  const restored = await restoreSession();
-  if (restored) await initApp();
-})();
+  updateSpeedChart(speedHistory){
+    if(!this.charts.speed) return;
+    const sliced = speedHistory.slice(-120);
+    this.charts.speed.data.labels = sliced.map(p=>'');
+    this.charts.speed.data.datasets[0].data = sliced.map(p=>p.speed.toFixed(1));
+    this.charts.speed.update('none');
+  },
+  updateElevChart(profile){
+    if(!this.charts.elev) return;
+    this.charts.elev.data.labels = profile.map(p=>(p.distM/1000).toFixed(1));
+    this.charts.elev.data.datasets[0].data = profile.map(p=>Math.round(p.eleM));
+    this.charts.elev.update('none');
+  },
+  updateCompareChart(currentDistKm){
+    if(!this.charts.compare) return;
+    // Мок-история прошлых поездок (детерминированный псевдослучайный разброс)
+    const mockPast = [ (currentDistKm*0.8)+Math.random()*2, (currentDistKm*1.1)+Math.random()*2, (currentDistKm*0.95)+Math.random()*1.5 ];
+    this.charts.compare.data.datasets[0].data = [...mockPast.map(v=>v.toFixed(1)), currentDistKm.toFixed(1)];
+    this.charts.compare.update('none');
+  }
+};
 </script>
-
-<!-- Shake animation for wrong OTP
+KIWIGO_EOF
+echo done
